@@ -1,0 +1,63 @@
+@import url("../../shared.css");
+
+.env-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.env-card {
+  background: white;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1.5px solid #f5c6dd;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  position: relative;
+}
+
+.env-card:hover {
+  border-color: var(--pink-main);
+  background: #ffe9f3;
+}
+
+.env-card.selected {
+  background: #ffd9eb;
+  border-color: var(--pink-dark);
+}
+
+.env-icon {
+  font-size: 24px;
+}
+
+.env-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.env-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.env-sub {
+  font-size: 14px;
+  color: #777;
+  line-height: 1.25;
+}
+
+/* Checkmark on right when selected */
+.env-card.selected::after {
+  content: "✔";
+  position: absolute;
+  right: 16px;
+  font-size: 18px;
+  color: var(--pink-dark);
+  font-weight: 700;
+}

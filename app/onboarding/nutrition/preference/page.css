@@ -1,0 +1,54 @@
+.nutrition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.nutrition-card {
+  width: 100%;
+  background: white;
+  border: 3px solid #ffc7dd;
+  border-radius: 20px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.nutrition-card:hover {
+  border-color: #ff7eb6;
+  background: #ffe6f3;
+}
+
+.nutrition-card.selected {
+  background: #ff8ac4;
+  border-color: #e6498f;
+  color: white;
+}
+
+.nutri-icon {
+  font-size: 30px;
+}
+
+.nutri-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.nutri-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.nutri-desc {
+  font-size: 14px;
+  color: #666;
+}
+
+.nutrition-card.selected .nutri-desc {
+  color: #fff;
+}

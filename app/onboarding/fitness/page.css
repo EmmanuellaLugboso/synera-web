@@ -1,0 +1,40 @@
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.type-box {
+  background: #ffffff;
+  border: 1px solid #ffd3e6;
+  padding: 18px;
+  border-radius: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 4px 14px rgba(255, 185, 215, 0.15);
+}
+
+.type-box:hover {
+  background: #ffe7f2;
+  border-color: #ff9acb;
+  transform: translateY(-3px);
+}
+
+.type-box:active {
+  background: #ffcce4;
+  border-color: #ff76b7;
+}
+
+.type-icon {
+  display: block;
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.type-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+}

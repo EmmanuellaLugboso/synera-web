@@ -1,0 +1,63 @@
+.supp-section {
+  margin-bottom: 28px;
+}
+
+.supp-category-title {
+  text-align: left;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--pink-dark);
+}
+
+.supp-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.supp-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 2.5px solid #ffc9e1;
+  border-radius: 18px;
+  padding: 14px 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.supp-card:hover {
+  border-color: var(--pink-main);
+  background: #fff0f7;
+}
+
+.supp-card.selected {
+  background: var(--pink-main);
+  border-color: var(--pink-dark);
+  color: white;
+}
+
+.supp-card.selected .supp-desc {
+  color: white;
+}
+
+.supp-icon {
+  font-size: 28px;
+}
+
+.supp-info .supp-label {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.supp-info .supp-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.other-input {
+  margin-top: 12px;
+}

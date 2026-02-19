@@ -1,0 +1,20 @@
+.mcq-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mcq-btn {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid #ffcce5;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.mcq-btn.selected {
+  background: linear-gradient(135deg, #ffb0da, #ff8fc2);
+  color: white;
+}

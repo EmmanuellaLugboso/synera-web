@@ -1,0 +1,41 @@
+@import "../shared.css";
+
+/* Wrapper around the options */
+.mcq-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* Each option button */
+.mcq-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: #fff;
+  border: 2px solid #ffc3dd; /* soft pink border */
+  border-radius: 14px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #444;
+  font-weight: 500;
+  transition: 0.25s ease;
+  text-align: center;
+}
+
+/* Hover effect */
+.mcq-btn:hover {
+  background: #ffe1f0;
+  border-color: #ff91c9;
+  transform: translateY(-2px);
+}
+
+/* When selected */
+.mcq-btn.selected {
+  background: #ff7eb6;
+  border-color: #ff4fa4;
+  color: white;
+  font-weight: 600;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(255, 130, 180, 0.25);
+}

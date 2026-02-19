@@ -1,0 +1,90 @@
+:root {
+  --pink-light: #ffe9f3;
+  --pink-main: #ff7eb6;
+  --pink-dark: #e6498f;
+  --text-dark: #383838;
+  --text-muted: #666;
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.onboard-container {
+  min-height: 100vh;
+  background: var(--pink-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.onboard-card {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  padding: 40px;
+  border-radius: 22px;
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.onboard-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--pink-dark);
+  margin-bottom: 40px;      /* more space under question */
+}
+
+.onboard-subtitle {
+  font-size: 18px;
+  color: var(--text-muted);
+  margin-bottom: 40px;      /* pushes input further down */
+}
+
+
+/* Bigger & premium-style onboarding button */
+.onboard-button {
+  margin-top: 28px;
+  padding: 18px 32px;        /* bigger padding */
+  width: 100%;               /* full width button */
+  max-width: 260px;          /* but not too wide */
+  height: 60px;              /* taller button */
+  background: linear-gradient(135deg, var(--pink-main), var(--pink-dark));
+  color: white;
+  font-size: 20px;           /* bigger text */
+  font-weight: 700;          /* bold + clean */
+  border-radius: 18px;       /* softer rounded edges */
+  border: none;
+  cursor: pointer;
+  transition: 0.25s ease;
+  display: flex;             /* perfectly centre text */
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;        /* centers button */
+  box-shadow: 0 6px 16px rgba(255, 105, 165, 0.35);
+}
+
+.onboard-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(255, 105, 165, 0.45);
+}
+
+.onboard-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+.text-input {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  outline: none;
+  margin-bottom: 18px;
+}
+
+.text-input:focus {
+  border-color: var(--pink-main);
+}

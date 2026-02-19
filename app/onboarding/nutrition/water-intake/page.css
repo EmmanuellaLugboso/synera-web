@@ -1,0 +1,56 @@
+.water-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.water-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: #fff;
+  border: 2px solid #ffd1e6;
+  border-radius: 18px;
+  padding: 16px 20px;
+  text-align: left;
+  gap: 14px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.water-card:hover {
+  border-color: var(--pink-main);
+  background: #fff4fa;
+}
+
+.water-card.selected {
+  background: var(--pink-main);
+  border-color: var(--pink-dark);
+  color: white;
+}
+
+.water-card.selected .water-desc {
+  color: white;
+}
+
+.water-icon {
+  font-size: 26px;
+}
+
+.water-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.water-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.water-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}

@@ -1,0 +1,150 @@
+/* WRAPPER */
+.signup-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffeaf4;
+  padding: 20px;
+}
+
+/* CARD */
+.signup-card {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* TITLES */
+.signup-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #d63384;
+}
+
+.signup-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* FORM */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* INPUTS */
+.signup-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.signup-input:focus {
+  border-color: #d63384;
+}
+
+/* ERROR TEXT */
+.signup-error {
+  color: #ff4d6d;
+  font-size: 14px;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+/* MAIN SIGNUP BUTTON */
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background: #d63384;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.signup-btn:hover {
+  background: #bf2c75;
+}
+
+.signup-btn:disabled {
+  opacity: 0.5;
+}
+
+/* DIVIDER */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 25px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e2e2;
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+/* GOOGLE BUTTON */
+.google-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.google-btn:hover {
+  background: #f7f7f7;
+  border-color: #ccc;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* LOGIN LINK */
+.login-text {
+  font-size: 14px;
+  margin-top: 20px;
+  color: #444;
+}
+
+.login-link {
+  color: #d63384;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}

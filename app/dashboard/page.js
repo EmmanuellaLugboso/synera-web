@@ -1,0 +1,304 @@
+"use client";
+
+import "./dashboard.css";
+import Link from "next/link";
+import { useOnboarding } from "../context/OnboardingContext";
+import Ring from "../components/Ring";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+
+/* ------------------------
+   helpers
+------------------------ */
+function todayISO() {
+  return new Date().toISOString().split("T")[0];
+}
+function clampNumber(value) {
+  const n = Number(value);
+  if (Number.isNaN(n) || n < 0) return 0;
+  return n;
+}
+function pct(val, goal) {
+  const v = clampNumber(val);
+  const g = clampNumber(goal);
+  if (!g) return 0;
+  return Math.max(0, Math.min(100, Math.round((v / g) * 100)));
+}
+function formatK(n) {
+  const num = clampNumber(n);
+  if (num >= 10000) return `${(num / 1000).toFixed(1)}k`;
+  return `${Math.round(num)}`;
+}
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  if (hour < 21) return "Good evening";
+  return "Good night";
+}
+
+export default function Dashboard() {
+  const router = useRouter();
+  const { data, ready, user: authUser } = useOnboarding();
+
+  // force login if desired
+  useEffect(() => {
+    if (ready && !authUser) router.push("/login");
+  }, [ready, authUser, router]);
+
+  const date = todayISO();
+  const greeting = getGreeting();
+  const username = data?.name?.trim() || "Friend";
+
+  /* ------------------------
+     DATA (safe even when !ready)
+  ------------------------ */
+  const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
+
+  const todaysFoodLogs = useMemo(() => {
+    const logs = Array.isArray(data?.foodLogs) ? data.foodLogs : [];
+    return logs.filter((x) => x?.date === date);
+  }, [data?.foodLogs, date]);
+
+  const caloriesToday = useMemo(() => {
+    let sum = 0;
+    for (const entry of todaysFoodLogs) sum += clampNumber(entry?.totals?.calories);
+    return Math.round(sum);
+  }, [todaysFoodLogs]);
+
+  const calRemaining = Math.max(0, calorieGoal - caloriesToday);
+  const calPct = pct(caloriesToday, calorieGoal);
+
+  const stepGoal = clampNumber(data?.stepGoal) || 8000;
+  const stepsToday = useMemo(() => {
+    const log = Array.isArray(data?.stepsLog) ? data.stepsLog : [];
+    const found = log.find((x) => x?.date === date);
+    return clampNumber(found?.steps);
+  }, [data?.stepsLog, date]);
+  const stepsPct = pct(stepsToday, stepGoal);
+
+  const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
+  const waterLitres = clampNumber(data?.waterLitres);
+  const waterPct = pct(waterLitres, waterGoal);
+
+  const sleepMinutes = clampNumber(data?.sleepMinutes); // optional future field
+  const sleepGoalMinutes = clampNumber(data?.sleepGoalMinutes) || 8 * 60;
+  const sleepPct = sleepMinutes ? pct(sleepMinutes, sleepGoalMinutes) : 0;
+  const sleepValue = useMemo(() => {
+    if (!sleepMinutes) return "--";
+    const h = Math.floor(sleepMinutes / 60);
+    const m = sleepMinutes % 60;
+    return `${h}h ${String(m).padStart(2, "0")}m`;
+  }, [sleepMinutes]);
+
+  /* ------------------------
+     “Today plan” (performance tone)
+  ------------------------ */
+  const plan = useMemo(() => {
+    const items = [];
+
+    // keep it short + actionable
+    if (caloriesToday === 0) items.push("Log your first meal (even coffee + milk counts).");
+    if (waterPct < 60) items.push("Drink 500ml now (fastest win).");
+    if (stepsPct < 50) items.push("10-min walk = easy step bump.");
+
+    if (items.length === 0) items.push("You’re on track. Keep it simple and finish strong.");
+
+    return items.slice(0, 3);
+  }, [caloriesToday, waterPct, stepsPct]);
+
+  /* ------------------------
+     RENDER
+  ------------------------ */
+  return (
+    <div className="dash-page">
+      {/* Sticky mini header */}
+      <div className="dash-sticky">
+        <div className="dash-sticky-inner">
+          <div className="dash-sticky-left">
+            <div className="dash-sticky-kicker">Today</div>
+            <div className="dash-sticky-date">{date}</div>
+          </div>
+
+          <div className="dash-sticky-mid">
+            <div className="dash-sticky-metric">
+              <div className="dash-sticky-label">Calories remaining</div>
+              <div className="dash-sticky-value">{formatK(calRemaining)}</div>
+            </div>
+            <div className="dash-sticky-bar">
+              <div className="dash-sticky-barfill" style={{ width: `${calPct}%` }} />
+            </div>
+          </div>
+
+          <div className="dash-sticky-right">
+            <Link className="dash-btn" href="/hubs/nutrition">
+              Log food
+            </Link>
+            <Link className="dash-btn ghost" href="/hubs/fitness">
+              Log workout
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="dash-shell">
+        {/* Top header (bigger, less fluff) */}
+        <div className="dash-header">
+          <div className="dash-brand">
+            <div className="dash-logo" aria-hidden />
+            <div className="dash-brandtext">
+              <div className="dash-brandname">Synera</div>
+              <div className="dash-brandtag">Track • Adjust • Repeat</div>
+            </div>
+          </div>
+
+          <h1 className="dash-title">
+            {greeting}, <span className="accent">{username}</span>
+          </h1>
+
+          {!ready ? (
+            <div className="dash-loading">Loading your data…</div>
+          ) : null}
+        </div>
+
+        {/* Primary KPI row (numbers-first) */}
+        <div className="kpi-grid">
+          <div className="kpi-card primary">
+            <div className="kpi-top">
+              <div className="kpi-label">Calories</div>
+              <div className="kpi-chip">{calPct}%</div>
+            </div>
+
+            <div className="kpi-big">{formatK(caloriesToday)}</div>
+            <div className="kpi-sub">
+              of {formatK(calorieGoal)} • <span className="accent">{formatK(calRemaining)} left</span>
+            </div>
+
+            <div className="kpi-bar">
+              <div className="kpi-barfill" style={{ width: `${calPct}%` }} />
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-top">
+              <div className="kpi-label">Steps</div>
+              <div className="kpi-chip">{stepsPct}%</div>
+            </div>
+            <div className="kpi-big">{formatK(stepsToday)}</div>
+            <div className="kpi-sub">Goal {formatK(stepGoal)}</div>
+            <div className="kpi-bar">
+              <div className="kpi-barfill" style={{ width: `${stepsPct}%` }} />
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-top">
+              <div className="kpi-label">Water</div>
+              <div className="kpi-chip">{waterPct}%</div>
+            </div>
+            <div className="kpi-big">{waterLitres.toFixed(1)}L</div>
+            <div className="kpi-sub">Goal {waterGoal.toFixed(1)}L</div>
+            <div className="kpi-bar">
+              <div className="kpi-barfill blue" style={{ width: `${waterPct}%` }} />
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-top">
+              <div className="kpi-label">Sleep</div>
+              <div className="kpi-chip">{sleepMinutes ? `${sleepPct}%` : "—"}</div>
+            </div>
+            <div className="kpi-big">{sleepValue}</div>
+            <div className="kpi-sub">{sleepMinutes ? `Goal ${Math.round(sleepGoalMinutes / 60)}h` : "Not tracked yet"}</div>
+            <div className="kpi-bar">
+              <div className="kpi-barfill violet" style={{ width: `${sleepPct}%` }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Rings (secondary, compact) */}
+        <div className="ring-row">
+          <div className="ring-card">
+            <Ring progress={stepsPct} label="Move" value={`${stepsPct}%`} color="#FF4F9A" />
+            <div className="ring-meta">
+              <div className="ring-meta-main">{formatK(stepsToday)}</div>
+              <div className="ring-meta-sub">Goal {formatK(stepGoal)}</div>
+            </div>
+          </div>
+
+          <div className="ring-card">
+            <Ring progress={waterPct} label="Hydration" value={`${waterLitres.toFixed(1)}L`} color="#3B82F6" />
+            <div className="ring-meta">
+              <div className="ring-meta-main">{waterLitres.toFixed(1)}L</div>
+              <div className="ring-meta-sub">Goal {waterGoal.toFixed(1)}L</div>
+            </div>
+          </div>
+
+          <div className="ring-card">
+            <Ring progress={sleepPct} label="Sleep" value={sleepMinutes ? `${sleepPct}%` : "--"} color="#8B5CF6" />
+            <div className="ring-meta">
+              <div className="ring-meta-main">{sleepValue}</div>
+              <div className="ring-meta-sub">{sleepMinutes ? "Tracked" : "Not tracked"}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Today plan */}
+        <div className="plan-card">
+          <div className="plan-title">Today’s plan</div>
+          <div className="plan-sub">Auto based on your logs.</div>
+
+          <ul className="plan-list">
+            {plan.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Modules (tight, not childish, no wasted space) */}
+        <div className="modules">
+          <div className="modules-title">Modules</div>
+          <div className="modules-sub">Open a hub and log in seconds.</div>
+
+          <div className="module-grid">
+            <Link href="/hubs/fitness" className="module-card">
+              <div className="module-left">
+                <div className="module-name">Fitness</div>
+                <div className="module-meta">Workouts • Steps</div>
+              </div>
+              <div className="module-cta">→</div>
+            </Link>
+
+            <Link href="/hubs/nutrition" className="module-card">
+              <div className="module-left">
+                <div className="module-name">Nutrition</div>
+                <div className="module-meta">Meals • Hydration</div>
+              </div>
+              <div className="module-cta">→</div>
+            </Link>
+
+            <Link href="/hubs/mind-sleep" className="module-card">
+              <div className="module-left">
+                <div className="module-name">Mind & Sleep</div>
+                <div className="module-meta">Mood • Sleep</div>
+              </div>
+              <div className="module-cta">→</div>
+            </Link>
+
+            <Link href="/hubs/lifestyle" className="module-card">
+              <div className="module-left">
+                <div className="module-name">Lifestyle</div>
+                <div className="module-meta">Habits • Routine</div>
+              </div>
+              <div className="module-cta">→</div>
+            </Link>
+          </div>
+        </div>
+
+        <div className="dash-footnote">
+          <span className="dot" /> Small logs → big momentum.
+        </div>
+      </div>
+    </div>
+  );
+}

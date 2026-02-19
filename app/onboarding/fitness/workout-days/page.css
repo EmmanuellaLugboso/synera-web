@@ -1,0 +1,52 @@
+@import url("../../shared.css");
+
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* Card container */
+.day-item {
+  width: 100%;
+  padding: 16px 20px;
+  background: white;
+  border: 2.5px solid #ffb0cd;
+  border-radius: 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Hover effect */
+.day-item:hover {
+  border-color: #ff6fa9;
+  background: #ffe6f2;
+}
+
+/* Selected card */
+.day-item.selected {
+  background: #ff8ac4;
+  border-color: #e6498f;
+  color: white;
+}
+
+/* Title text */
+.day-main {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Subtitle text */
+.day-desc {
+  font-size: 14px;
+  color: #777;
+}
+
+.day-item.selected .day-desc {
+  color: #fff;
+}

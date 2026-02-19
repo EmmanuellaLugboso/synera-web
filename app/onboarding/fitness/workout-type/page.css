@@ -1,0 +1,60 @@
+@import url("../../shared.css");
+
+.multi-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #e6498f;
+  font-weight: 500;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.type-box {
+  background: #ffffff;
+  border: 1px solid #ffd3e6;
+  padding: 16px 12px;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 4px 14px rgba(255, 185, 215, 0.15);
+}
+
+.type-box:hover {
+  background: #ffe6f2;
+  border-color: #ff9acb;
+  transform: translateY(-3px);
+}
+
+.type-box.selected {
+  background: #ffceed;
+  border-color: #ff7eb6;
+  box-shadow: 0 6px 16px rgba(255, 120, 175, 0.25);
+  transform: translateY(-3px);
+}
+
+.type-icon {
+  display: block;
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.type-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #444;
+  display: block;
+}
+
+.type-sub {
+  font-size: 13px;
+  color: #777;
+  margin-top: 4px;
+  display: block;
+}

@@ -1,0 +1,455 @@
+/* Mind & Sleep (ms3) — dedicated CSS (do NOT put in hub.css) */
+
+.ms3-tabs{
+  display:flex;
+  gap:10px;
+  margin: 6px 0 14px;
+}
+.ms3-tab{
+  flex: 1;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  padding: 12px 14px;
+  border-radius: 999px;
+  font-weight: 1000;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+}
+.ms3-tab.active{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+
+.ms3-toprow{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.ms3-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.ms3-primary{
+  border:none;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 1100;
+  cursor:pointer;
+  color:#fff;
+  background: linear-gradient(135deg, #FF8AC7, #FF4F9A);
+  box-shadow: 0 12px 26px rgba(255, 79, 154, 0.20);
+}
+.ms3-primary:hover{ opacity: .95; }
+
+.ms3-search{
+  width:100%;
+  margin-top: 12px;
+  border-radius: 16px;
+  border: 1px solid #EDEDF0;
+  padding: 12px 14px;
+  font-weight: 900;
+  outline:none;
+  background:#F8F8FA;
+}
+
+.ms3-row{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.ms3-select{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 900;
+  outline:none;
+}
+
+.ms3-chip{
+  background:#FFE3EF;
+  border: 1px solid #FFB7D4;
+  color:#FF4F9A;
+  font-weight: 1000;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.ms3-muted{
+  color:#777;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+/* Score grid */
+.ms3-scoregrid{
+  margin-top: 10px;
+  display:grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 8px;
+}
+.ms3-scorebtn{
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  font-weight: 1100;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+}
+.ms3-scorebtn.active{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+@media (max-width: 420px){
+  .ms3-scoregrid{ grid-template-columns: repeat(6, 1fr); }
+}
+
+/* Cards / list rows */
+.ms3-card{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+  margin-top: 12px;
+}
+.ms3-list{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.ms3-item{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+  display:flex;
+  gap: 10px;
+  overflow:hidden;
+}
+.ms3-itemMain{
+  flex:1;
+  text-align:left;
+  padding: 12px 12px;
+  background: transparent;
+  border:none;
+  cursor:pointer;
+}
+.ms3-title{
+  font-weight: 1100;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+.ms3-sub{
+  margin-top: 6px;
+  font-size: 12px;
+  color:#777;
+  font-weight: 800;
+}
+.ms3-preview{
+  margin-top: 8px;
+  font-size: 12px;
+  color:#666;
+  font-weight: 800;
+}
+.ms3-actions{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  padding: 10px;
+}
+.ms3-iconbtn{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  cursor:pointer;
+  font-weight: 1200;
+}
+.ms3-iconbtn:hover{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+.ms3-iconbtn.danger:hover{
+  border-color:#FFD0E1;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+
+.ms3-badge{
+  display:inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background:#FFE3EF;
+  border: 1px solid #FFB7D4;
+  color:#FF4F9A;
+  font-size: 11px;
+  font-weight: 1000;
+}
+
+/* Tags */
+.ms3-tagrow{
+  margin-top: 12px;
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+.ms3-taginput{
+  flex: 1;
+  border-radius: 16px;
+  border: 1px solid #EDEDF0;
+  padding: 12px 14px;
+  font-weight: 900;
+  outline:none;
+  background:#F8F8FA;
+  min-width: 220px;
+}
+.ms3-tags{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ms3-tag{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 1000;
+  cursor:pointer;
+}
+.ms3-tag:hover{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+
+/* Modal */
+.ms3-modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  padding: 18px;
+  z-index: 9999;
+}
+.ms3-modalCard{
+  width: 100%;
+  max-width: 740px;
+  background:#fff;
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+}
+.ms3-modalTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ms3-modalTitle{
+  font-weight: 1100;
+  font-size: 16px;
+}
+
+.ms3-input{
+  width:100%;
+  margin-top: 10px;
+  border-radius: 16px;
+  border: 1px solid #EDEDF0;
+  padding: 12px 14px;
+  font-weight: 1000;
+  outline:none;
+  background:#F8F8FA;
+}
+.ms3-textarea{
+  width:100%;
+  margin-top: 10px;
+  border-radius: 16px;
+  border: 1px solid #EDEDF0;
+  padding: 12px 14px;
+  font-weight: 800;
+  outline:none;
+  background:#F8F8FA;
+  min-height: 160px;
+  resize: vertical;
+}
+
+.ms3-grid2{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px){
+  .ms3-grid2{ grid-template-columns: 1fr; }
+}
+
+/* Calendar */
+.ms3-calHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ms3-calNav{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.ms3-calBtn{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  cursor:pointer;
+  font-weight: 1100;
+}
+.ms3-calLabel{
+  font-weight: 1100;
+}
+.ms3-calGrid{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+.ms3-calDow{
+  text-align:center;
+  font-size: 11px;
+  font-weight: 1000;
+  color:#777;
+  padding: 6px 0;
+}
+.ms3-calCell{
+  position: relative;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  cursor:pointer;
+}
+.ms3-calCell:hover{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+}
+.ms3-calCell.empty{
+  border:none;
+  background:transparent;
+  cursor:default;
+}
+.ms3-calCell.selected{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+}
+.ms3-calNum{
+  position:absolute;
+  top: 10px;
+  left: 12px;
+  font-weight: 1100;
+  font-size: 13px;
+}
+.ms3-dots{
+  position:absolute;
+  right: 10px;
+  bottom: 10px;
+  display:flex;
+  gap: 6px;
+}
+.ms3-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background:#FF4F9A;
+  opacity: 0.22;
+}
+.ms3-dot.on{ opacity: 1; }
+.ms3-dot.mid{ opacity: 0.55; }
+.ms3-dot.low{ opacity: 0.30; }
+
+/* Sleep */
+.ms3-pillrow{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.ms3-pillbtn{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 1000;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+}
+.ms3-pillbtn.active{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+.ms3-miniinput{
+  width: 92px;
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 900;
+  outline:none;
+}
+.ms3-toggle{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 1000;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+}
+.ms3-toggle.on{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}
+
+/* Export */
+.ms3-exportRow{
+  display:flex;
+  gap:10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.ms3-exportBtn{
+  border: 1px solid #EDEDF0;
+  background:#fff;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 1000;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+}
+.ms3-exportBtn:hover{
+  border-color:#FFB7D4;
+  background:#FFF6FA;
+  color:#FF4F9A;
+}

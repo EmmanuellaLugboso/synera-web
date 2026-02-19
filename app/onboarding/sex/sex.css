@@ -1,0 +1,82 @@
+.sex-page {
+  min-height: 100vh;
+  background: #fdf7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.sex-card {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 32px;
+  border-radius: 28px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+.sex-kicker {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e85a9a;
+  margin-bottom: 12px;
+}
+
+.sex-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.sex-sub {
+  font-size: 15px;
+  color: #777;
+  margin-bottom: 36px;
+}
+
+.sex-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.sex-option {
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px solid #eee;
+  background: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sex-option:hover {
+  border-color: #f3b3cf;
+}
+
+.sex-option.active {
+  border-color: #e85a9a;
+  background: #fff0f6;
+}
+
+.sex-button {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(90deg, #e85a9a, #ff6fae);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.sex-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

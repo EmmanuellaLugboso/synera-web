@@ -1,0 +1,18 @@
+@import "../shared.css";
+
+.dob-input {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  outline: none;
+  margin-top: 10px;
+  background: white;
+  cursor: pointer;
+}
+
+.dob-input:focus {
+  border-color: var(--pink-main);
+  box-shadow: 0 0 6px rgba(255, 126, 182, 0.3);
+}

@@ -1,0 +1,33 @@
+.ring-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ring-bg {
+  opacity: 0.25;
+}
+
+.ring-progress {
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
+
+.ring-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.ring-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1C1C1E;
+}
+
+.ring-label {
+  font-size: 13px;
+  color: #777;
+  margin-top: -4px;
+}

@@ -1,0 +1,70 @@
+@import "../shared.css";
+
+/* Fix spacing above */
+.onboard-title {
+  margin-bottom: 28px;
+}
+
+/* --- UNIT TOGGLE BUTTONS --- */
+.unit-toggle {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.toggle-btn {
+  padding: 10px 22px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1.5px solid #f3b8d3;
+  font-weight: 600;
+  color: var(--pink-dark);
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.toggle-btn:hover {
+  background: #ffe4ef;
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, var(--pink-main), var(--pink-dark));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(255, 140, 180, 0.4);
+}
+
+/* --- FEET + INCHES INPUTS --- */
+.feet-inputs {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.text-input.small {
+  width: 45%;
+  min-width: 120px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+  outline: none;
+}
+
+.text-input.small:focus {
+  border-color: var(--pink-main);
+}
+
+/* --- CONVERSION TEXT --- */
+.converted-text {
+  margin-top: -4px;
+  margin-bottom: 18px;
+  font-size: 15px;
+  color: var(--pink-dark);
+  font-weight: 600;
+  opacity: 0.85;
+  text-align: center;
+}
