@@ -1,7 +1,7 @@
 "use client";
 
-import { useOnboarding } from "@/context/OnboardingContext";
-import { auth, db } from "@/firebase/config";
+import { useOnboarding } from "../../context/OnboardingContext";
+import { auth, db } from "../../firebase/config";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
