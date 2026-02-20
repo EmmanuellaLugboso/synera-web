@@ -67,7 +67,7 @@ export default function WorkoutTimePage() {
         <p className="onboard-subtitle">
           Pick the times that fit your lifestyle
           <span className="multi-hint">
-            You can choose multiple — unless you pick "I'm Flexible"
+            You can choose multiple — unless you pick &quot;I&apos;m Flexible&quot;
           </span>
         </p>
 

@@ -19,7 +19,7 @@ export default function ExperiencePage() {
   return (
     <div className="onboard-container">
       <div className="onboard-card">
-        <h1 className="onboard-title">What's your fitness experience?</h1>
+        <h1 className="onboard-title">What&apos;s your fitness experience?</h1>
 
         <div className="mcq-group">
           {LEVELS.map((l) => (

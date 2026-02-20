@@ -51,7 +51,7 @@ export default function FinishPage() {
   return (
     <div className="onboard-container">
       <div className="onboard-card">
-        <h1 className="onboard-title">You're All Set 🎉</h1>
+        <h1 className="onboard-title">You&apos;re All Set 🎉</h1>
 
         <button
           className="onboard-button"
