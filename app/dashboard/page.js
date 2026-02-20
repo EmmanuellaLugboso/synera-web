@@ -4,8 +4,18 @@ import "./dashboard.css";
 import Link from "next/link";
 import { useOnboarding } from "../context/OnboardingContext";
 import Ring from "../components/Ring";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { db } from "../firebase/config";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  increment,
+} from "firebase/firestore";
 
 /* ------------------------
    helpers
@@ -41,44 +51,131 @@ export default function Dashboard() {
   const router = useRouter();
   const { data, ready, user: authUser } = useOnboarding();
 
-  // force login if desired
+  const date = todayISO();
+  const greeting = getGreeting();
+  const username = data?.name?.trim() || "Friend";
+
+  const [daily, setDaily] = useState(null);
+  const [dailyLoading, setDailyLoading] = useState(true);
+
+  // force login
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
   }, [ready, authUser, router]);
 
-  const date = todayISO();
-  const greeting = getGreeting();
-  const username = data?.name?.trim() || "Friend";
+  // Create / load today's Firestore doc: users/{uid}/daily/{YYYY-MM-DD}
+  useEffect(() => {
+    async function ensureDailyDoc() {
+      if (!ready || !authUser) return;
+
+      setDailyLoading(true);
+
+      const ref = doc(db, "users", authUser.uid, "daily", date);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        const starterPlan = [
+          { id: "water500", text: "Drink 500ml water now.", done: false },
+          { id: "logmeal1", text: "Log your first meal (anything counts).", done: false },
+          { id: "walk10", text: "10-min walk = easy step bump.", done: false },
+        ];
+
+        await setDoc(ref, {
+          date,
+          waterMl: 0,
+          steps: 0,
+          calories: 0,
+          plan: starterPlan,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
+
+      const snap2 = await getDoc(ref);
+      setDaily(snap2.data());
+      setDailyLoading(false);
+    }
+
+    ensureDailyDoc();
+  }, [ready, authUser, date]);
+
+  /* ------------------------
+     Firestore actions
+  ------------------------ */
+  async function addWater(ml) {
+    if (!authUser) return;
+    const ref = doc(db, "users", authUser.uid, "daily", date);
+
+    await updateDoc(ref, {
+      waterMl: increment(ml),
+      updatedAt: serverTimestamp(),
+    });
+
+    setDaily((prev) => ({
+      ...(prev || {}),
+      waterMl: (prev?.waterMl || 0) + ml,
+    }));
+  }
+
+  async function togglePlanItem(itemId) {
+    if (!authUser) return;
+
+    const current = Array.isArray(daily?.plan) ? daily.plan : [];
+    const next = current.map((p) =>
+      p.id === itemId ? { ...p, done: !p.done } : p
+    );
+
+    const ref = doc(db, "users", authUser.uid, "daily", date);
+    await updateDoc(ref, {
+      plan: next,
+      updatedAt: serverTimestamp(),
+    });
+
+    setDaily((prev) => ({ ...(prev || {}), plan: next }));
+  }
 
   /* ------------------------
      DATA (safe even when !ready)
   ------------------------ */
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
 
+  // (keep your foodLogs logic for now)
   const todaysFoodLogs = useMemo(() => {
     const logs = Array.isArray(data?.foodLogs) ? data.foodLogs : [];
     return logs.filter((x) => x?.date === date);
   }, [data?.foodLogs, date]);
 
   const caloriesToday = useMemo(() => {
+    // Prefer daily.calories if you start writing to it later
+    const fromDaily = clampNumber(daily?.calories);
+    if (fromDaily) return fromDaily;
+
     let sum = 0;
-    for (const entry of todaysFoodLogs) sum += clampNumber(entry?.totals?.calories);
+    for (const entry of todaysFoodLogs)
+      sum += clampNumber(entry?.totals?.calories);
     return Math.round(sum);
-  }, [todaysFoodLogs]);
+  }, [daily?.calories, todaysFoodLogs]);
 
   const calRemaining = Math.max(0, calorieGoal - caloriesToday);
   const calPct = pct(caloriesToday, calorieGoal);
 
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
+
   const stepsToday = useMemo(() => {
+    // Prefer daily.steps if present
+    const fromDaily = clampNumber(daily?.steps);
+    if (fromDaily) return fromDaily;
+
     const log = Array.isArray(data?.stepsLog) ? data.stepsLog : [];
     const found = log.find((x) => x?.date === date);
     return clampNumber(found?.steps);
-  }, [data?.stepsLog, date]);
+  }, [daily?.steps, data?.stepsLog, date]);
+
   const stepsPct = pct(stepsToday, stepGoal);
 
   const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
-  const waterLitres = clampNumber(data?.waterLitres);
+  const waterMl = clampNumber(daily?.waterMl);
+  const waterLitres = waterMl / 1000;
   const waterPct = pct(waterLitres, waterGoal);
 
   const sleepMinutes = clampNumber(data?.sleepMinutes); // optional future field
@@ -91,21 +188,7 @@ export default function Dashboard() {
     return `${h}h ${String(m).padStart(2, "0")}m`;
   }, [sleepMinutes]);
 
-  /* ------------------------
-     “Today plan” (performance tone)
-  ------------------------ */
-  const plan = useMemo(() => {
-    const items = [];
-
-    // keep it short + actionable
-    if (caloriesToday === 0) items.push("Log your first meal (even coffee + milk counts).");
-    if (waterPct < 60) items.push("Drink 500ml now (fastest win).");
-    if (stepsPct < 50) items.push("10-min walk = easy step bump.");
-
-    if (items.length === 0) items.push("You’re on track. Keep it simple and finish strong.");
-
-    return items.slice(0, 3);
-  }, [caloriesToday, waterPct, stepsPct]);
+  const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
 
   /* ------------------------
      RENDER
@@ -126,7 +209,10 @@ export default function Dashboard() {
               <div className="dash-sticky-value">{formatK(calRemaining)}</div>
             </div>
             <div className="dash-sticky-bar">
-              <div className="dash-sticky-barfill" style={{ width: `${calPct}%` }} />
+              <div
+                className="dash-sticky-barfill"
+                style={{ width: `${calPct}%` }}
+              />
             </div>
           </div>
 
@@ -142,7 +228,7 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-shell">
-        {/* Top header (bigger, less fluff) */}
+        {/* Top header */}
         <div className="dash-header">
           <div className="dash-brand">
             <div className="dash-logo" aria-hidden />
@@ -156,12 +242,13 @@ export default function Dashboard() {
             {greeting}, <span className="accent">{username}</span>
           </h1>
 
-          {!ready ? (
-            <div className="dash-loading">Loading your data…</div>
+          {!ready ? <div className="dash-loading">Loading your data…</div> : null}
+          {dailyLoading ? (
+            <div className="dash-loading">Loading today’s log…</div>
           ) : null}
         </div>
 
-        {/* Primary KPI row (numbers-first) */}
+        {/* KPI row */}
         <div className="kpi-grid">
           <div className="kpi-card primary">
             <div className="kpi-top">
@@ -171,7 +258,8 @@ export default function Dashboard() {
 
             <div className="kpi-big">{formatK(caloriesToday)}</div>
             <div className="kpi-sub">
-              of {formatK(calorieGoal)} • <span className="accent">{formatK(calRemaining)} left</span>
+              of {formatK(calorieGoal)} •{" "}
+              <span className="accent">{formatK(calRemaining)} left</span>
             </div>
 
             <div className="kpi-bar">
@@ -201,6 +289,18 @@ export default function Dashboard() {
             <div className="kpi-bar">
               <div className="kpi-barfill blue" style={{ width: `${waterPct}%` }} />
             </div>
+
+            <div className="quick-actions">
+              <button className="dash-btn" type="button" onClick={() => addWater(250)}>
+                +250ml
+              </button>
+              <button className="dash-btn" type="button" onClick={() => addWater(500)}>
+                +500ml
+              </button>
+              <button className="dash-btn ghost" type="button" onClick={() => addWater(1000)}>
+                +1L
+              </button>
+            </div>
           </div>
 
           <div className="kpi-card">
@@ -209,14 +309,18 @@ export default function Dashboard() {
               <div className="kpi-chip">{sleepMinutes ? `${sleepPct}%` : "—"}</div>
             </div>
             <div className="kpi-big">{sleepValue}</div>
-            <div className="kpi-sub">{sleepMinutes ? `Goal ${Math.round(sleepGoalMinutes / 60)}h` : "Not tracked yet"}</div>
+            <div className="kpi-sub">
+              {sleepMinutes
+                ? `Goal ${Math.round(sleepGoalMinutes / 60)}h`
+                : "Not tracked yet"}
+            </div>
             <div className="kpi-bar">
               <div className="kpi-barfill violet" style={{ width: `${sleepPct}%` }} />
             </div>
           </div>
         </div>
 
-        {/* Rings (secondary, compact) */}
+        {/* Rings */}
         <div className="ring-row">
           <div className="ring-card">
             <Ring progress={stepsPct} label="Move" value={`${stepsPct}%`} color="#FF4F9A" />
@@ -246,16 +350,23 @@ export default function Dashboard() {
         {/* Today plan */}
         <div className="plan-card">
           <div className="plan-title">Today’s plan</div>
-          <div className="plan-sub">Auto based on your logs.</div>
+          <div className="plan-sub">Tick these off. Progress saves.</div>
 
-          <ul className="plan-list">
-            {plan.map((x) => (
-              <li key={x}>{x}</li>
+          <ul className="plan-list plan-checklist">
+            {planItems.map((p) => (
+              <li key={p.id} className="plan-item">
+                <input
+                  type="checkbox"
+                  checked={!!p.done}
+                  onChange={() => togglePlanItem(p.id)}
+                />
+                <span className={p.done ? "plan-done" : ""}>{p.text}</span>
+              </li>
             ))}
           </ul>
         </div>
 
-        {/* Modules (tight, not childish, no wasted space) */}
+        {/* Modules */}
         <div className="modules">
           <div className="modules-title">Modules</div>
           <div className="modules-sub">Open a hub and log in seconds.</div>

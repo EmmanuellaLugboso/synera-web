@@ -406,3 +406,30 @@
     justify-content: flex-start;
   }
 }
+/* quick action buttons row inside Water card */
+.quick-actions{
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* plan checklist */
+.plan-checklist{
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.plan-item{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+  font-weight: 800;
+}
+
+.plan-done{
+  text-decoration: line-through;
+  opacity: 0.6;
+}
