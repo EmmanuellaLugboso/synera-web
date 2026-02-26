@@ -3,7 +3,7 @@
 import "./dashboard.css";
 import Link from "next/link";
 import { useOnboarding } from "../context/OnboardingContext";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { db, auth } from "../firebase/config";
@@ -38,6 +38,10 @@ function formatK(n) {
   const num = clampNumber(n);
   if (num >= 10000) return `${(num / 1000).toFixed(1)}k`;
   return `${Math.round(num)}`;
+}
+function formatTimeShort(d) {
+  if (!(d instanceof Date)) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 function getGreeting() {
   const hour = new Date().getHours();
@@ -144,6 +148,12 @@ export default function Dashboard() {
 
   const [daily, setDaily] = useState(null);
   const [dailyLoading, setDailyLoading] = useState(true);
+  const [insight, setInsight] = useState(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [insightActionLoading, setInsightActionLoading] = useState(false);
+  const [insightError, setInsightError] = useState("");
+  const [insightStatus, setInsightStatus] = useState("");
+  const [insightUpdatedAt, setInsightUpdatedAt] = useState(null);
 
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
@@ -208,6 +218,17 @@ export default function Dashboard() {
     setDaily((prev) => ({ ...(prev || {}), plan: next }));
   }
 
+  async function markPlanItemDone(itemId) {
+    if (!authUser) return;
+
+    const current = Array.isArray(daily?.plan) ? daily.plan : [];
+    const next = current.map((p) => (p.id === itemId ? { ...p, done: true } : p));
+
+    const ref = doc(db, "users", authUser.uid, "daily", date);
+    await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
+    setDaily((prev) => ({ ...(prev || {}), plan: next }));
+  }
+
   async function handleLogout() {
     try {
       await signOut(auth);
@@ -256,6 +277,95 @@ export default function Dashboard() {
   const waterPct = pct(waterLitres, waterGoal);
 
   const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
+
+  const loadInsights = useCallback(async () => {
+    if (!ready) return;
+
+    setInsightLoading(true);
+    setInsightError("");
+
+    try {
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          waterLitres,
+          waterGoal,
+          steps: stepsToday,
+          stepGoal,
+          calories: caloriesToday,
+          calorieGoal,
+        }),
+      });
+
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload?.error || "Failed to load insights");
+      setInsight(payload);
+      setInsightUpdatedAt(new Date());
+    } catch (e) {
+      setInsightError(e?.message || "Could not load insights right now.");
+    } finally {
+      setInsightLoading(false);
+    }
+  }, [ready, waterLitres, waterGoal, stepsToday, stepGoal, caloriesToday, calorieGoal]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!ready) return;
+      await loadInsights();
+      if (cancelled) return;
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, loadInsights]);
+
+  async function handleInsightAction() {
+    const action = insight?.fastWin?.action;
+    if (!action || insightActionLoading) return;
+
+    setInsightActionLoading(true);
+    setInsightStatus("");
+
+    try {
+      if (action.type === "water") {
+        await addWater(action.amountMl || 500);
+        await markPlanItemDone("water500");
+        await loadInsights();
+        setInsightStatus(`Done: added ${action.amountMl || 500}ml water.`);
+        return;
+      }
+
+      if (action.type === "walk") {
+        await markPlanItemDone("walk10");
+        setInsightStatus(`Marked done: ${action.minutes || 10}-min walk.`);
+        router.push("/hubs/fitness");
+        return;
+      }
+
+      if (action.type === "logFood") {
+        await markPlanItemDone("logmeal1");
+        setInsightStatus("Marked done: first meal logging.");
+        router.push("/hubs/nutrition");
+      }
+    } finally {
+      setInsightActionLoading(false);
+    }
+  }
+
+  function insightActionLabel() {
+    const action = insight?.fastWin?.action;
+    if (!action) return "No action";
+    if (action.type === "water") return `Add ${action.amountMl || 500}ml now`;
+    if (action.type === "walk") return `Start ${action.minutes || 10}-min walk`;
+    if (action.type === "logFood") return "Log first meal";
+    return "Do fast win";
+  }
 
   const hubChips = {
     fitness: [
@@ -542,16 +652,38 @@ export default function Dashboard() {
             <div className="card-head">
               <div>
                 <div className="card-title">Insights</div>
-                <div className="card-sub">What Synera would tell you today</div>
+                <div className="card-sub">What Synera suggests based on your today log</div>
               </div>
-              <button className="pill-btn primary" type="button">AI Coach</button>
+              <div className="insight-actions">
+                <button
+                className="pill-btn"
+                type="button"
+                onClick={async () => {
+                  setInsightStatus("");
+                  await loadInsights();
+                }}
+                disabled={insightLoading || insightActionLoading}
+              >
+                {insightLoading ? "Refreshing…" : "Refresh"}
+              </button>
+                <button
+                className="pill-btn primary"
+                type="button"
+                onClick={handleInsightAction}
+                disabled={!insight?.fastWin?.action || insightLoading || insightActionLoading}
+              >
+                {insightActionLoading ? "Applying…" : insightActionLabel()}
+              </button>
+              </div>
             </div>
 
             <div className="insight-main">
-              <div className="insight-kicker">FAST WIN</div>
-              <div className="insight-headline">Hydration is the fastest ROI.</div>
+              <div className="insight-kicker">{insight?.fastWin?.kicker || "FAST WIN"}</div>
+              <div className="insight-headline">
+                {insight?.fastWin?.headline || "Hydration is the fastest ROI."}
+              </div>
               <div className="insight-text">
-                Hit 500ml now — energy + hunger control instantly improves.
+                {insight?.fastWin?.text || "Hit one small action now to make the rest of your day easier."}
               </div>
             </div>
 
@@ -571,7 +703,12 @@ export default function Dashboard() {
             </div>
 
             <div className="insight-note">
-              (Placeholders for now — we wire AI logic + weekly trends next.)
+              {insightError
+                ? `Couldn’t refresh insight: ${insightError}`
+                : (insightStatus || insight?.coachMessage || "Small wins compound. Keep logging.")}
+              {insightUpdatedAt ? (
+                <div className="insight-meta">Updated {formatTimeShort(insightUpdatedAt)}</div>
+              ) : null}
             </div>
           </section>
 
