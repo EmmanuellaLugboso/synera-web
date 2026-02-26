@@ -57,7 +57,7 @@ export async function GET(req) {
     }));
 
     return NextResponse.json({ results });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { error: "Server error in /api/food/search" },
       { status: 500 }

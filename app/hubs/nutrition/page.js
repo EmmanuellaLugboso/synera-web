@@ -113,6 +113,20 @@ function mealDBIngredients(meal) {
   return out;
 }
 
+function normalizeRecipeCard(recipe) {
+  if (!recipe || typeof recipe !== "object") return null;
+
+  const id = recipe.id ?? recipe.idMeal ?? recipe.recipeId;
+  if (!id) return null;
+
+  return {
+    ...recipe,
+    id: String(id),
+    title: recipe.title || recipe.strMeal || "Recipe",
+    image: recipe.image || recipe.strMealThumb || null,
+  };
+}
+
 /* ------------------------
    UI components
 ------------------------ */
@@ -543,7 +557,11 @@ export default function Page() {
         const json = await res.json();
         if (!res.ok) throw new Error(json?.error || "Recipe search failed");
 
-        setRecipeResults(Array.isArray(json?.results) ? json.results : []);
+        const normalized = Array.isArray(json?.results)
+          ? json.results.map(normalizeRecipeCard).filter(Boolean)
+          : [];
+
+        setRecipeResults(normalized);
       } catch (e) {
         setRecipeResults([]);
         setRecipeErr(e?.message || "Recipe search failed");
