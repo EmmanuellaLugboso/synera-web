@@ -1,9 +1,9 @@
 // app/firebase/config.js
 
-// Firebase v9+ modular import
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -16,11 +16,15 @@ const firebaseConfig = {
   measurementId: "G-K06XXQNPL2"
 };
 
-// Prevent Firebase from reinitialising
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+// Prevent Firebase from reinitialising in Next.js (VERY IMPORTANT)
+const app =
+  getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApp();
 
 // Export services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
 export default app;

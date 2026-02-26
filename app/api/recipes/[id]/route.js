@@ -3,10 +3,16 @@ import { NextResponse } from "next/server";
 
 export async function GET(req, ctx) {
   try {
-    // ✅ 1) Try Next's params (normal case)
-    let id = String(ctx?.params?.id || "").trim();
+    // ✅ 1) Unwrap params (Next 15+ can make params async)
+    let id = "";
+    try {
+      const params = (await ctx?.params) || {};
+      id = String(params?.id || "").trim();
+    } catch {
+      // ignore and fallback to URL parsing below
+    }
 
-    // ✅ 2) Fallback: parse from the URL path (fixes "params undefined" cases)
+    // ✅ 2) Fallback: parse from the URL path (covers edge cases)
     if (!id) {
       const pathname = req?.nextUrl?.pathname || new URL(req.url).pathname;
       // pathname looks like: /api/recipes/52777
@@ -22,6 +28,14 @@ export async function GET(req, ctx) {
     )}`;
 
     const res = await fetch(url, { cache: "no-store" });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: `Upstream error (${res.status})` },
+        { status: 502 }
+      );
+    }
+
     const data = await res.json();
 
     const meal = Array.isArray(data?.meals) ? data.meals[0] : null;

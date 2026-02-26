@@ -1,3 +1,4 @@
+// app/hubs/fitness/page.js
 "use client";
 
 import "./fitness.css";
@@ -159,7 +160,9 @@ function buildExerciseHistoryMap(workouts = []) {
       const summary =
         mode === "time"
           ? bestTime
-            ? `${bestTime.timeSec}s${bestTime.distance ? ` • ${bestTime.distance}km` : ""}`
+            ? `${bestTime.timeSec}s${
+                bestTime.distance ? ` • ${bestTime.distance}km` : ""
+              }`
             : "--"
           : bestReps
           ? `${bestReps.weight}${unit} × ${bestReps.reps}`
@@ -254,7 +257,9 @@ function upsertStepsLog(stepsLog, date, steps) {
 
 function calcStepStreak(stepsLog, stepGoal) {
   const goal = Number(stepGoal) || 8000;
-  const map = new Map((stepsLog || []).map((x) => [x.date, Number(x.steps) || 0]));
+  const map = new Map(
+    (stepsLog || []).map((x) => [x.date, Number(x.steps) || 0])
+  );
 
   let streak = 0;
   let cursor = new Date();
@@ -307,7 +312,9 @@ export default function FitnessHub() {
   const { data, updateMany, ready, user } = useOnboarding();
   const d = data || {};
 
-  const templates = d.workoutTemplates?.length ? d.workoutTemplates : DEFAULT_TEMPLATES;
+  const templates = d.workoutTemplates?.length
+    ? d.workoutTemplates
+    : DEFAULT_TEMPLATES;
   const workouts = Array.isArray(d.workouts) ? d.workouts : [];
   const unit = d.weightUnit || "kg";
 
@@ -352,7 +359,10 @@ export default function FitnessHub() {
   const cardioLogs = Array.isArray(d.cardioLogs) ? d.cardioLogs : [];
 
   // maps
-  const historyMap = useMemo(() => buildExerciseHistoryMap(workouts), [workouts]);
+  const historyMap = useMemo(
+    () => buildExerciseHistoryMap(workouts),
+    [workouts]
+  );
 
   const workoutDates = useMemo(() => {
     const s = new Set();
@@ -360,7 +370,10 @@ export default function FitnessHub() {
     return s;
   }, [workouts]);
 
-  const calCells = useMemo(() => getMonthDays(calYear, calMonth), [calYear, calMonth]);
+  const calCells = useMemo(
+    () => getMonthDays(calYear, calMonth),
+    [calYear, calMonth]
+  );
 
   const workoutsOnSelectedDate = useMemo(() => {
     return workouts
@@ -369,9 +382,15 @@ export default function FitnessHub() {
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [workouts, selectedDate]);
 
-  const recentWorkouts = useMemo(() => workouts.slice().reverse().slice(0, 3), [workouts]);
+  const recentWorkouts = useMemo(
+    () => workouts.slice().reverse().slice(0, 3),
+    [workouts]
+  );
 
-  const streak = useMemo(() => calcStepStreak(stepsLog, stepGoal), [stepsLog, stepGoal]);
+  const streak = useMemo(
+    () => calcStepStreak(stepsLog, stepGoal),
+    [stepsLog, stepGoal]
+  );
 
   // set stepsToday from log
   useEffect(() => {
@@ -469,7 +488,10 @@ export default function FitnessHub() {
       .filter((ex) => ex.name.length > 0);
 
     const workout = {
-      id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      id:
+        typeof crypto !== "undefined" && crypto?.randomUUID
+          ? crypto.randomUUID()
+          : String(Date.now()),
       title: sessionTitle.trim() || "Workout",
       date: sessionDate,
       durationSec: Math.floor(elapsedMs / 1000),
@@ -498,7 +520,8 @@ export default function FitnessHub() {
     const hist = historyMap.get(clean);
 
     if (opts.useLast && hist?.lastSets?.length) {
-      const modeFromHist = hist.last?.mode || (isTimedCategory(category) ? "time" : "reps");
+      const modeFromHist =
+        hist.last?.mode || (isTimedCategory(category) ? "time" : "reps");
       const ex = makeExercise(clean, category, modeFromHist);
       ex.sets = hist.lastSets.map((s) => ({ ...s, done: false }));
       setSessionExercises((prev) => [...prev, ex]);
@@ -553,7 +576,10 @@ export default function FitnessHub() {
       const copy = [...prev];
       const ex = copy[exIndex];
       const nextSets = ex.sets.filter((_, i) => i !== setIndex);
-      copy[exIndex] = { ...ex, sets: nextSets.length ? nextSets : [makeSet(ex.mode)] };
+      copy[exIndex] = {
+        ...ex,
+        sets: nextSets.length ? nextSets : [makeSet(ex.mode)],
+      };
       return copy;
     });
   }
@@ -573,11 +599,13 @@ export default function FitnessHub() {
     const key = (name || "").trim();
     const info = historyMap.get(key);
     if (!info?.last) return <span>No history yet</span>;
-    const isPR = info.bestDate && info.last?.date && info.bestDate === info.last.date;
+    const isPR =
+      info.bestDate && info.last?.date && info.bestDate === info.last.date;
 
     return (
       <span>
-        Last: <strong>{info.last.summary}</strong> • {formatRelativeDate(info.last.date)}
+        Last: <strong>{info.last.summary}</strong> •{" "}
+        {formatRelativeDate(info.last.date)}
         {isPR ? <span className="fit2-pr">PR</span> : null}
       </span>
     );
@@ -664,7 +692,10 @@ export default function FitnessHub() {
     if (!durationMin) return;
 
     const entry = {
-      id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      id:
+        typeof crypto !== "undefined" && crypto?.randomUUID
+          ? crypto.randomUUID()
+          : String(Date.now()),
       date,
       type: cardioType || "Run",
       durationMin,
@@ -686,7 +717,7 @@ export default function FitnessHub() {
   const heightCm = Number(d.height || 0);
   const bmi = calcBMI(weightKg, heightCm);
 
-  /* ---------- DAILY SUMMARY (fills the empty space) ---------- */
+  /* ---------- DAILY SUMMARY ---------- */
 
   const todayIso = todayISO();
 
@@ -717,7 +748,6 @@ export default function FitnessHub() {
      RENDER
   ========================= */
 
-  // ✅ Important: we DO NOT early-return before hooks anymore (prevents hook order crash)
   if (!ready) {
     return (
       <div className="fit2-page">
@@ -780,7 +810,7 @@ export default function FitnessHub() {
             <div className="fit2-muted">Pick one lane. No clutter.</div>
           </div>
 
-          {/* ✅ NEW: DAILY SUMMARY CARD */}
+          {/* DAILY SUMMARY CARD */}
           <div className="fit2-dailyCard">
             <div className="fit2-dailyHeader">
               <div>
@@ -818,7 +848,11 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-dailyActions">
-              <button className="fit2-primarywide" onClick={goStrength} type="button">
+              <button
+                className="fit2-primarywide"
+                onClick={goStrength}
+                type="button"
+              >
                 Start Strength
               </button>
               <button className="fit2-pillbtn" onClick={goSteps} type="button">
@@ -886,7 +920,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Body</div>
             <h1 className="fit2-h1">BMI</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("hub")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("hub")}
+              >
                 ← Fitness Hub
               </button>
             </div>
@@ -923,7 +961,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Strength</div>
             <h1 className="fit2-h1">Start Workout</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("hub")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("hub")}
+              >
                 ← Fitness Hub
               </button>
             </div>
@@ -931,7 +973,11 @@ export default function FitnessHub() {
 
           <div className="fit2-section">
             <div className="fit2-sectiontitle">Quick Start</div>
-            <button className="fit2-primarywide" onClick={startEmptyWorkout} type="button">
+            <button
+              className="fit2-primarywide"
+              onClick={startEmptyWorkout}
+              type="button"
+            >
               Start an Empty Workout
             </button>
           </div>
@@ -940,7 +986,11 @@ export default function FitnessHub() {
             <div className="fit2-templateshead">
               <div className="fit2-sectiontitle">Templates</div>
               <div className="fit2-actions">
-                <button className="fit2-pillbtn" type="button" onClick={() => alert("Template creation next ✅")}>
+                <button
+                  className="fit2-pillbtn"
+                  type="button"
+                  onClick={() => alert("Template creation next ✅")}
+                >
                   + Template
                 </button>
               </div>
@@ -1023,7 +1073,8 @@ export default function FitnessHub() {
                       <div>
                         <div className="fit2-recenttitle">{w.title}</div>
                         <div className="fit2-recentsub">
-                          {(w.exercises || []).length} exercises • {Math.floor((w.durationSec || 0) / 60)} mins
+                          {(w.exercises || []).length} exercises •{" "}
+                          {Math.floor((w.durationSec || 0) / 60)} mins
                         </div>
                       </div>
                       <div className="fit2-recentpill">{w.unit || "kg"}</div>
@@ -1048,7 +1099,9 @@ export default function FitnessHub() {
                         {w.date} • {(w.exercises || []).length} exercises
                       </div>
                     </div>
-                    <div className="fit2-recentpill">{Math.floor((w.durationSec || 0) / 60)}m</div>
+                    <div className="fit2-recentpill">
+                      {Math.floor((w.durationSec || 0) / 60)}m
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1061,7 +1114,12 @@ export default function FitnessHub() {
       {screen === "session" && (
         <div className="fit2-session">
           <div className="fit2-sessiontop">
-            <button className="fit2-ghosticon" onClick={cancelWorkout} type="button" title="Cancel">
+            <button
+              className="fit2-ghosticon"
+              onClick={cancelWorkout}
+              type="button"
+              title="Cancel"
+            >
               ✕
             </button>
 
@@ -1140,7 +1198,12 @@ export default function FitnessHub() {
                       </div>
                     </div>
 
-                    <button className="fit2-ghosticon" onClick={() => removeExercise(exIndex)} type="button" title="Remove">
+                    <button
+                      className="fit2-ghosticon"
+                      onClick={() => removeExercise(exIndex)}
+                      type="button"
+                      title="Remove"
+                    >
                       …
                     </button>
                   </div>
@@ -1297,7 +1360,8 @@ export default function FitnessHub() {
                   <div style={{ textAlign: "left" }}>
                     <div className="fit2-recenttitle">{w.title}</div>
                     <div className="fit2-recentsub">
-                      {w.date} • {(w.exercises || []).length} exercises • {Math.floor((w.durationSec || 0) / 60)} mins
+                      {w.date} • {(w.exercises || []).length} exercises •{" "}
+                      {Math.floor((w.durationSec || 0) / 60)} mins
                     </div>
                   </div>
                   <div className="fit2-recentpill">Open</div>
@@ -1327,7 +1391,8 @@ export default function FitnessHub() {
             <div className="fit2-simpleCard">
               <div style={{ fontWeight: 900, fontSize: 16 }}>{detailWorkout.title}</div>
               <div className="fit2-small" style={{ marginTop: 6 }}>
-                {detailWorkout.date} • {Math.floor((detailWorkout.durationSec || 0) / 60)} mins • {detailWorkout.unit}
+                {detailWorkout.date} • {Math.floor((detailWorkout.durationSec || 0) / 60)} mins •{" "}
+                {detailWorkout.unit}
               </div>
 
               <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
@@ -1426,7 +1491,12 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <input className="fit2-input" placeholder="Note (optional)" value={cardioNote} onChange={(e) => setCardioNote(e.target.value)} />
+              <input
+                className="fit2-input"
+                placeholder="Note (optional)"
+                value={cardioNote}
+                onChange={(e) => setCardioNote(e.target.value)}
+              />
             </div>
 
             <div className="fit2-row" style={{ marginTop: 12 }}>
@@ -1448,7 +1518,8 @@ export default function FitnessHub() {
                       <div className="fit2-recenttitle">{c.type}</div>
                       <div className="fit2-recentsub">
                         {c.date} • {c.durationMin} min
-                        {c.distanceKm ? ` • ${c.distanceKm}km` : ""} • {paceFrom(c.distanceKm, c.durationMin)}
+                        {c.distanceKm ? ` • ${c.distanceKm}km` : ""} •{" "}
+                        {paceFrom(c.distanceKm, c.durationMin)}
                       </div>
                     </div>
                     <div className="fit2-recentpill">Saved</div>
@@ -1513,10 +1584,13 @@ export default function FitnessHub() {
                       <div>
                         <div className="fit2-recenttitle">{s.date}</div>
                         <div className="fit2-recentsub">
-                          {s.steps} steps {Number(s.steps) >= stepGoal ? "• ✅ goal hit" : ""}
+                          {s.steps} steps{" "}
+                          {Number(s.steps) >= stepGoal ? "• ✅ goal hit" : ""}
                         </div>
                       </div>
-                      <div className="fit2-recentpill">{Math.round((Number(s.steps) / stepGoal) * 100)}%</div>
+                      <div className="fit2-recentpill">
+                        {Math.round((Number(s.steps) / stepGoal) * 100)}%
+                      </div>
                     </div>
                   ))}
               </div>
@@ -1543,7 +1617,11 @@ export default function FitnessHub() {
 
             {search.trim().length > 0 &&
               !EXERCISE_LIBRARY.some((x) => x.name.toLowerCase() === search.trim().toLowerCase()) && (
-                <button className="fit2-addcustom" onClick={() => addExerciseByName(search.trim(), { useLast: false })} type="button">
+                <button
+                  className="fit2-addcustom"
+                  onClick={() => addExerciseByName(search.trim(), { useLast: false })}
+                  type="button"
+                >
                   + Add “{search.trim()}” (Custom)
                 </button>
               )}
@@ -1551,13 +1629,19 @@ export default function FitnessHub() {
             <div className="fit2-list">
               {filteredLibrary.map((item) => {
                 const info = historyMap.get(item.name);
-                const lastText = info?.last ? `Last: ${info.last.summary} • ${formatRelativeDate(info.last.date)}` : "No history yet";
+                const lastText = info?.last
+                  ? `Last: ${info.last.summary} • ${formatRelativeDate(info.last.date)}`
+                  : "No history yet";
                 const bestText = info?.best ? `Best: ${info.best.summary}` : "";
                 const isPR = info?.bestDate && info?.last?.date && info.bestDate === info.last.date;
 
                 return (
                   <div key={item.name} className="fit2-listrowwrap">
-                    <button className="fit2-listrow" onClick={() => addExerciseByName(item.name, { useLast: false })} type="button">
+                    <button
+                      className="fit2-listrow"
+                      onClick={() => addExerciseByName(item.name, { useLast: false })}
+                      type="button"
+                    >
                       <div>
                         <div className="fit2-listname">
                           {item.name} {isPR ? <span className="fit2-pr">PR</span> : null}

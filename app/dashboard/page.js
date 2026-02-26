@@ -3,11 +3,11 @@
 import "./dashboard.css";
 import Link from "next/link";
 import { useOnboarding } from "../context/OnboardingContext";
-import Ring from "../components/Ring";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { db } from "../firebase/config";
+import { db, auth } from "../firebase/config";
+import { signOut } from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -47,6 +47,92 @@ function getGreeting() {
   return "Good night";
 }
 
+/* ------------------------
+   Simple inline SVG icons
+------------------------ */
+function HubIcon({ name }) {
+  switch (name) {
+    case "fitness":
+      return (
+        <svg className="hub-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M7 10h10M6 8v8M18 8v8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M4.5 9.2h1.2a1.3 1.3 0 0 1 1.3 1.3v3a1.3 1.3 0 0 1-1.3 1.3H4.5
+               M19.5 9.2h-1.2a1.3 1.3 0 0 0-1.3 1.3v3a1.3 1.3 0 0 0 1.3 1.3h1.2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "nutrition":
+      return (
+        <svg className="hub-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M7 3v8M10 3v8M13 3v8M8.5 11v10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M16 3c1.7 2 1.7 4.2 0 6.2V21"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "mind":
+      return (
+        <svg className="hub-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 21s-7-4.6-7-10.4A4.1 4.1 0 0 1 9.1 6.5c1.2 0 2.2.5 2.9 1.3.7-.8 1.7-1.3 2.9-1.3A4.1 4.1 0 0 1 19 10.6C19 16.4 12 21 12 21Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "lifestyle":
+      return (
+        <svg className="hub-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 2v2M12 20v2M4 12H2M22 12h-2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M7.2 7.2l-1.4-1.4M18.2 18.2l-1.4-1.4M16.8 7.2l1.4-1.4M5.8 18.2l1.4-1.4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12 6.8A5.2 5.2 0 1 0 17.2 12 5.2 5.2 0 0 0 12 6.8Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const { data, ready, user: authUser } = useOnboarding();
@@ -54,16 +140,15 @@ export default function Dashboard() {
   const date = todayISO();
   const greeting = getGreeting();
   const username = data?.name?.trim() || "Friend";
+  const email = authUser?.email || "";
 
   const [daily, setDaily] = useState(null);
   const [dailyLoading, setDailyLoading] = useState(true);
 
-  // force login
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
   }, [ready, authUser, router]);
 
-  // Create / load today's Firestore doc: users/{uid}/daily/{YYYY-MM-DD}
   useEffect(() => {
     async function ensureDailyDoc() {
       if (!ready || !authUser) return;
@@ -99,9 +184,6 @@ export default function Dashboard() {
     ensureDailyDoc();
   }, [ready, authUser, date]);
 
-  /* ------------------------
-     Firestore actions
-  ------------------------ */
   async function addWater(ml) {
     if (!authUser) return;
     const ref = doc(db, "users", authUser.uid, "daily", date);
@@ -111,48 +193,44 @@ export default function Dashboard() {
       updatedAt: serverTimestamp(),
     });
 
-    setDaily((prev) => ({
-      ...(prev || {}),
-      waterMl: (prev?.waterMl || 0) + ml,
-    }));
+    setDaily((prev) => ({ ...(prev || {}), waterMl: (prev?.waterMl || 0) + ml }));
   }
 
   async function togglePlanItem(itemId) {
     if (!authUser) return;
 
     const current = Array.isArray(daily?.plan) ? daily.plan : [];
-    const next = current.map((p) =>
-      p.id === itemId ? { ...p, done: !p.done } : p
-    );
+    const next = current.map((p) => (p.id === itemId ? { ...p, done: !p.done } : p));
 
     const ref = doc(db, "users", authUser.uid, "daily", date);
-    await updateDoc(ref, {
-      plan: next,
-      updatedAt: serverTimestamp(),
-    });
+    await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
 
     setDaily((prev) => ({ ...(prev || {}), plan: next }));
   }
 
-  /* ------------------------
-     DATA (safe even when !ready)
-  ------------------------ */
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      router.push("/login");
+    } catch (e) {
+      console.log("LOGOUT ERROR:", e);
+      alert(e?.message || "Logout failed.");
+    }
+  }
+
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
 
-  // (keep your foodLogs logic for now)
   const todaysFoodLogs = useMemo(() => {
     const logs = Array.isArray(data?.foodLogs) ? data.foodLogs : [];
     return logs.filter((x) => x?.date === date);
   }, [data?.foodLogs, date]);
 
   const caloriesToday = useMemo(() => {
-    // Prefer daily.calories if you start writing to it later
     const fromDaily = clampNumber(daily?.calories);
     if (fromDaily) return fromDaily;
 
     let sum = 0;
-    for (const entry of todaysFoodLogs)
-      sum += clampNumber(entry?.totals?.calories);
+    for (const entry of todaysFoodLogs) sum += clampNumber(entry?.totals?.calories);
     return Math.round(sum);
   }, [daily?.calories, todaysFoodLogs]);
 
@@ -162,7 +240,6 @@ export default function Dashboard() {
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
 
   const stepsToday = useMemo(() => {
-    // Prefer daily.steps if present
     const fromDaily = clampNumber(daily?.steps);
     if (fromDaily) return fromDaily;
 
@@ -178,232 +255,347 @@ export default function Dashboard() {
   const waterLitres = waterMl / 1000;
   const waterPct = pct(waterLitres, waterGoal);
 
-  const sleepMinutes = clampNumber(data?.sleepMinutes); // optional future field
-  const sleepGoalMinutes = clampNumber(data?.sleepGoalMinutes) || 8 * 60;
-  const sleepPct = sleepMinutes ? pct(sleepMinutes, sleepGoalMinutes) : 0;
-  const sleepValue = useMemo(() => {
-    if (!sleepMinutes) return "--";
-    const h = Math.floor(sleepMinutes / 60);
-    const m = sleepMinutes % 60;
-    return `${h}h ${String(m).padStart(2, "0")}m`;
-  }, [sleepMinutes]);
-
   const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
 
-  /* ------------------------
-     RENDER
-  ------------------------ */
+  const hubChips = {
+    fitness: [
+      { label: "Steps", value: formatK(stepsToday) },
+      { label: "Goal", value: formatK(stepGoal) },
+    ],
+    nutrition: [
+      { label: "Today", value: `${formatK(caloriesToday)} kcal` },
+      { label: "Left", value: `${formatK(calRemaining)} kcal` },
+    ],
+    mind: [
+      { label: "Mood", value: "—" },
+      { label: "Sleep", value: "—" },
+    ],
+    lifestyle: [
+      { label: "Streak", value: "—" },
+      { label: "Focus", value: "—" },
+    ],
+  };
+
   return (
     <div className="dash-page">
-      {/* Sticky mini header */}
-      <div className="dash-sticky">
-        <div className="dash-sticky-inner">
-          <div className="dash-sticky-left">
-            <div className="dash-sticky-kicker">Today</div>
-            <div className="dash-sticky-date">{date}</div>
-          </div>
-
-          <div className="dash-sticky-mid">
-            <div className="dash-sticky-metric">
-              <div className="dash-sticky-label">Calories remaining</div>
-              <div className="dash-sticky-value">{formatK(calRemaining)}</div>
-            </div>
-            <div className="dash-sticky-bar">
-              <div
-                className="dash-sticky-barfill"
-                style={{ width: `${calPct}%` }}
-              />
+      {/* Top bar */}
+      <div className="dash-topbar">
+        <div className="dash-topbar-inner">
+          <div className="dash-topbar-left">
+            <div className="brand-badge" aria-hidden />
+            <div className="brand-copy">
+              <div className="brand-name">Synera</div>
+              <div className="brand-sub">Daily dashboard</div>
             </div>
           </div>
 
-          <div className="dash-sticky-right">
-            <Link className="dash-btn" href="/hubs/nutrition">
-              Log food
-            </Link>
-            <Link className="dash-btn ghost" href="/hubs/fitness">
-              Log workout
-            </Link>
+          <div className="dash-topbar-mid">
+            <div className="date-pill">
+              <span className="date-pill-label">Today</span>
+              <span className="date-pill-dot">•</span>
+              <span className="date-pill-date">{date}</span>
+            </div>
+            <div className="thin-progress" aria-hidden>
+              <div className="thin-progress-fill" style={{ width: `${calPct}%` }} />
+            </div>
+          </div>
+
+          <div className="dash-topbar-right">
+            <button className="icon-btn" type="button" aria-label="Timer">⏱</button>
+            <button className="icon-btn" type="button" aria-label="Alerts">🔔</button>
+            <button className="icon-btn" type="button" aria-label="Settings">⚙️</button>
+
+            <Link className="dash-btn" href="/hubs/nutrition">Log food</Link>
+            <Link className="dash-btn primary" href="/hubs/fitness">Log workout</Link>
           </div>
         </div>
       </div>
 
       <div className="dash-shell">
-        {/* Top header */}
-        <div className="dash-header">
-          <div className="dash-brand">
-            <div className="dash-logo" aria-hidden />
-            <div className="dash-brandtext">
-              <div className="dash-brandname">Synera</div>
-              <div className="dash-brandtag">Track • Adjust • Repeat</div>
-            </div>
-          </div>
+        {!ready ? <div className="dash-loading">Loading your data…</div> : null}
+        {dailyLoading ? <div className="dash-loading">Loading today’s log…</div> : null}
 
-          <h1 className="dash-title">
-            {greeting}, <span className="accent">{username}</span>
-          </h1>
+        <div className="dash-grid">
+          {/* Hero */}
+          <section className="card hero">
+            <div className="hero-top">
+              <div className="hero-title">
+                <div className="hero-greeting">{greeting},</div>
+                <div className="hero-name">
+                  <span className="accent">{username}</span>
+                </div>
+              </div>
 
-          {!ready ? <div className="dash-loading">Loading your data…</div> : null}
-          {dailyLoading ? (
-            <div className="dash-loading">Loading today’s log…</div>
-          ) : null}
-        </div>
+              <div className="mini-user">
+                <div className="mini-user-avatar" aria-hidden />
+                <div className="mini-user-copy">
+                  <div className="mini-user-name">{username}</div>
+                  <div className="mini-user-email" title={email}>
+                    {email || "—"}
+                  </div>
+                </div>
 
-        {/* KPI row */}
-        <div className="kpi-grid">
-          <div className="kpi-card primary">
-            <div className="kpi-top">
-              <div className="kpi-label">Calories</div>
-              <div className="kpi-chip">{calPct}%</div>
-            </div>
-
-            <div className="kpi-big">{formatK(caloriesToday)}</div>
-            <div className="kpi-sub">
-              of {formatK(calorieGoal)} •{" "}
-              <span className="accent">{formatK(calRemaining)} left</span>
-            </div>
-
-            <div className="kpi-bar">
-              <div className="kpi-barfill" style={{ width: `${calPct}%` }} />
-            </div>
-          </div>
-
-          <div className="kpi-card">
-            <div className="kpi-top">
-              <div className="kpi-label">Steps</div>
-              <div className="kpi-chip">{stepsPct}%</div>
-            </div>
-            <div className="kpi-big">{formatK(stepsToday)}</div>
-            <div className="kpi-sub">Goal {formatK(stepGoal)}</div>
-            <div className="kpi-bar">
-              <div className="kpi-barfill" style={{ width: `${stepsPct}%` }} />
-            </div>
-          </div>
-
-          <div className="kpi-card">
-            <div className="kpi-top">
-              <div className="kpi-label">Water</div>
-              <div className="kpi-chip">{waterPct}%</div>
-            </div>
-            <div className="kpi-big">{waterLitres.toFixed(1)}L</div>
-            <div className="kpi-sub">Goal {waterGoal.toFixed(1)}L</div>
-            <div className="kpi-bar">
-              <div className="kpi-barfill blue" style={{ width: `${waterPct}%` }} />
+                {/* ✅ Controls: settings + logout */}
+                <div className="mini-user-actions">
+                  <button className="mini-user-gear" type="button" aria-label="Open settings">
+                    ⚙️
+                  </button>
+                  <button
+                    className="mini-user-logout"
+                    type="button"
+                    onClick={handleLogout}
+                    aria-label="Log out"
+                    title="Log out"
+                  >
+                    ⎋
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="quick-actions">
-              <button className="dash-btn" type="button" onClick={() => addWater(250)}>
-                +250ml
+            <div className="hero-sub">Clean overview. Calm progress. Premium vibes.</div>
+
+            <div className="mini-kpis">
+              <div className="mini-kpi">
+                <div className="mini-kpi-label">Calories</div>
+                <div className="mini-kpi-big">{formatK(caloriesToday)}</div>
+                <div className="mini-kpi-sub">{formatK(calRemaining)} kcal left</div>
+              </div>
+
+              <div className="mini-kpi">
+                <div className="mini-kpi-label">Steps</div>
+                <div className="mini-kpi-big">{formatK(stepsToday)}</div>
+                <div className="mini-kpi-sub">{stepsPct}% of goal</div>
+              </div>
+
+              <div className="mini-kpi">
+                <div className="mini-kpi-label">Water</div>
+                <div className="mini-kpi-big">{waterLitres.toFixed(1)}L</div>
+                <div className="mini-kpi-sub">{waterPct}% of goal</div>
+              </div>
+            </div>
+
+            <div className="hero-actions">
+              <button className="pill-btn" type="button" onClick={() => addWater(250)}>
+                + 250ml water
               </button>
-              <button className="dash-btn" type="button" onClick={() => addWater(500)}>
-                +500ml
-              </button>
-              <button className="dash-btn ghost" type="button" onClick={() => addWater(1000)}>
-                +1L
+              <button className="pill-btn primary" type="button" onClick={() => addWater(500)}>
+                + 500ml
               </button>
             </div>
-          </div>
 
-          <div className="kpi-card">
-            <div className="kpi-top">
-              <div className="kpi-label">Sleep</div>
-              <div className="kpi-chip">{sleepMinutes ? `${sleepPct}%` : "—"}</div>
-            </div>
-            <div className="kpi-big">{sleepValue}</div>
-            <div className="kpi-sub">
-              {sleepMinutes
-                ? `Goal ${Math.round(sleepGoalMinutes / 60)}h`
-                : "Not tracked yet"}
-            </div>
-            <div className="kpi-bar">
-              <div className="kpi-barfill violet" style={{ width: `${sleepPct}%` }} />
-            </div>
-          </div>
-        </div>
+            <div className="hero-note">Quick actions are placeholders — we’ll wire to logs next.</div>
+          </section>
 
-        {/* Rings */}
-        <div className="ring-row">
-          <div className="ring-card">
-            <Ring progress={stepsPct} label="Move" value={`${stepsPct}%`} color="#FF4F9A" />
-            <div className="ring-meta">
-              <div className="ring-meta-main">{formatK(stepsToday)}</div>
-              <div className="ring-meta-sub">Goal {formatK(stepGoal)}</div>
-            </div>
-          </div>
-
-          <div className="ring-card">
-            <Ring progress={waterPct} label="Hydration" value={`${waterLitres.toFixed(1)}L`} color="#3B82F6" />
-            <div className="ring-meta">
-              <div className="ring-meta-main">{waterLitres.toFixed(1)}L</div>
-              <div className="ring-meta-sub">Goal {waterGoal.toFixed(1)}L</div>
-            </div>
-          </div>
-
-          <div className="ring-card">
-            <Ring progress={sleepPct} label="Sleep" value={sleepMinutes ? `${sleepPct}%` : "--"} color="#8B5CF6" />
-            <div className="ring-meta">
-              <div className="ring-meta-main">{sleepValue}</div>
-              <div className="ring-meta-sub">{sleepMinutes ? "Tracked" : "Not tracked"}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Today plan */}
-        <div className="plan-card">
-          <div className="plan-title">Today’s plan</div>
-          <div className="plan-sub">Tick these off. Progress saves.</div>
-
-          <ul className="plan-list plan-checklist">
-            {planItems.map((p) => (
-              <li key={p.id} className="plan-item">
-                <input
-                  type="checkbox"
-                  checked={!!p.done}
-                  onChange={() => togglePlanItem(p.id)}
-                />
-                <span className={p.done ? "plan-done" : ""}>{p.text}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Modules */}
-        <div className="modules">
-          <div className="modules-title">Modules</div>
-          <div className="modules-sub">Open a hub and log in seconds.</div>
-
-          <div className="module-grid">
-            <Link href="/hubs/fitness" className="module-card">
-              <div className="module-left">
-                <div className="module-name">Fitness</div>
-                <div className="module-meta">Workouts • Steps</div>
+          {/* Profile */}
+          <section className="card profile">
+            <div className="card-head">
+              <div>
+                <div className="card-title">Profile</div>
+                <div className="card-sub">Your setup</div>
               </div>
-              <div className="module-cta">→</div>
-            </Link>
+              <Link className="pill-link" href="/onboarding">Edit</Link>
+            </div>
 
-            <Link href="/hubs/nutrition" className="module-card">
-              <div className="module-left">
-                <div className="module-name">Nutrition</div>
-                <div className="module-meta">Meals • Hydration</div>
+            <div className="profile-user">
+              <div className="profile-avatar" aria-hidden />
+              <div className="profile-copy">
+                <div className="profile-name">{username}</div>
+                <div className="profile-email" title={email}>
+                  {email || "—"}
+                </div>
               </div>
-              <div className="module-cta">→</div>
-            </Link>
+            </div>
 
-            <Link href="/hubs/mind-sleep" className="module-card">
-              <div className="module-left">
-                <div className="module-name">Mind & Sleep</div>
-                <div className="module-meta">Mood • Sleep</div>
+            <div className="profile-grid">
+              <div className="profile-field">
+                <div className="profile-field-label">Height</div>
+                <div className="profile-field-value">{data?.height || "—"}</div>
               </div>
-              <div className="module-cta">→</div>
-            </Link>
+              <div className="profile-field">
+                <div className="profile-field-label">Weight</div>
+                <div className="profile-field-value">{data?.weight || "—"}</div>
+              </div>
+              <div className="profile-field wide">
+                <div className="profile-field-label">Focus</div>
+                <div className="profile-field-value">
+                  {Array.isArray(data?.focus) && data.focus.length ? data.focus.join(", ") : "—"}
+                </div>
+              </div>
+            </div>
+          </section>
 
-            <Link href="/hubs/lifestyle" className="module-card">
-              <div className="module-left">
-                <div className="module-name">Lifestyle</div>
-                <div className="module-meta">Habits • Routine</div>
+          {/* Hubs */}
+          <section className="card hubs">
+            <div className="card-head">
+              <div>
+                <div className="card-title">Hubs</div>
+                <div className="card-sub">Pick a lane. No clutter.</div>
               </div>
-              <div className="module-cta">→</div>
-            </Link>
-          </div>
+            </div>
+
+            <div className="hub-grid">
+              <Link href="/hubs/fitness" className="hub-card white">
+                <div className="hub-left">
+                  <div className="hub-iconWrap">
+                    <HubIcon name="fitness" />
+                  </div>
+                </div>
+                <div className="hub-body">
+                  <div className="hub-rowTop">
+                    <div className="hub-name">Fitness</div>
+                    <div className="hub-pill">Open</div>
+                  </div>
+                  <div className="hub-desc">Workouts • Steps</div>
+
+                  <div className="hub-chips">
+                    {hubChips.fitness.map((c) => (
+                      <div key={c.label} className="hub-chip">
+                        <span className="hub-chip-label">{c.label}</span>
+                        <span className="hub-chip-value">{c.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="hub-arrow" aria-hidden>→</div>
+              </Link>
+
+              <Link href="/hubs/nutrition" className="hub-card white">
+                <div className="hub-left">
+                  <div className="hub-iconWrap">
+                    <HubIcon name="nutrition" />
+                  </div>
+                </div>
+                <div className="hub-body">
+                  <div className="hub-rowTop">
+                    <div className="hub-name">Nutrition</div>
+                    <div className="hub-pill">Open</div>
+                  </div>
+                  <div className="hub-desc">Meals • Hydration</div>
+
+                  <div className="hub-chips">
+                    {hubChips.nutrition.map((c) => (
+                      <div key={c.label} className="hub-chip">
+                        <span className="hub-chip-label">{c.label}</span>
+                        <span className="hub-chip-value">{c.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="hub-arrow" aria-hidden>→</div>
+              </Link>
+
+              <Link href="/hubs/mind-sleep" className="hub-card white">
+                <div className="hub-left">
+                  <div className="hub-iconWrap">
+                    <HubIcon name="mind" />
+                  </div>
+                </div>
+                <div className="hub-body">
+                  <div className="hub-rowTop">
+                    <div className="hub-name">Mind & Sleep</div>
+                    <div className="hub-pill">Open</div>
+                  </div>
+                  <div className="hub-desc">Mood • Sleep</div>
+
+                  <div className="hub-chips">
+                    {hubChips.mind.map((c) => (
+                      <div key={c.label} className="hub-chip">
+                        <span className="hub-chip-label">{c.label}</span>
+                        <span className="hub-chip-value">{c.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="hub-arrow" aria-hidden>→</div>
+              </Link>
+
+              <Link href="/hubs/lifestyle" className="hub-card white">
+                <div className="hub-left">
+                  <div className="hub-iconWrap">
+                    <HubIcon name="lifestyle" />
+                  </div>
+                </div>
+                <div className="hub-body">
+                  <div className="hub-rowTop">
+                    <div className="hub-name">Lifestyle</div>
+                    <div className="hub-pill">Open</div>
+                  </div>
+                  <div className="hub-desc">Habits • Routine</div>
+
+                  <div className="hub-chips">
+                    {hubChips.lifestyle.map((c) => (
+                      <div key={c.label} className="hub-chip">
+                        <span className="hub-chip-label">{c.label}</span>
+                        <span className="hub-chip-value">{c.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="hub-arrow" aria-hidden>→</div>
+              </Link>
+            </div>
+          </section>
+
+          {/* Insights */}
+          <section className="card insights">
+            <div className="card-head">
+              <div>
+                <div className="card-title">Insights</div>
+                <div className="card-sub">What Synera would tell you today</div>
+              </div>
+              <button className="pill-btn primary" type="button">AI Coach</button>
+            </div>
+
+            <div className="insight-main">
+              <div className="insight-kicker">FAST WIN</div>
+              <div className="insight-headline">Hydration is the fastest ROI.</div>
+              <div className="insight-text">
+                Hit 500ml now — energy + hunger control instantly improves.
+              </div>
+            </div>
+
+            <div className="insight-metrics">
+              <div className="insight-metric">
+                <div className="insight-metric-label">Calories</div>
+                <div className="insight-metric-val">{formatK(caloriesToday)}</div>
+              </div>
+              <div className="insight-metric">
+                <div className="insight-metric-label">Water</div>
+                <div className="insight-metric-val">{waterLitres.toFixed(1)}L</div>
+              </div>
+              <div className="insight-metric">
+                <div className="insight-metric-label">Steps</div>
+                <div className="insight-metric-val">{formatK(stepsToday)}</div>
+              </div>
+            </div>
+
+            <div className="insight-note">
+              (Placeholders for now — we wire AI logic + weekly trends next.)
+            </div>
+          </section>
+
+          {/* Plan */}
+          <section className="card plan">
+            <div className="card-title">Today’s plan</div>
+            <div className="card-sub">Tick these off. Progress saves.</div>
+
+            <ul className="plan-list">
+              {planItems.map((p) => (
+                <li key={p.id} className="plan-row">
+                  <input
+                    className="plan-check"
+                    type="checkbox"
+                    checked={!!p.done}
+                    onChange={() => togglePlanItem(p.id)}
+                  />
+                  <span className={p.done ? "plan-text done" : "plan-text"}>
+                    {p.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
 
         <div className="dash-footnote">
