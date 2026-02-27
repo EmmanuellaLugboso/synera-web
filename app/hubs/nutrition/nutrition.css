@@ -5,7 +5,7 @@
   --text: #1C1C1E;
   --muted: #777;
   --border: #EDEDF0;
-  --bg: #FFFFFF;
+  --bg: #f6f6fb;
   --soft: #F8F8FA;
 
   --pink-1:#FFF6FA;
@@ -21,9 +21,12 @@
 
 .nutri-page{
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(900px 520px at 18% 0%, rgba(255,79,154,0.06), transparent 62%),
+    radial-gradient(900px 520px at 90% 12%, rgba(255,79,154,0.04), transparent 60%),
+    var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   padding: 18px;
 }
 
@@ -40,10 +43,10 @@
   font-weight: 900;
   color: var(--text);
   background:#fff;
-  border:1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius: 999px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.06);
 }
 
 .nutri-container{
@@ -137,9 +140,9 @@
 .nutri-card{
   border: 1px solid var(--border);
   background:#fff;
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.06);
 }
 
 .nutri-cardTop{
