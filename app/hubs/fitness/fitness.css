@@ -1,6 +1,6 @@
 /* app/hubs/fitness/fitness.css */
 :root{
-  --bg: #f6f7fb;
+  --bg: #f6f6fb;
   --card: rgba(255,255,255,0.86);
   --border: rgba(0,0,0,0.08);
   --text: #0f1222;
@@ -18,8 +18,8 @@ html, body { height:100%; }
 body{
   margin:0;
   color:var(--text);
-  background: radial-gradient(900px 600px at 10% 0%, rgba(255, 138, 199, 0.18), transparent 60%),
-              radial-gradient(900px 600px at 90% 10%, rgba(255, 79, 154, 0.12), transparent 55%),
+  background: radial-gradient(900px 600px at 10% 0%, rgba(255,79,154,0.08), transparent 60%),
+              radial-gradient(900px 600px at 90% 10%, rgba(255,79,154,0.045), transparent 55%),
               var(--bg);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
@@ -414,7 +414,7 @@ body{
   cursor: default;
 }
 .fit2-calcell.selected{
-  background: rgba(255, 138, 199, 0.18);
+  background: rgba(255,79,154,0.08);
   border-color: rgba(255,79,154,0.25);
 }
 .fit2-calnum{
