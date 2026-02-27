@@ -46,7 +46,7 @@ export default function HeightPage() {
   return (
     <div className="onboard-container">
       <div className="onboard-card">
-        <h1 className="onboard-title">What's your height?</h1>
+        <h1 className="onboard-title">What&apos;s your height?</h1>
 
         {/* Unit Toggle */}
         <div className="unit-toggle">
