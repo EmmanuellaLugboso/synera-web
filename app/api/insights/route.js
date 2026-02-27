@@ -1,72 +1,44 @@
 import { NextResponse } from "next/server";
 
-function clamp(n) {
-  const x = Number(n);
-  return Number.isFinite(x) && x >= 0 ? x : 0;
+function clamp(value) {
+  const n = Number(value);
+  if (Number.isNaN(n) || n < 0) return 0;
+  return n;
 }
 
-function buildAiReply({ question = "", mode = "coach", fastWin, waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal }) {
-  const q = String(question || "").toLowerCase();
-  const lines = [];
-  const tone = mode === "strict" ? "strict" : mode === "kind" ? "kind" : "coach";
+export function buildInsight({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal }) {
+  const waterProgress = waterGoal ? waterLitres / waterGoal : 0;
+  const stepProgress = stepGoal ? steps / stepGoal : 0;
+  const calorieProgress = calorieGoal ? calories / calorieGoal : 0;
 
-  lines.push(`Today snapshot: ${Math.round(calories)} / ${Math.round(calorieGoal)} kcal, ${waterLitres.toFixed(1)} / ${waterGoal}L water, ${Math.round(steps)} / ${Math.round(stepGoal)} steps.`);
-  if (tone === "strict") lines.push("No excuses today — execute one action now.");
-  if (tone === "kind") lines.push("You’re doing fine. One tiny action is enough to restart momentum.");
-  lines.push(`Best next move: ${fastWin?.headline || "Take one small fast win now."}`);
+  const lowest = [
+    { key: "water", progress: waterProgress },
+    { key: "steps", progress: stepProgress },
+    { key: "calories", progress: Math.min(1, calorieProgress) },
+  ].sort((a, b) => a.progress - b.progress)[0]?.key;
 
-  if (q.includes("30") || q.includes("next")) {
-    lines.push("Next 30 minutes: do the fast win first, then log one tiny proof-of-progress (meal, walk, or water)." );
-  } else if (q.includes("weight") || q.includes("fat") || q.includes("loss")) {
-    lines.push("For body-composition goals, consistency beats perfection: complete one action now and keep the calorie log honest.");
-  } else if (q.includes("energy") || q.includes("tired")) {
-    lines.push("For energy, hydrate and walk briefly before caffeine or snacks. It usually improves focus faster.");
-  } else if (q.trim()) {
-    lines.push("Your question is good — answer it with one immediate behavior. Execute, then reassess in 1 hour.");
-  } else {
-    lines.push("Ask a specific question for a more tailored plan (e.g. 'What should I do in the next 30 minutes?').");
-  }
-
-  return lines.join(" ");
-}
-
-function pickFastWin({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal }) {
-  const waterPct = waterGoal ? (waterLitres / waterGoal) : 0;
-  const stepsPct = stepGoal ? (steps / stepGoal) : 0;
-  const calPct = calorieGoal ? (calories / calorieGoal) : 0;
-
-  // Choose the “lowest progress” lever as the fast win
-  const scores = [
-    { key: "water", score: waterPct },
-    { key: "steps", score: stepsPct },
-    { key: "calories", score: Math.min(1, calPct) },
-  ].sort((a, b) => a.score - b.score);
-
-  const winner = scores[0]?.key || "water";
-
-  if (winner === "water") {
+  if (lowest === "water") {
     return {
       kicker: "FAST WIN",
       headline: "Hydration is the fastest ROI.",
-      text: "Hit 500ml now — energy + hunger control improves fast.",
+      text: "Drink 500ml now to boost focus and appetite control this afternoon.",
       action: { type: "water", amountMl: 500 },
     };
   }
 
-  if (winner === "steps") {
+  if (lowest === "steps") {
     return {
-      kicker: "FAST WIN",
-      headline: "A 10-minute walk fixes everything.",
-      text: "Quick walk = mood lift + steps bump + appetite regulation.",
+      kicker: "MOMENTUM MOVE",
+      headline: "A 10-minute walk resets your day.",
+      text: "Quick walk, quick win: get your heart rate up and stack steps with almost zero friction.",
       action: { type: "walk", minutes: 10 },
     };
   }
 
-  // calories / nutrition
   return {
-    kicker: "FAST WIN",
-    headline: "Log anything. Accuracy later.",
-    text: "Logging reduces overeating by making the day feel ‘real’.",
+    kicker: "NUTRITION NUDGE",
+    headline: "Log one meal with protein + fibre.",
+    text: "Keep it simple: log one honest meal to tighten your calories and avoid random snacking.",
     action: { type: "logFood" },
   };
 }
@@ -75,48 +47,19 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    const waterLitres = clamp(body?.waterLitres);
-    const waterGoal = clamp(body?.waterGoal);
-    const steps = clamp(body?.steps);
-    const stepGoal = clamp(body?.stepGoal);
-    const calories = clamp(body?.calories);
-    const calorieGoal = clamp(body?.calorieGoal);
-
-    const question = String(body?.question || "");
-    const mode = String(body?.mode || "coach").toLowerCase();
-    const fastWin = pickFastWin({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal });
-
-    const coachMessage =
-      "Based on today so far: do one small win first, then build. If you do the fast win now, the rest of your day becomes easier.";
-
-    const aiReply = buildAiReply({
-      question,
-      mode,
-      fastWin,
-      waterLitres,
-      waterGoal,
-      steps,
-      stepGoal,
-      calories,
-      calorieGoal,
+    const insight = buildInsight({
+      waterLitres: clamp(body?.waterLitres),
+      waterGoal: clamp(body?.waterGoal),
+      steps: clamp(body?.steps),
+      stepGoal: clamp(body?.stepGoal),
+      calories: clamp(body?.calories),
+      calorieGoal: clamp(body?.calorieGoal),
     });
 
-    const nextActions = [
-      fastWin?.text || "Do your fast win now.",
-      "Log one proof of progress after it.",
-      "Recheck your dashboard in 60 minutes.",
-    ];
-
-    return NextResponse.json({
-      fastWin,
-      coachMessage,
-      aiReply,
-      mode,
-      nextActions,
-    });
+    return NextResponse.json({ insight });
   } catch (e) {
     return NextResponse.json(
-      { error: e?.message || "Failed to generate insights" },
+      { error: e?.message || "Failed to generate insight" },
       { status: 500 }
     );
   }

@@ -154,6 +154,13 @@ export default function Dashboard() {
   const [insightError, setInsightError] = useState("");
   const [insightStatus, setInsightStatus] = useState("");
   const [insightUpdatedAt, setInsightUpdatedAt] = useState(null);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [coachMessages, setCoachMessages] = useState([
+    { role: "assistant", text: "Hey — tell me what you need help with today." },
+  ]);
+  const [coachInput, setCoachInput] = useState("");
+  const [coachTyping, setCoachTyping] = useState(false);
+  const [coachError, setCoachError] = useState("");
 
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
@@ -278,13 +285,19 @@ export default function Dashboard() {
 
   const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
 
-  const loadInsights = useCallback(async () => {
-    if (!ready) return;
+  const loadInsights = useCallback(async (forceRefresh = false) => {
+    if (!ready || !authUser) return;
 
     setInsightLoading(true);
     setInsightError("");
 
     try {
+      if (!forceRefresh && daily?.insight) {
+        setInsight(daily.insight);
+        setInsightUpdatedAt(new Date());
+        return;
+      }
+
       const res = await fetch("/api/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -300,73 +313,92 @@ export default function Dashboard() {
 
       const payload = await res.json();
       if (!res.ok) throw new Error(payload?.error || "Failed to load insights");
-      setInsight(payload);
+
+      const nextInsight = payload?.insight;
+      if (!nextInsight) throw new Error("Insight payload missing");
+
+      const ref = doc(db, "users", authUser.uid, "daily", date);
+      await updateDoc(ref, {
+        insight: {
+          kicker: nextInsight.kicker,
+          headline: nextInsight.headline,
+          text: nextInsight.text,
+          action: nextInsight.action || null,
+          createdAt: serverTimestamp(),
+        },
+        updatedAt: serverTimestamp(),
+      });
+
+      setInsight(nextInsight);
+      setDaily((prev) => ({ ...(prev || {}), insight: nextInsight }));
       setInsightUpdatedAt(new Date());
     } catch (e) {
       setInsightError(e?.message || "Could not load insights right now.");
     } finally {
       setInsightLoading(false);
     }
-  }, [ready, waterLitres, waterGoal, stepsToday, stepGoal, caloriesToday, calorieGoal]);
+  }, [ready, authUser, daily?.insight, waterLitres, waterGoal, stepsToday, stepGoal, caloriesToday, calorieGoal, date]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
-      if (!ready) return;
-      await loadInsights();
-      if (cancelled) return;
-    }
-
-    run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ready, loadInsights]);
+    if (!ready || !authUser || dailyLoading) return;
+    loadInsights(false);
+  }, [ready, authUser, dailyLoading, loadInsights]);
 
   async function handleInsightAction() {
-    const action = insight?.fastWin?.action;
-    if (!action || insightActionLoading) return;
+    const action = insight?.action;
+    if (!action || action.type !== "water" || insightActionLoading) return;
 
     setInsightActionLoading(true);
     setInsightStatus("");
 
     try {
-      if (action.type === "water") {
-        await addWater(action.amountMl || 500);
-        await markPlanItemDone("water500");
-        await loadInsights();
-        setInsightStatus(`Done: added ${action.amountMl || 500}ml water.`);
-        return;
-      }
-
-      if (action.type === "walk") {
-        await markPlanItemDone("walk10");
-        setInsightStatus(`Marked done: ${action.minutes || 10}-min walk.`);
-        router.push("/hubs/fitness");
-        return;
-      }
-
-      if (action.type === "logFood") {
-        await markPlanItemDone("logmeal1");
-        setInsightStatus("Marked done: first meal logging.");
-        router.push("/hubs/nutrition");
-      }
+      const amount = action.amountMl || 500;
+      await addWater(amount);
+      setInsightStatus(`Done: added ${amount}ml water.`);
+    } catch (e) {
+      setInsightError(e?.message || "Could not apply fast win right now.");
     } finally {
       setInsightActionLoading(false);
     }
   }
 
-  function insightActionLabel() {
-    const action = insight?.fastWin?.action;
-    if (!action) return "No action";
-    if (action.type === "water") return `Add ${action.amountMl || 500}ml now`;
-    if (action.type === "walk") return `Start ${action.minutes || 10}-min walk`;
-    if (action.type === "logFood") return "Log first meal";
-    return "Do fast win";
-  }
+  async function sendCoachMessage() {
+    const message = coachInput.trim();
+    if (!message || coachTyping) return;
 
+    setCoachError("");
+    setCoachInput("");
+    setCoachMessages((prev) => [...prev, { role: "user", text: message }]);
+    setCoachTyping(true);
+
+    try {
+      const res = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          context: {
+            name: username,
+            waterLitres,
+            waterGoal,
+            steps: stepsToday,
+            stepGoal,
+            calories: caloriesToday,
+            calorieGoal,
+          },
+        }),
+      });
+
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload?.error || "Could not get coach response.");
+
+      setCoachMessages((prev) => [...prev, { role: "assistant", text: payload?.reply || "One small action now. You’ve got this." }]);
+    } catch (e) {
+      setCoachError(e?.message || "Coach is unavailable right now.");
+    } finally {
+      setCoachTyping(false);
+    }
+  }
   const hubChips = {
     fitness: [
       { label: "Steps", value: formatK(stepsToday) },
@@ -652,39 +684,44 @@ export default function Dashboard() {
             <div className="card-head">
               <div>
                 <div className="card-title">Insights</div>
-                <div className="card-sub">What Synera suggests based on your today log</div>
+                <div className="card-sub">Message of the day, personalized from today’s logs</div>
               </div>
               <div className="insight-actions">
-                <Link className="pill-btn" href="/insights">AI Page</Link>
+                <Link className="pill-btn" href="/insights">Full analysis</Link>
+                <button className="pill-btn" type="button" onClick={() => setCoachOpen(true)}>
+                  AI Coach
+                </button>
                 <button
-                className="pill-btn"
-                type="button"
-                onClick={async () => {
-                  setInsightStatus("");
-                  await loadInsights();
-                }}
-                disabled={insightLoading || insightActionLoading}
-              >
-                {insightLoading ? "Refreshing…" : "Refresh"}
-              </button>
-                <button
-                className="pill-btn primary"
-                type="button"
-                onClick={handleInsightAction}
-                disabled={!insight?.fastWin?.action || insightLoading || insightActionLoading}
-              >
-                {insightActionLoading ? "Applying…" : insightActionLabel()}
-              </button>
+                  className="pill-btn"
+                  type="button"
+                  onClick={async () => {
+                    setInsightStatus("");
+                    await loadInsights(true);
+                  }}
+                  disabled={insightLoading || insightActionLoading}
+                >
+                  {insightLoading ? "Refreshing…" : "Refresh"}
+                </button>
+                {insight?.action?.type === "water" ? (
+                  <button
+                    className="pill-btn primary"
+                    type="button"
+                    onClick={handleInsightAction}
+                    disabled={insightLoading || insightActionLoading}
+                  >
+                    {insightActionLoading ? "Applying…" : "Do it now"}
+                  </button>
+                ) : null}
               </div>
             </div>
 
             <div className="insight-main">
-              <div className="insight-kicker">{insight?.fastWin?.kicker || "FAST WIN"}</div>
+              <div className="insight-kicker">{insight?.kicker || "MESSAGE OF THE DAY"}</div>
               <div className="insight-headline">
-                {insight?.fastWin?.headline || "Hydration is the fastest ROI."}
+                {insight?.headline || "Hydration is the fastest ROI."}
               </div>
               <div className="insight-text">
-                {insight?.fastWin?.text || "Hit one small action now to make the rest of your day easier."}
+                {insight?.text || "Hit one small action now to make the rest of your day easier."}
               </div>
             </div>
 
@@ -704,9 +741,7 @@ export default function Dashboard() {
             </div>
 
             <div className="insight-note">
-              {insightError
-                ? `Couldn’t refresh insight: ${insightError}`
-                : (insightStatus || insight?.coachMessage || "Small wins compound. Keep logging.")}
+              {insightError ? `Couldn’t refresh insight: ${insightError}` : (insightStatus || "Small wins compound. Keep logging.")}
               {insightUpdatedAt ? (
                 <div className="insight-meta">Updated {formatTimeShort(insightUpdatedAt)}</div>
               ) : null}
@@ -735,6 +770,49 @@ export default function Dashboard() {
             </ul>
           </section>
         </div>
+
+        {coachOpen ? (
+          <div className="coach-modal" onClick={() => setCoachOpen(false)}>
+            <div className="coach-card" onClick={(e) => e.stopPropagation()}>
+              <div className="coach-top">
+                <div className="coach-title">AI Coach</div>
+                <button className="pill-btn" type="button" onClick={() => setCoachOpen(false)}>
+                  Close
+                </button>
+              </div>
+
+              <div className="coach-chat">
+                {coachMessages.map((msg, i) => (
+                  <div key={`${msg.role}-${i}`} className={`coach-bubble ${msg.role === "user" ? "user" : "bot"}`}>
+                    {msg.text}
+                  </div>
+                ))}
+                {coachTyping ? <div className="coach-typing">Typing…</div> : null}
+              </div>
+
+              {coachError ? <div className="coach-error">{coachError}</div> : null}
+
+              <form
+                className="coach-inputRow"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  await sendCoachMessage();
+                }}
+              >
+                <input
+                  className="coach-input"
+                  type="text"
+                  placeholder="Ask for a practical next step..."
+                  value={coachInput}
+                  onChange={(e) => setCoachInput(e.target.value)}
+                />
+                <button className="pill-btn primary" type="submit" disabled={coachTyping || !coachInput.trim()}>
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : null}
 
         <div className="dash-footnote">
           <span className="dot" /> Small logs → big momentum.
