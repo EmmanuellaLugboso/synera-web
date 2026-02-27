@@ -447,6 +447,7 @@ export default function Dashboard() {
             <button className="icon-btn" type="button" aria-label="Alerts">🔔</button>
             <button className="icon-btn" type="button" aria-label="Settings">⚙️</button>
 
+            <button className="dash-btn" type="button" onClick={() => setCoachOpen(true)}>AI Coach</button>
             <Link className="dash-btn" href="/hubs/nutrition">Log food</Link>
             <Link className="dash-btn primary" href="/hubs/fitness">Log workout</Link>
           </div>
@@ -681,48 +682,32 @@ export default function Dashboard() {
 
           {/* Insights */}
           <section className="card insights">
-            <div className="card-head">
+            <div className="card-head insight-head-row">
               <div>
                 <div className="card-title">Insights</div>
-                <div className="card-sub">Message of the day, personalized from today’s logs</div>
+                <div className="card-sub">Today’s coaching signal</div>
               </div>
-              <div className="insight-actions">
-                <Link className="pill-btn" href="/insights">Full analysis</Link>
-                <button className="pill-btn" type="button" onClick={() => setCoachOpen(true)}>
-                  AI Coach
-                </button>
-                <button
-                  className="pill-btn"
-                  type="button"
-                  onClick={async () => {
-                    setInsightStatus("");
-                    await loadInsights(true);
-                  }}
-                  disabled={insightLoading || insightActionLoading}
-                >
-                  {insightLoading ? "Refreshing…" : "Refresh"}
-                </button>
-                {insight?.action?.type === "water" ? (
-                  <button
-                    className="pill-btn primary"
-                    type="button"
-                    onClick={handleInsightAction}
-                    disabled={insightLoading || insightActionLoading}
-                  >
-                    {insightActionLoading ? "Applying…" : "Do it now"}
-                  </button>
-                ) : null}
-              </div>
+              <Link className="insight-link" href="/insights">Full analysis</Link>
             </div>
 
             <div className="insight-main">
-              <div className="insight-kicker">{insight?.kicker || "MESSAGE OF THE DAY"}</div>
+              <div className="insight-kicker">{insight?.kicker || "COACH SIGNAL"}</div>
               <div className="insight-headline">
                 {insight?.headline || "Hydration is the fastest ROI."}
               </div>
               <div className="insight-text">
-                {insight?.text || "Hit one small action now to make the rest of your day easier."}
+                {insight?.text || "Take one small action now. The next decision gets easier."}
               </div>
+              {insight?.action?.type === "water" ? (
+                <button
+                  className="insight-primary-action"
+                  type="button"
+                  onClick={handleInsightAction}
+                  disabled={insightLoading || insightActionLoading}
+                >
+                  {insightActionLoading ? "Applying…" : `Add ${insight?.action?.amountMl || 500}ml`}
+                </button>
+              ) : null}
             </div>
 
             <div className="insight-metrics">
@@ -741,10 +726,10 @@ export default function Dashboard() {
             </div>
 
             <div className="insight-note">
-              {insightError ? `Couldn’t refresh insight: ${insightError}` : (insightStatus || "Small wins compound. Keep logging.")}
-              {insightUpdatedAt ? (
-                <div className="insight-meta">Updated {formatTimeShort(insightUpdatedAt)}</div>
-              ) : null}
+              <span>Small wins compound.</span>
+              {insightUpdatedAt ? <span className="insight-meta">Updated {formatTimeShort(insightUpdatedAt)}</span> : null}
+              {insightStatus ? <span className="insight-status">{insightStatus}</span> : null}
+              {insightError ? <span className="insight-status">{insightError}</span> : null}
             </div>
           </section>
 

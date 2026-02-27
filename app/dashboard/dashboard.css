@@ -143,6 +143,7 @@
 .icon-btn:hover{ transform: translateY(-1px); }
 
 .dash-btn{
+  appearance: none;
   text-decoration: none;
   padding: 10px 14px;
   border-radius: 999px;
@@ -606,39 +607,72 @@
   grid-column: 2 / 3;
   padding-bottom: 18px;
   background:
-    radial-gradient(640px 380px at 20% 0%, rgba(255,79,154,0.06), transparent 62%),
-    rgba(255,255,255,0.90);
+    radial-gradient(640px 380px at 20% 0%, rgba(255,79,154,0.05), transparent 62%),
+    rgba(255,255,255,0.92);
+}
+
+.insight-head-row{
+  align-items: center;
+}
+
+.insight-link{
+  text-decoration: none;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.92);
+  color: #1a1a21;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .insight-main{
   margin: 14px 18px 0;
-  padding: 16px;
-  background: rgba(255,255,255,0.94);
+  padding: 18px;
+  background: rgba(255,255,255,0.96);
   border: 1px solid var(--border);
   border-radius: 18px;
   box-shadow: var(--shadowSoft);
 }
 
 .insight-kicker{
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 1000;
-  letter-spacing: 1.2px;
-  color: #3e3e48;
-  opacity: 0.82;
+  letter-spacing: 1.1px;
+  color: #50505d;
+  opacity: 0.84;
 }
 
 .insight-headline{
   margin-top: 10px;
   font-weight: 1100;
-  font-size: 22px;
+  font-size: 23px;
   letter-spacing: -0.35px;
 }
 
 .insight-text{
   margin-top: 8px;
   color: #5c5c66;
-  font-weight: 900;
+  font-weight: 850;
   font-size: 14px;
+  line-height: 1.4;
+}
+
+.insight-primary-action{
+  margin-top: 14px;
+  border: 1px solid rgba(255,79,154,0.22);
+  background: linear-gradient(135deg, rgba(255,79,154,0.82), rgba(255,79,154,0.96));
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 1000;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(255,79,154,0.16);
+}
+
+.insight-primary-action:disabled{
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .insight-metrics{
@@ -653,14 +687,15 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.04);
 }
 
 .insight-metric-label{
   color: var(--muted);
-  font-weight: 950;
-  font-size: 13px;
+  font-weight: 900;
+  font-size: 12px;
 }
+
 .insight-metric-val{
   margin-top: 8px;
   font-weight: 1100;
@@ -668,10 +703,29 @@
 }
 
 .insight-note{
-  margin: 10px 18px 0;
+  margin: 12px 18px 0;
   color: var(--muted);
-  font-weight: 900;
-  font-size: 13px;
+  font-weight: 850;
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.insight-meta{
+  color: #73737e;
+}
+
+.insight-status{
+  color: #555563;
+}
+
+.insight-actions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
 }
 
 .insight-actions{
