@@ -1,3 +1,64 @@
+:root {
+  --bg: #f6f6fb;
+  --card: rgba(255, 255, 255, 0.92);
+  --border: rgba(0, 0, 0, 0.08);
+  --text: #12121a;
+  --muted: #6b6b76;
+  --accent: #ff4f9a;
+  --accentSoft: rgba(255, 79, 154, 0.12);
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f6fb;
+  --card: rgba(255, 255, 255, 0.92);
+  --border: rgba(0, 0, 0, 0.08);
+  --text: #12121a;
+  --muted: #6b6b76;
+  --accent: #ff4f9a;
+  --accentSoft: rgba(255, 79, 154, 0.12);
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="dark"] {
+  --bg: #101117;
+  --card: rgba(28, 29, 38, 0.92);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #f0f1f8;
+  --muted: #a5a8ba;
+  --accent: #7ca7ff;
+  --accentSoft: rgba(124, 167, 255, 0.2);
+  --shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
+}
+
+:root[data-theme="blue"] {
+  --bg: #f4f7fc;
+  --card: rgba(255, 255, 255, 0.94);
+  --border: rgba(48, 88, 157, 0.14);
+  --text: #141d2c;
+  --muted: #617086;
+  --accent: #4a84e8;
+  --accentSoft: rgba(74, 132, 232, 0.14);
+  --shadow: 0 12px 30px rgba(33, 61, 108, 0.1);
+}
+
+:root[data-theme="pink"] {
+  --bg: #f9f6fb;
+  --card: rgba(255, 255, 255, 0.93);
+  --border: rgba(173, 78, 128, 0.14);
+  --text: #1a1a24;
+  --muted: #6f6879;
+  --accent: #e760a1;
+  --accentSoft: rgba(231, 96, 161, 0.14);
+  --shadow: 0 14px 32px rgba(153, 64, 112, 0.12);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
 /* FULL HOME PAGE STYLING */
 
 .home-bg {
@@ -13,7 +74,7 @@
   padding: 50px 60px;
   border-radius: 22px;
   text-align: center;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .home-title {
@@ -88,7 +149,7 @@
   background: white;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
 }
 
@@ -105,7 +166,9 @@
   margin-top: 8px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
@@ -149,7 +212,7 @@ input, select, textarea {
   max-width: 980px;
   margin: 0 auto;
   padding: 18px 20px 40px;
-  color: #1C1C1E;
+  color: #1c1c1e;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -240,10 +303,12 @@ input, select, textarea {
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
 }
 
-.fitness-card { margin-bottom: 14px; }
+.fitness-card {
+  margin-bottom: 14px;
+}
 
 .fitness-grid {
   display: grid;
@@ -251,7 +316,9 @@ input, select, textarea {
   gap: 12px;
 }
 
-.fitness-cardfull { grid-column: 1 / -1; }
+.fitness-cardfull {
+  grid-column: 1 / -1;
+}
 
 .fitness-cardhead {
   display: flex;
@@ -286,7 +353,10 @@ input, select, textarea {
   margin-top: 6px;
 }
 
-.fitness-muted.small { font-size: 11px; margin-top: 0; }
+.fitness-muted.small {
+  font-size: 11px;
+  margin-top: 0;
+}
 
 .fitness-last {
   display: flex;
@@ -336,7 +406,11 @@ input, select, textarea {
   gap: 10px;
 }
 
-.fitness-field { display: flex; flex-direction: column; gap: 6px; }
+.fitness-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
 .fitness-label {
   font-size: 12px;
@@ -388,7 +462,9 @@ input, select, textarea {
   font-size: 14px;
 }
 
-.fitness-excard { margin-bottom: 12px; }
+.fitness-excard {
+  margin-bottom: 12px;
+}
 
 .fitness-exhead {
   display: flex;
@@ -518,7 +594,7 @@ input, select, textarea {
   max-width: 980px;
   margin: 0 auto;
   padding: 14px 18px 40px;
-  color: #1C1C1E;
+  color: #1c1c1e;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -574,7 +650,9 @@ input, select, textarea {
   font-weight: 950;
 }
 
-.fit2-section { margin-top: 16px; }
+.fit2-section {
+  margin-top: 16px;
+}
 
 .fit2-sectiontitle {
   font-weight: 950;
@@ -600,7 +678,11 @@ input, select, textarea {
   justify-content: space-between;
 }
 
-.fit2-actions { display: flex; gap: 10px; align-items: center; }
+.fit2-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
 .fit2-pillbtn {
   border: 1px solid #ffd0e3;
@@ -636,12 +718,21 @@ input, select, textarea {
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
   cursor: pointer;
 }
 
-.fit2-templatetitle { font-weight: 950; font-size: 16px; margin-bottom: 6px; }
-.fit2-templatelist { color: #666; font-size: 13px; line-height: 1.35; min-height: 36px; }
+.fit2-templatetitle {
+  font-weight: 950;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.fit2-templatelist {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.35;
+  min-height: 36px;
+}
 
 .fit2-templatemeta {
   margin-top: 10px;
@@ -669,7 +760,11 @@ input, select, textarea {
   font-weight: 900;
 }
 
-.fit2-recentlist { display: flex; flex-direction: column; gap: 10px; }
+.fit2-recentlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .fit2-recentitem {
   background: #fff;
   border: 1px solid #ededf0;
@@ -680,8 +775,15 @@ input, select, textarea {
   align-items: center;
 }
 
-.fit2-recenttitle { font-weight: 950; }
-.fit2-recentsub { color: #777; font-size: 12px; margin-top: 2px; font-weight: 900; }
+.fit2-recenttitle {
+  font-weight: 950;
+}
+.fit2-recentsub {
+  color: #777;
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: 900;
+}
 .fit2-recentpill {
   border: 1px solid #ededf0;
   background: #f8f8fa;
@@ -739,7 +841,10 @@ input, select, textarea {
   text-align: center;
 }
 
-.fit2-timerbtns { display: flex; gap: 10px; }
+.fit2-timerbtns {
+  display: flex;
+  gap: 10px;
+}
 
 .fit2-sessioncard {
   margin-top: 14px;
@@ -747,7 +852,7 @@ input, select, textarea {
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
 }
 
 .fit2-titleinput {
@@ -760,15 +865,28 @@ input, select, textarea {
   padding: 6px 2px 10px;
 }
 
-.fit2-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.fit2-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
 .fit2-metaitem {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border: 1px solid #ededf0;
   background: #f8f8fa;
   border-radius: 14px;
   padding: 10px 12px;
 }
-.fit2-metainput { border: none; outline: none; background: transparent; font-weight: 950; }
+.fit2-metainput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-weight: 950;
+}
 
 .fit2-addex {
   width: 100%;
@@ -798,16 +916,25 @@ input, select, textarea {
 }
 
 /* exercise cards */
-.fit2-exlist { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+.fit2-exlist {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 .fit2-excard {
   background: #fff;
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
 }
 
-.fit2-exhead { display: flex; align-items: center; gap: 10px; }
+.fit2-exhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .fit2-exname {
   width: 100%;
@@ -839,7 +966,10 @@ input, select, textarea {
   font-size: 12px;
 }
 
-.fit2-mode { display: flex; gap: 8px; }
+.fit2-mode {
+  display: flex;
+  gap: 8px;
+}
 .fit2-modebtn {
   border: 1px solid #ededf0;
   background: #fff;
@@ -886,9 +1016,13 @@ input, select, textarea {
   margin-bottom: 8px;
 }
 
-.fit2-setnum { text-align: center; font-weight: 950; }
+.fit2-setnum {
+  text-align: center;
+  font-weight: 950;
+}
 
-.fit2-setinput, .fit2-select {
+.fit2-setinput,
+.fit2-select {
   width: 100%;
   border: 1px solid #ededf0;
   background: #fff;
@@ -898,7 +1032,8 @@ input, select, textarea {
   font-weight: 900;
 }
 
-.fit2-setinput:focus, .fit2-select:focus {
+.fit2-setinput:focus,
+.fit2-select:focus {
   border-color: #ffd0e3;
   box-shadow: 0 0 0 3px rgba(255, 208, 227, 0.45);
 }
@@ -928,13 +1063,17 @@ input, select, textarea {
   font-size: 18px;
 }
 
-.fit2-exfooter { margin-top: 10px; display: flex; justify-content: flex-start; }
+.fit2-exfooter {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
 
 /* modal */
 .fit2-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -948,7 +1087,7 @@ input, select, textarea {
   background: #fff;
   border-radius: 22px;
   padding: 12px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 }
 
 .fit2-modaltop {
@@ -958,7 +1097,9 @@ input, select, textarea {
   padding: 6px 6px 10px;
 }
 
-.fit2-modaltitle { font-weight: 950; }
+.fit2-modaltitle {
+  font-weight: 950;
+}
 
 .fit2-search {
   width: 100%;
@@ -991,9 +1132,18 @@ input, select, textarea {
   border-bottom: 1px solid #f1f1f4;
 }
 
-.fit2-listrow:last-child { border-bottom: none; }
-.fit2-listname { font-weight: 950; }
-.fit2-listsub { color: #777; font-weight: 900; font-size: 12px; margin-top: 2px; }
+.fit2-listrow:last-child {
+  border-bottom: none;
+}
+.fit2-listname {
+  font-weight: 950;
+}
+.fit2-listsub {
+  color: #777;
+  font-weight: 900;
+  font-size: 12px;
+  margin-top: 2px;
+}
 
 .fit2-qmark {
   width: 34px;
@@ -1008,10 +1158,18 @@ input, select, textarea {
 }
 
 @media (max-width: 720px) {
-  .fit2-templategrid { grid-template-columns: 1fr; }
-  .fit2-sessiontop { grid-template-columns: 56px 1fr; }
-  .fit2-finish { grid-column: 2; justify-self: end; }
-  .fit2-sethead, .fit2-setrow {
+  .fit2-templategrid {
+    grid-template-columns: 1fr;
+  }
+  .fit2-sessiontop {
+    grid-template-columns: 56px 1fr;
+  }
+  .fit2-finish {
+    grid-column: 2;
+    justify-self: end;
+  }
+  .fit2-sethead,
+  .fit2-setrow {
     grid-template-columns: 34px 92px 1fr 1fr 44px 38px;
   }
 }
@@ -1024,7 +1182,7 @@ input, select, textarea {
 
 .fit2-lastsimple strong,
 .fit2-bestsimple strong {
-  color: #1C1C1E;
+  color: #1c1c1e;
 }
 
 .fit2-divider {
@@ -1185,7 +1343,11 @@ html {
 }
 
 body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }

@@ -146,6 +146,8 @@ export default function Dashboard() {
   const username = data?.name?.trim() || "Friend";
   const email = authUser?.email || "";
 
+  const [profileDoc, setProfileDoc] = useState(null);
+
   const [daily, setDaily] = useState(null);
   const [dailyLoading, setDailyLoading] = useState(true);
   const [insight, setInsight] = useState(null);
@@ -165,6 +167,16 @@ export default function Dashboard() {
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
   }, [ready, authUser, router]);
+
+  useEffect(() => {
+    async function loadProfileDoc() {
+      if (!ready || !authUser?.uid) return;
+      const ref = doc(db, "users", authUser.uid);
+      const snap = await getDoc(ref);
+      if (snap.exists()) setProfileDoc(snap.data());
+    }
+    loadProfileDoc();
+  }, [ready, authUser?.uid]);
 
   useEffect(() => {
     async function ensureDailyDoc() {
@@ -506,6 +518,85 @@ export default function Dashboard() {
       setCoachTyping(false);
     }
   }
+  const displayName = profileDoc?.name?.trim() || username;
+  const profilePhotoURL = profileDoc?.photoURL || data?.photoURL || "";
+
+  useEffect(() => {
+    if (!ready || !authUser || dailyLoading) return;
+    loadInsights(false);
+  }, [ready, authUser, dailyLoading, loadInsights]);
+
+  async function handleInsightAction() {
+    const action = insight?.action;
+    if (!action || action.type !== "water" || insightActionLoading) return;
+
+    setInsightActionLoading(true);
+    setInsightStatus("");
+
+    try {
+      const amount = action.amountMl || 500;
+      await addWater(amount);
+      setInsightStatus(`Done: added ${amount}ml water.`);
+    } catch (e) {
+      setInsightError(e?.message || "Could not apply fast win right now.");
+    } finally {
+      setInsightActionLoading(false);
+    }
+  }
+
+  async function sendCoachMessage() {
+    const message = coachInput.trim();
+    if (!message || coachTyping) return;
+
+    setCoachError("");
+    setCoachInput("");
+    setCoachMessages((prev) => [...prev, { role: "user", text: message }]);
+    setCoachTyping(true);
+
+    try {
+      const res = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          context: {
+            name: username,
+            waterLitres,
+            waterGoal,
+            steps: stepsToday,
+            stepGoal,
+            calories: caloriesToday,
+            calorieGoal,
+            moodRating: Number(daily?.mood?.rating || 0),
+            sleepHours: Number(daily?.sleep?.hours || 0),
+            habitsRate: daily?.habits?.total
+              ? Math.round(
+                  (Number(daily.habits.completed || 0) /
+                    Number(daily.habits.total || 1)) *
+                    100,
+                )
+              : 0,
+          },
+        }),
+      });
+
+      const payload = await res.json();
+      if (!res.ok)
+        throw new Error(payload?.error || "Could not get coach response.");
+
+      setCoachMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: payload?.reply || "One small action now. You’ve got this.",
+        },
+      ]);
+    } catch (e) {
+      setCoachError(e?.message || "Coach is unavailable right now.");
+    } finally {
+      setCoachTyping(false);
+    }
+  }
   const hubChips = {
     fitness: [
       { label: "Steps", value: formatK(stepsToday) },
@@ -618,9 +709,17 @@ export default function Dashboard() {
               </div>
 
               <div className="mini-user">
-                <div className="mini-user-avatar" aria-hidden />
+                <div className="mini-user-avatar" aria-hidden>
+                  {profilePhotoURL ? (
+                    <img src={profilePhotoURL} alt="Profile" />
+                  ) : (
+                    <span className="avatar-fallback">
+                      {displayName.charAt(0)}
+                    </span>
+                  )}
+                </div>
                 <div className="mini-user-copy">
-                  <div className="mini-user-name">{username}</div>
+                  <div className="mini-user-name">{displayName}</div>
                   <div className="mini-user-email" title={email}>
                     {email || "—"}
                   </div>
@@ -628,13 +727,13 @@ export default function Dashboard() {
 
                 {/* ✅ Controls: settings + logout */}
                 <div className="mini-user-actions">
-                  <button
+                  <Link
                     className="mini-user-gear"
-                    type="button"
+                    href="/settings"
                     aria-label="Open settings"
                   >
                     ⚙️
-                  </button>
+                  </Link>
                   <button
                     className="mini-user-logout"
                     type="button"
@@ -703,15 +802,23 @@ export default function Dashboard() {
                 <div className="card-title">Profile</div>
                 <div className="card-sub">Your setup</div>
               </div>
-              <Link className="pill-link" href="/onboarding">
+              <Link className="pill-link" href="/profile">
                 Edit
               </Link>
             </div>
 
             <div className="profile-user">
-              <div className="profile-avatar" aria-hidden />
+              <div className="profile-avatar" aria-hidden>
+                {profilePhotoURL ? (
+                  <img src={profilePhotoURL} alt="Profile" />
+                ) : (
+                  <span className="avatar-fallback">
+                    {displayName.charAt(0)}
+                  </span>
+                )}
+              </div>
               <div className="profile-copy">
-                <div className="profile-name">{username}</div>
+                <div className="profile-name">{displayName}</div>
                 <div className="profile-email" title={email}>
                   {email || "—"}
                 </div>

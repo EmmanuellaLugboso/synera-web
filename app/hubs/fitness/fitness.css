@@ -1,16 +1,16 @@
 /* app/hubs/fitness/fitness.css */
 :root {
-  --bg: #f6f6fb;
-  --card: rgba(255, 255, 255, 0.86);
-  --border: rgba(0, 0, 0, 0.08);
-  --text: #0f1222;
-  --muted: rgba(15, 18, 34, 0.55);
+  --bg: var(--bg);
+  --card: var(--card);
+  --border: var(--border);
+  --text: var(--text);
+  --muted: var(--muted);
   --shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
   --shadow2: 0 10px 22px rgba(0, 0, 0, 0.05);
   --radius: 22px;
 
-  --pink1: #ff8ac7;
-  --pink2: #ff4f9a;
+  --pink1: color-mix(in srgb, var(--accent) 72%, #fff 28%);
+  --pink2: var(--accent);
 }
 
 * {

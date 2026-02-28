@@ -2,17 +2,17 @@
 
 /* Apple-ish base */
 :root {
-  --text: #1c1c1e;
-  --muted: #777;
-  --border: #ededf0;
-  --bg: #f6f6fb;
+  --text: var(--text);
+  --muted: var(--muted);
+  --border: var(--border);
+  --bg: var(--bg);
   --soft: #f8f8fa;
 
-  --pink-1: #fff6fa;
-  --pink-2: #ffe3ef;
-  --pink-3: #ffb7d4;
-  --pink-4: #ff4f9a;
-  --pink-5: #ff8ac7;
+  --pink-1: color-mix(in srgb, var(--accent) 8%, #fff 92%);
+  --pink-2: color-mix(in srgb, var(--accent) 14%, #fff 86%);
+  --pink-3: color-mix(in srgb, var(--accent) 35%, #fff 65%);
+  --pink-4: var(--accent);
+  --pink-5: color-mix(in srgb, var(--accent) 70%, #fff 30%);
 
   --shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }

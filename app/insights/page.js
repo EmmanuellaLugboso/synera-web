@@ -6,23 +6,17 @@ import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
 import {
   collection,
-  doc,
   documentId,
   getDocs,
-  increment,
   limit,
   orderBy,
   query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
 } from "firebase/firestore";
 import {
   buildCoachSummary,
   buildPillarAnalytics,
   clampNumber,
   normalizeDailyTimeline,
-  todayISO,
 } from "./analytics";
 import "./page.css";
 
@@ -60,13 +54,6 @@ function Sparkline({ series }) {
       <path d={d} className="line-path" />
     </svg>
   );
-}
-
-function statusClass(label) {
-  if (label === "Improving") return "up";
-  if (label === "Declining") return "down";
-  if (label === "Stable") return "flat";
-  return "base";
 }
 
 async function fetchLastNDaysDaily(uid, n = 30) {
@@ -205,38 +192,6 @@ export default function InsightsPage() {
     };
   }, [days30, calorieGoal, stepGoal, waterGoal, data?.proteinGoalG]);
 
-  async function handleDrink500() {
-    if (!authUser?.uid) return;
-
-    const dateISO = todayISO();
-    const ref = doc(db, "users", authUser.uid, "daily", dateISO);
-
-    await setDoc(
-      ref,
-      {
-        date: dateISO,
-        calories: 0,
-        steps: 0,
-        waterMl: 0,
-        mood: { rating: 0, stress: 0, note: "" },
-        sleep: { hours: 0, quality: 0, bedtime: "" },
-        habits: { completed: 0, total: 0 },
-        lifestyle: { focusMinutes: 0, screenTimeMinutes: 0 },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
-
-    await updateDoc(ref, {
-      waterMl: increment(500),
-      updatedAt: serverTimestamp(),
-    });
-
-    const fetched = await fetchLastNDaysDaily(authUser.uid, 30);
-    setDays30(normalizeDailyTimeline(fetched, 30));
-  }
-
   async function sendCoachMessage() {
     const message = coachInput.trim();
     if (!message || coachTyping) return;
@@ -293,6 +248,7 @@ export default function InsightsPage() {
 
   const pillarCards = [
     {
+      id: "move",
       key: "Move",
       stats: analytics.pillars.move,
       metric:
@@ -301,6 +257,7 @@ export default function InsightsPage() {
           : `${Math.round(analytics.today.steps)} steps today`,
     },
     {
+      id: "fuel",
       key: "Fuel",
       stats: analytics.pillars.fuel,
       metric:
@@ -309,6 +266,7 @@ export default function InsightsPage() {
           : `${(analytics.today.waterMl / 1000).toFixed(1)}L water today`,
     },
     {
+      id: "recover",
       key: "Recover",
       stats: analytics.pillars.recover,
       metric:
@@ -317,6 +275,7 @@ export default function InsightsPage() {
           : `${analytics.sleepAvgWeek.toFixed(1)}h sleep avg`,
     },
     {
+      id: "mood",
       key: "Mood",
       stats: analytics.pillars.mood,
       metric:
@@ -325,6 +284,7 @@ export default function InsightsPage() {
           : `${analytics.moodAvgWeek.toFixed(1)}/5 mood avg`,
     },
     {
+      id: "habits",
       key: "Habits",
       stats: analytics.pillars.habits,
       metric:
@@ -333,6 +293,19 @@ export default function InsightsPage() {
           : `${Math.round(analytics.pillars.habits.weeklyAvg)}% completion avg`,
     },
   ];
+
+  const topLever = pillarCards
+    .map((p) => ({
+      ...p,
+      score:
+        p.stats.consistency7 / 7 +
+        (p.stats.trend.label === "Improving" ? 0.2 : 0),
+    }))
+    .sort((a, b) => a.score - b.score)[0];
+
+  const baselinePillars = pillarCards.filter(
+    (p) => p.stats.consistency7 < 3,
+  ).length;
 
   return (
     <div className="ins-page">
@@ -367,30 +340,90 @@ export default function InsightsPage() {
             </strong>
             <em>{analytics.coach?.heading || "Building baseline"}</em>
             <div className="score-subtext">
-              {analytics.weeklyDelta == null
-                ? `${analytics.validDays30}/30 days logged`
-                : `${analytics.weeklyDelta >= 0 ? "+" : ""}${analytics.weeklyDelta} vs last week`}
+              {analytics.validDays30 < 7
+                ? "Building baseline"
+                : analytics.weeklyDelta == null
+                  ? `${analytics.validDays30}/30 days logged`
+                  : `${analytics.weeklyDelta >= 0 ? "+" : ""}${analytics.weeklyDelta} vs last week`}
             </div>
+            <details className="score-breakdown">
+              <summary>Pillar breakdown</summary>
+              <div>
+                Move:{" "}
+                {analytics.pillars.move.weeklyAvg == null
+                  ? "Building baseline"
+                  : `${Math.round(analytics.pillars.move.weeklyAvg)}%`}
+              </div>
+              <div>
+                Fuel:{" "}
+                {analytics.pillars.fuel.weeklyAvg == null
+                  ? "Building baseline"
+                  : `${Math.round(analytics.pillars.fuel.weeklyAvg)}%`}
+              </div>
+              <div>
+                Recover:{" "}
+                {analytics.pillars.recover.weeklyAvg == null
+                  ? "Building baseline"
+                  : `${Math.round(analytics.pillars.recover.weeklyAvg)}%`}
+              </div>
+              <div>
+                Mood:{" "}
+                {analytics.pillars.mood.weeklyAvg == null
+                  ? "Building baseline"
+                  : `${Math.round(analytics.pillars.mood.weeklyAvg)}%`}
+              </div>
+              <div>
+                Habits:{" "}
+                {analytics.pillars.habits.weeklyAvg == null
+                  ? "Building baseline"
+                  : `${Math.round(analytics.pillars.habits.weeklyAvg)}%`}
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section className="card coach-brain">
+          <div className="side-title">Coach summary</div>
+          <div className="suggestion-main">{analytics.coach.heading}</div>
+          <div className="suggestion-sub">{analytics.coach.body}</div>
+          <div className="risk-flag">Risk flag: {analytics.coach.risk}</div>
+          <div className="suggestion-micro emphasis">
+            Next best action: {analytics.coach.action}
+          </div>
+          <div className="coach-confidence">
+            Confidence:{" "}
+            {analytics.validDays30 < 10
+              ? "Low – building baseline"
+              : "Moderate"}
           </div>
         </section>
 
         {loadError ? <div className="load-error">{loadError}</div> : null}
 
         <section className="card pillars-wrap">
-          <div className="card-title">Pillars</div>
+          <div className="pillars-head">
+            <div className="card-title">Pillars</div>
+            {baselinePillars > 0 ? (
+              <div className="baseline-label">Baseline building</div>
+            ) : null}
+          </div>
           <div className="pillars-grid">
             {pillarCards.map((p) => (
-              <div key={p.key} className="pillar-card">
+              <div
+                key={p.key}
+                className={`pillar-card ${topLever?.id === p.id ? "top" : "quiet"}`}
+              >
                 <div className="pillar-head">
                   <span>{p.key}</span>
-                  <em className={`status ${statusClass(p.stats.trend.label)}`}>
-                    {p.stats.trend.label}
-                  </em>
+                  {topLever?.id === p.id ? (
+                    <em className="top-lever-tag">Top lever</em>
+                  ) : null}
                 </div>
                 <div className="pillar-consistency">
                   Weekly consistency: {p.stats.consistency7}/7
                 </div>
                 <div className="pillar-metric">{p.metric}</div>
+                <div className="pillar-trend">Trend: {p.stats.trend.label}</div>
                 {p.stats.consistency7 < 3 ? (
                   <div className="pillar-next">
                     Next: log this pillar 3+ days/week.
@@ -431,6 +464,7 @@ export default function InsightsPage() {
                 <div className="period-metric">
                   Bedtime consistency: {analytics.pillars.bedtimeConsistency}%
                 </div>
+                <Sparkline series={analytics.sleepSeries} />
               </div>
 
               <div className="period-card mini-trend">
@@ -443,26 +477,10 @@ export default function InsightsPage() {
                 <div className="period-metric">
                   Trend: {analytics.pillars.mood.trend.label}
                 </div>
+                <Sparkline series={analytics.moodSeries} />
               </div>
             </div>
           </section>
-
-          <aside className="ins-side card">
-            <div className="side-title">Coach summary</div>
-            <div className="suggestion-main">{analytics.coach.heading}</div>
-            <div className="suggestion-sub">{analytics.coach.body}</div>
-            <div className="risk-flag">Risk flag: {analytics.coach.risk}</div>
-            <div className="suggestion-micro">
-              Next best action: {analytics.coach.action}
-            </div>
-            <button
-              className="starter-btn"
-              type="button"
-              onClick={handleDrink500}
-            >
-              +500ml hydration now
-            </button>
-          </aside>
         </div>
 
         {coachOpen ? (
