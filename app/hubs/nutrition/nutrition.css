@@ -1,74 +1,96 @@
 /* app/hubs/nutrition/nutrition.css */
 
 /* Apple-ish base */
-:root{
-  --text: #1C1C1E;
+:root {
+  --text: #1c1c1e;
   --muted: #777;
-  --border: #EDEDF0;
-  --bg: #FFFFFF;
-  --soft: #F8F8FA;
+  --border: #ededf0;
+  --bg: #f6f6fb;
+  --soft: #f8f8fa;
 
-  --pink-1:#FFF6FA;
-  --pink-2:#FFE3EF;
-  --pink-3:#FFB7D4;
-  --pink-4:#FF4F9A;
-  --pink-5:#FF8AC7;
+  --pink-1: #fff6fa;
+  --pink-2: #ffe3ef;
+  --pink-3: #ffb7d4;
+  --pink-4: #ff4f9a;
+  --pink-5: #ff8ac7;
 
-  --shadow: 0 10px 22px rgba(0,0,0,0.06);
+  --shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }
 
-*{ box-sizing:border-box; }
+* {
+  box-sizing: border-box;
+}
 
-.nutri-page{
+.nutri-page {
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(
+      900px 520px at 18% 0%,
+      rgba(255, 79, 154, 0.06),
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 520px at 90% 12%,
+      rgba(255, 79, 154, 0.04),
+      transparent 60%
+    ),
+    var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
   padding: 18px;
 }
 
-.nutri-topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+.nutri-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
-.nutri-back{
-  text-decoration:none;
+.nutri-back {
+  text-decoration: none;
   font-weight: 900;
   color: var(--text);
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }
 
-.nutri-container{
+.nutri-container {
   width: 100%;
-  max-width: 980px;       /* not A4 skinny */
+  max-width: 980px; /* not A4 skinny */
   margin: 0 auto;
 }
 
-.nutri-hero{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
+.nutri-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 14px;
-  margin: 6px 0 14px;
+  margin: 6px 0 18px;
 }
 
-.nutri-title{
+.nutri-title {
   margin: 0;
   font-size: 28px;
   font-weight: 1100;
   letter-spacing: -0.2px;
 }
-.nutri-emoji{ margin-left: 6px; }
+.nutri-emoji {
+  margin-left: 6px;
+}
 
-.nutri-sub{
+.nutri-sub {
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
@@ -76,250 +98,321 @@
   line-height: 1.35;
 }
 
-.nutri-badge{
-  min-width: 120px;
-  border: 1px solid var(--pink-3);
-  background: var(--pink-1);
-  border-radius: 18px;
-  padding: 12px 12px;
-  box-shadow: var(--shadow);
-  text-align:center;
+.nutri-badge {
+  min-width: 104px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  padding: 9px 10px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+  text-align: center;
 }
 
-.nutri-badgeLabel{
-  font-size: 11px;
+.nutri-badgeLabel {
+  font-size: 10px;
   font-weight: 1000;
-  color: var(--pink-4);
-  letter-spacing: 0.4px;
+  color: #6f6f79;
+  letter-spacing: 0.35px;
 }
 
-.nutri-badgeValue{
-  margin-top: 4px;
-  font-size: 20px;
-  font-weight: 1200;
+.nutri-badgeValue {
+  margin-top: 3px;
+  font-size: 16px;
+  font-weight: 1100;
 }
 
-.nutri-tabs{
-  display:flex;
-  gap:10px;
-  margin: 6px 0 14px;
+.nutri-badge.is-complete {
+  border-color: rgba(255, 79, 154, 0.35);
+  background: rgba(255, 79, 154, 0.08);
+  box-shadow:
+    0 0 0 4px rgba(255, 79, 154, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.05);
 }
 
-.nutri-tab{
+.nutri-tabsWrap {
+  margin: 4px 0 20px;
+}
+
+.nutri-card-metric {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+}
+
+.nutri-actions-main {
+  align-items: center;
+}
+
+.nutri-primary-main {
+  min-width: 126px;
+  height: 40px;
+  padding: 0 14px;
+}
+
+.nutri-bar.protein .nutri-barFill {
+  background: linear-gradient(
+    135deg,
+    rgba(127, 146, 235, 0.62),
+    rgba(127, 146, 235, 0.42)
+  );
+}
+
+.nutri-bar.carbs .nutri-barFill {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 165, 112, 0.62),
+    rgba(239, 165, 112, 0.42)
+  );
+}
+
+.nutri-bar.fat .nutri-barFill {
+  background: linear-gradient(
+    135deg,
+    rgba(185, 150, 222, 0.62),
+    rgba(185, 150, 222, 0.42)
+  );
+}
+
+.nutri-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.nutri-tab {
   flex: 1;
-  border: 1px solid var(--border);
-  background:#fff;
-  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  height: 38px;
+  padding: 0 12px;
   border-radius: 999px;
-  font-weight: 1000;
-  cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  font-size: 12px;
+  font-weight: 950;
+  color: #6a6a74;
+  cursor: pointer;
+  box-shadow: none;
 }
 
-.nutri-tab.active{
-  border-color: var(--pink-3);
-  background: var(--pink-1);
-  color: var(--pink-4);
+.nutri-tab.active {
+  border-color: rgba(255, 79, 154, 0.16);
+  background: rgba(255, 79, 154, 0.12);
+  color: #b33772;
 }
 
-.nutri-grid2{
-  display:grid;
+.nutri-grid2 {
+  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-@media (max-width: 720px){
-  .nutri-grid2{ grid-template-columns: 1fr; }
-  .nutri-hero{ flex-direction: column; }
-  .nutri-badge{ width: 100%; text-align:left; }
+@media (max-width: 720px) {
+  .nutri-grid2 {
+    grid-template-columns: 1fr;
+  }
+  .nutri-hero {
+    flex-direction: column;
+  }
+  .nutri-badge {
+    width: 100%;
+    text-align: left;
+  }
 }
 
-.nutri-card{
-  border: 1px solid var(--border);
-  background:#fff;
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: var(--shadow);
+.nutri-card {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
 }
 
-.nutri-cardTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.nutri-cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
-.nutri-label{
+.nutri-label {
   font-weight: 1000;
   font-size: 13px;
+  color: rgba(28, 28, 30, 0.75);
 }
 
-.nutri-chip{
+.nutri-chip {
   background: var(--soft);
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
   padding: 6px 10px;
   border-radius: 999px;
   font-weight: 1000;
   font-size: 12px;
-  color:#555;
+  color: #555;
 }
 
-.nutri-big{
-  margin-top: 12px;
-  font-size: 24px;
+.nutri-big {
+  margin-top: 10px;
+  font-size: 27px;
   font-weight: 1200;
 }
 
-.nutri-small{
-  margin-top: 8px;
+.nutri-small {
+  margin-top: 7px;
   font-size: 12px;
-  color: var(--muted);
+  color: rgba(28, 28, 30, 0.58);
   font-weight: 800;
 }
 
-.nutri-tiny{
+.nutri-tiny {
   margin-top: 8px;
   font-size: 11px;
-  color:#888;
+  color: #888;
   font-weight: 800;
 }
 
-.nutri-strong{ font-weight: 1100; color: var(--text); }
+.nutri-strong {
+  font-weight: 1100;
+  color: var(--text);
+}
 
-.nutri-over{
-  color:#C1121F;
+.nutri-over {
+  color: #c1121f;
   font-weight: 1100;
 }
 
-.nutri-miniTrack{
-  height: 10px;
+.nutri-miniTrack {
+  height: 9px;
   border-radius: 999px;
-  background: #F2F2F7;
-  border: 1px solid var(--border);
-  overflow:hidden;
-  margin-top: 12px;
+  background: #f6f6fa;
+  border: none;
+  overflow: hidden;
+  margin-top: 11px;
 }
 
-.nutri-miniFill{
+.nutri-miniFill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(135deg, var(--pink-5), var(--pink-4));
+  background: linear-gradient(135deg, #f08cb9, #db6198);
+  transition: width 360ms ease;
 }
 
-.nutri-actions{
-  display:flex;
+.nutri-actions {
+  display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin: 12px 0 10px;
+  margin: 12px 0 14px;
 }
 
-.nutri-primary{
+.nutri-primary {
   border: none;
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 11px 14px;
   font-weight: 1100;
-  cursor:pointer;
-  color:#fff;
-  background: linear-gradient(135deg, var(--pink-5), var(--pink-4));
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #ec76ad, #d85f97);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
-.nutri-primary:hover{ opacity:.95; }
+.nutri-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(218, 92, 150, 0.22);
+}
 
-.nutri-ghost{
+.nutri-ghost {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 14px;
   padding: 12px 14px;
   font-weight: 1000;
-  cursor:pointer;
+  cursor: pointer;
 }
-.nutri-ghost:hover{
+.nutri-ghost:hover {
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
 
-.nutri-pillBtn{
+.nutri-pillBtn {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 999px;
   padding: 10px 14px;
   font-weight: 1000;
-  cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
 }
-.nutri-pillBtn:hover{
+.nutri-pillBtn:hover {
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
 
-.nutri-row{
-  display:flex;
+.nutri-row {
+  display: flex;
   gap: 10px;
-  align-items:center;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.nutri-select{
+.nutri-select {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
-  outline:none;
+  outline: none;
 }
 
-.nutri-miniInput{
+.nutri-miniInput {
   width: 110px;
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
-  outline:none;
+  outline: none;
 }
 
-.nutri-inlineLabel{
+.nutri-inlineLabel {
   font-size: 12px;
   font-weight: 1000;
-  color:#555;
+  color: #555;
 }
 
-.nutri-field{
-  display:flex;
-  flex-direction:column;
+.nutri-field {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.nutri-fieldLabel{
+.nutri-fieldLabel {
   font-size: 12px;
   font-weight: 1000;
-  color:#555;
+  color: #555;
 }
 
-.nutri-input{
+.nutri-input {
   border: 1px solid var(--border);
   background: var(--soft);
   border-radius: 14px;
   padding: 12px 12px;
   font-weight: 900;
-  outline:none;
+  outline: none;
 }
-.nutri-input:focus{
+.nutri-input:focus {
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
 
-.nutri-search{
+.nutri-search {
   width: 100%;
   margin-top: 12px;
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 900;
-  outline:none;
+  outline: none;
   background: var(--soft);
 }
 
-.nutri-mutedBox{
+.nutri-mutedBox {
   border: 1px solid var(--border);
   background: var(--soft);
   padding: 14px 16px;
@@ -329,87 +422,88 @@
   margin-top: 10px;
 }
 
-.nutri-danger{
-  border: 1px solid #FFD0E1;
+.nutri-danger {
+  border: 1px solid #ffd0e1;
   background: var(--pink-1);
   color: var(--pink-4);
 }
 
 /* Sections */
-.nutri-section{
+.nutri-section {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 18px;
   padding: 14px;
   box-shadow: var(--shadow);
   margin-top: 12px;
 }
 
-.nutri-sectionHead{
+.nutri-sectionHead {
   width: 100%;
-  text-align:left;
+  text-align: left;
   background: transparent;
   border: none;
   padding: 0;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 12px;
-  cursor:pointer;
+  cursor: pointer;
 }
 
-.nutri-sectionTitle{
+.nutri-sectionTitle {
   font-weight: 1100;
   font-size: 15px;
 }
 
-.nutri-sectionSub{
+.nutri-sectionSub {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
   font-weight: 800;
 }
 
-.nutri-sectionBody{
+.nutri-sectionBody {
   margin-top: 14px;
 }
 
-.nutri-chev{
+.nutri-chev {
   font-weight: 1100;
   font-size: 18px;
   color: var(--text);
   min-width: 24px;
-  text-align:right;
+  text-align: right;
   line-height: 1;
 }
 
 /* Bars */
-.nutri-bar{
-  margin-top: 10px;
+.nutri-bar {
+  margin-top: 16px;
 }
-.nutri-barTop{
-  display:flex;
-  justify-content:space-between;
+.nutri-barTop {
+  display: flex;
+  justify-content: space-between;
   font-size: 12px;
   font-weight: 900;
   color: var(--muted);
   margin-bottom: 6px;
 }
-.nutri-barTrack{
-  height: 10px;
+.nutri-barTrack {
+  height: 7px;
   border-radius: 999px;
-  background: #F2F2F7;
-  border: 1px solid var(--border);
-  overflow:hidden;
+  background: #f3f4f8;
+  border: none;
+  overflow: hidden;
 }
-.nutri-barFill{
+.nutri-barFill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(135deg, var(--pink-5), var(--pink-4));
+  background: linear-gradient(135deg, #e992be, #d96ca1);
+  transition: width 360ms ease;
 }
 
 /* Sticky */
-.nutri-sticky{
+.nutri-sticky {
   position: sticky;
   top: 12px;
   z-index: 40;
@@ -419,33 +513,33 @@
   pointer-events: none;
   transform: translateY(-6px);
   transition: 200ms ease;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 10px 12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
-.nutri-sticky.on{
+.nutri-sticky.on {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
 }
-.nutri-stickyTitle{
+.nutri-stickyTitle {
   font-weight: 1100;
   font-size: 12px;
 }
-.nutri-stickySub{
+.nutri-stickySub {
   font-size: 12px;
   color: var(--muted);
   font-weight: 900;
   margin-top: 2px;
 }
-.nutri-stickyBtn{
+.nutri-stickyBtn {
   border: none;
   cursor: pointer;
   border-radius: 999px;
@@ -457,35 +551,37 @@
 }
 
 /* Lists / rows */
-.nutri-list{
-  display:flex;
-  flex-direction:column;
+.nutri-list {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-top: 10px;
 }
-.nutri-rowCard{
+.nutri-rowCard {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 16px;
   padding: 12px 12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
   box-shadow: var(--shadow);
 }
-.nutri-rowName{ font-weight: 1100; }
-.nutri-rowSub{
+.nutri-rowName {
+  font-weight: 1100;
+}
+.nutri-rowSub {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
   font-weight: 800;
 }
-.nutri-kcalPill{
+.nutri-kcalPill {
   font-size: 12px;
   font-weight: 1100;
   color: var(--text);
-  background: #F2F2F7;
+  background: #f2f2f7;
   border: 1px solid var(--border);
   padding: 6px 10px;
   border-radius: 999px;
@@ -493,149 +589,160 @@
 }
 
 /* Meal header */
-.nutri-mealGroup{ margin-top: 14px; }
-.nutri-mealTitle{
+.nutri-mealGroup {
+  margin-top: 14px;
+}
+.nutri-mealTitle {
   font-weight: 1100;
   font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
-.nutri-mealHint{
+.nutri-mealHint {
   font-size: 11px;
   color: #999;
   font-weight: 900;
-  text-transform:none;
+  text-transform: none;
   letter-spacing: 0;
 }
 
 /* Swipe */
-.nutri-swipeWrap{
+.nutri-swipeWrap {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
 }
-.nutri-swipeDelete{
-  position:absolute;
-  right:0;
-  top:0;
-  height:100%;
+.nutri-swipeDelete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
   width: 88px;
-  border:none;
-  background:#C1121F;
-  color:#fff;
-  font-weight:1100;
-  cursor:pointer;
+  border: none;
+  background: #c1121f;
+  color: #fff;
+  font-weight: 1100;
+  cursor: pointer;
 }
-.nutri-swipeCard{
+.nutri-swipeCard {
   will-change: transform;
   transition: transform 180ms ease;
-  background:#fff;
+  background: #fff;
 }
-.nutri-swipeCard:active{ transition:none; }
+.nutri-swipeCard:active {
+  transition: none;
+}
 
 /* Modal */
-.nutri-modal{
+.nutri-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.25);
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   padding: 18px;
   z-index: 9999;
 }
-.nutri-modalCard{
+.nutri-modalCard {
   width: 100%;
   max-width: 980px;
-  background:#fff;
+  background: #fff;
   border-radius: 22px;
   padding: 14px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
   max-height: 85vh;
-  overflow:auto;
+  overflow: auto;
 }
-.nutri-modalTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.nutri-modalTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
-.nutri-modalTitle{
+.nutri-modalTitle {
   font-weight: 1100;
   font-size: 16px;
 }
-.nutri-iconBtn{
+.nutri-iconBtn {
   width: 44px;
   height: 44px;
   border-radius: 14px;
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   font-weight: 1100;
-  cursor:pointer;
+  cursor: pointer;
 }
-.nutri-iconBtn:hover{
+.nutri-iconBtn:hover {
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
 
 /* Recipes */
-.nutri-recipeGrid{
+.nutri-recipeGrid {
   margin-top: 12px;
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
-@media (max-width: 900px){
-  .nutri-recipeGrid{ grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 900px) {
+  .nutri-recipeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
-@media (max-width: 560px){
-  .nutri-recipeGrid{ grid-template-columns: 1fr; }
+@media (max-width: 560px) {
+  .nutri-recipeGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.nutri-recipeCard{
+.nutri-recipeCard {
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 18px;
   padding: 12px;
-  text-align:left;
-  cursor:pointer;
+  text-align: left;
+  cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform .08s ease, border-color .08s ease, background .08s ease;
+  transition:
+    transform 0.08s ease,
+    border-color 0.08s ease,
+    background 0.08s ease;
 }
-.nutri-recipeCard:hover{
+.nutri-recipeCard:hover {
   transform: translateY(-1px);
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
-.nutri-recipeImg{
+.nutri-recipeImg {
   width: 100%;
   height: 150px;
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid var(--border);
 }
-.nutri-recipeImgPh{
+.nutri-recipeImgPh {
   width: 100%;
   height: 150px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: var(--soft);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 28px;
 }
-.nutri-recipeTitle{
+.nutri-recipeTitle {
   margin-top: 10px;
   font-weight: 1100;
   font-size: 14px;
 }
-.nutri-recipeMeta{
+.nutri-recipeMeta {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
@@ -643,61 +750,66 @@
 }
 
 /* Recipe modal details */
-.nutri-recipeHeader{
-  display:flex;
+.nutri-recipeHeader {
+  display: flex;
   gap: 12px;
-  align-items:flex-start;
+  align-items: flex-start;
   margin-top: 10px;
 }
-.nutri-recipeHeroImg{
+.nutri-recipeHeroImg {
   width: 110px;
   height: 110px;
   object-fit: cover;
   border-radius: 16px;
   border: 1px solid var(--border);
 }
-.nutri-recipeH1{
+.nutri-recipeH1 {
   font-size: 18px;
   font-weight: 1200;
 }
 
-.nutri-split{
-  display:grid;
+.nutri-split {
+  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 12px;
 }
-@media (max-width: 860px){
-  .nutri-split{ grid-template-columns: 1fr; }
+@media (max-width: 860px) {
+  .nutri-split {
+    grid-template-columns: 1fr;
+  }
 }
-.nutri-block{
+.nutri-block {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 12px;
-  background:#fff;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.05);
 }
-.nutri-blockTitle{
+.nutri-blockTitle {
   font-weight: 1100;
   font-size: 14px;
 }
-.nutri-ingredList{
+.nutri-ingredList {
   margin-top: 10px;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
-.nutri-ingredRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.nutri-ingredRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
   font-size: 12px;
   font-weight: 900;
 }
-.nutri-muted{ color: var(--muted); font-weight: 900; }
+.nutri-muted {
+  color: var(--muted);
+  font-weight: 900;
+}
 
-.nutri-instructions{
+.nutri-instructions {
   margin-top: 10px;
   font-size: 13px;
   line-height: 1.5;
@@ -707,38 +819,38 @@
 }
 
 /* Supplements list */
-.nutri-stackList{
+.nutri-stackList {
   margin-top: 10px;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
 /* picker list rows */
-.nutri-listRow{
+.nutri-listRow {
   width: 100%;
   border: 1px solid var(--border);
-  background:#fff;
+  background: #fff;
   border-radius: 18px;
   padding: 12px;
-  display:flex;
-  justify-content:space-between;
+  display: flex;
+  justify-content: space-between;
   gap: 12px;
-  text-align:left;
-  cursor:pointer;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.06);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }
-.nutri-listRow:hover{
+.nutri-listRow:hover {
   border-color: var(--pink-3);
   background: var(--pink-1);
 }
-.nutri-plus{
+.nutri-plus {
   width: 34px;
   height: 34px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 1200;
 }
