@@ -1766,3 +1766,68 @@
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
+
+
+/* Theme alignment overrides for hubs */
+.hub-page {
+  background:
+    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
+    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    var(--bg);
+  color: var(--text);
+}
+
+.back-link,
+.hub-section-white,
+.stat-card,
+.hub-badge,
+.hub-chip,
+.primary-card,
+.life-goalcard,
+.life-habitcard,
+.life-scorecard,
+.life-routinecard,
+.ms3-card,
+.ms3-item {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text);
+}
+
+.hub-sub,
+.stat-sub,
+.hub-section-sub,
+.form-label,
+.tiny-note,
+.ms3-sub,
+.ms3-muted,
+.ms3-preview {
+  color: var(--muted) !important;
+}
+
+.primary-btn,
+.ms3-primary,
+.life-addbtn,
+.life-savebtn,
+.life-primary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 72%, white),
+    var(--accent)
+  ) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+.form-input,
+.ms3-search,
+.ms3-select,
+.ms3-iconbtn,
+.ms3-scorebtn,
+.life-input,
+.life-select,
+.life-textarea {
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}

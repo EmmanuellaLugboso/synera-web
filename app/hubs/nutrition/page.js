@@ -2,6 +2,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import "./nutrition.css";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
@@ -263,6 +265,7 @@ function SwipeRow({ children, onDelete, deleteLabel = "Delete" }) {
 }
 
 export default function Page() {
+  const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
 
   /* ------------------------
@@ -270,6 +273,11 @@ export default function Page() {
   ------------------------ */
   const [tab, setTab] = useState("tracker"); // tracker | recipes | supplements
   const date = todayISO();
+
+
+  useEffect(() => {
+    if (ready && !user) router.push("/login");
+  }, [ready, user, router]);
 
   // sticky mini header
   const [stickyOn, setStickyOn] = useState(false);
@@ -1449,10 +1457,13 @@ export default function Page() {
                           onClick={() => openRecipeModal(r)}
                         >
                           {r.image ? (
-                            <img
+                            <Image
                               className="nutri-recipeImg"
                               src={r.image}
                               alt={r.title}
+                              width={360}
+                              height={220}
+                              unoptimized
                             />
                           ) : (
                             <div className="nutri-recipeImgPh">🍽️</div>
@@ -1482,10 +1493,13 @@ export default function Page() {
                     <>
                       <div className="nutri-recipeHeader">
                         {selectedRecipe.image ? (
-                          <img
+                          <Image
                             className="nutri-recipeHeroImg"
                             src={selectedRecipe.image}
                             alt={selectedRecipe.title}
+                            width={720}
+                            height={420}
+                            unoptimized
                           />
                         ) : null}
                         <div>

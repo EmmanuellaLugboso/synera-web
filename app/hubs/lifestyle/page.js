@@ -3,7 +3,8 @@
 import Link from "next/link";
 import "../hub.css";
 import { useOnboarding } from "../../context/OnboardingContext";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 /* ------------------------
    Helpers
@@ -109,10 +110,14 @@ function calcDisciplineScore({
    Component
 ------------------------ */
 export default function Page() {
-  const { data, updateMany } = useOnboarding();
+  const router = useRouter();
+  const { data, updateMany, ready, user } = useOnboarding();
 
-  const tabOptions = ["admin", "goals", "habits", "discipline", "routines"];
   const [tab, setTab] = useState("admin");
+
+  useEffect(() => {
+    if (ready && !user) router.replace("/login");
+  }, [ready, user, router]);
 
   const dateISO = todayISO();
   const weekISO = startOfWeekISO(new Date());
@@ -556,7 +561,6 @@ export default function Page() {
      Header summary
   ========================= */
   const headerSummary = useMemo(() => {
-    const todaysTasksDone = lifeAdminTasks.filter((t) => t?.doneAt && t?.doneAt > 0).length;
     const activeGoals = goals90.filter((g) => (g?.status || "active") === "active").length;
     const todaysHabitChecks = habitLogs.filter((l) => l.dateISO === dateISO && l.value === 1).length;
 
@@ -570,7 +574,6 @@ export default function Page() {
       routines: `${routines.length} templates`,
     };
   }, [
-    lifeAdminTasks,
     goals90,
     habitLogs,
     dateISO,

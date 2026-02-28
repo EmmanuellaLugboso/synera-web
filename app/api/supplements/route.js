@@ -20,7 +20,7 @@ export async function GET(req) {
     results = results.slice().sort((a, b) => a.name.localeCompare(b.name));
 
     return NextResponse.json({ results }, { status: 200 });
-  } catch (e) {
+  } catch {
     return NextResponse.json(
       { error: "Server error in /api/supplements" },
       { status: 500 }
