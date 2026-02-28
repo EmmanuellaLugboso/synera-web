@@ -99,6 +99,39 @@ function safeObject(x) {
   return x && typeof x === "object" && !Array.isArray(x) ? x : null;
 }
 
+
+function parseLitres(value) {
+  if (value == null) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, value);
+  const raw = String(value).trim().toLowerCase();
+  if (!raw) return null;
+  const num = Number(raw.replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(num)) return null;
+  return Math.max(0, num);
+}
+
+function normalizeOnboardingData(input) {
+  const obj = safeObject(input);
+  if (!obj) return {};
+
+  const next = { ...obj };
+
+  const macroGoals = safeObject(next.macroGoals) || {};
+  const legacyProtein = Number(next.proteinGoalG);
+  if (!Number.isFinite(Number(macroGoals.proteinG)) && Number.isFinite(legacyProtein) && legacyProtein > 0) {
+    next.macroGoals = { ...macroGoals, proteinG: legacyProtein };
+  }
+
+  const goalLitres = parseLitres(next.waterGoalLitres);
+  const legacyGoal = parseLitres(next.waterGoal);
+  if (goalLitres == null && legacyGoal != null) next.waterGoalLitres = legacyGoal;
+
+  const litres = parseLitres(next.waterLitres);
+  const intakeLitres = parseLitres(next.waterIntake);
+  if (litres == null && intakeLitres != null) next.waterLitres = intakeLitres;
+
+  return next;
+}
 function mergeData(base, incoming) {
   const obj = safeObject(incoming);
   if (!obj) return base;
@@ -112,7 +145,7 @@ export function OnboardingProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return DEFAULT_DATA;
       const parsed = JSON.parse(saved);
-      return mergeData(DEFAULT_DATA, parsed);
+      return mergeData(DEFAULT_DATA, normalizeOnboardingData(parsed));
     } catch {
       return DEFAULT_DATA;
     }
@@ -138,13 +171,23 @@ export function OnboardingProvider({ children }) {
 
       try {
         const remoteDoc = (await getUserProfile(u.uid)) || {};
-        const remoteData = safeObject(remoteDoc.data) || safeObject(remoteDoc) || {};
+        const isNestedDataDoc = safeObject(remoteDoc.data) !== null;
+        const remoteData = normalizeOnboardingData(
+          safeObject(remoteDoc.data) || safeObject(remoteDoc) || {},
+        );
 
         if (Object.keys(remoteDoc).length > 0) {
           // Merge: defaults -> current local -> remote data
           setData((prev) =>
             mergeData(DEFAULT_DATA, mergeData(prev, remoteData))
           );
+
+          if (!isNestedDataDoc) {
+            await mergeUserProfile(u.uid, {
+              updatedAt: serverTimestamp(),
+              data: sanitizeForFirestore(remoteData),
+            });
+          }
         } else {
           // First-time user: create clean doc
           await mergeUserProfile(u.uid, {
@@ -188,7 +231,7 @@ export function OnboardingProvider({ children }) {
 
     saveTimer.current = setTimeout(async () => {
       try {
-        const payload = sanitizeForFirestore(data);
+        const payload = sanitizeForFirestore(normalizeOnboardingData(data));
 
         await mergeUserProfile(user.uid, {
           email: user.email || "",
