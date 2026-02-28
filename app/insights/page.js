@@ -17,173 +17,18 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import {
+  buildCoachSummary,
+  buildPillarAnalytics,
+  clampNumber,
+  normalizeDailyTimeline,
+  todayISO,
+} from "./analytics";
 import "./page.css";
-
-function clampNumber(v) {
-  const n = Number(v);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-
-function clampPercent(v) {
-  return Math.max(0, Math.min(100, Math.round(v)));
-}
-
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function getLastNDaysISO(n) {
-  const out = [];
-  const now = new Date();
-  for (let i = 0; i < n; i += 1) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - i);
-    out.push(d.toISOString().split("T")[0]);
-  }
-  return out;
-}
-
-async function fetchLastNDaysDaily(uid, n = 30) {
-  if (!uid) return [];
-  const ref = collection(db, "users", uid, "daily");
-  const q = query(ref, orderBy(documentId(), "desc"), limit(n));
-  const snap = await getDocs(q);
-
-  console.log("[Insights] fetched daily docs count:", snap.size);
-
-  const docs = [];
-  snap.forEach((docSnap) => {
-    const d = docSnap.data() || {};
-    docs.push({
-      dateISO: docSnap.id,
-      calories: clampNumber(d.calories),
-      steps: clampNumber(d.steps),
-      waterMl: clampNumber(d.waterMl),
-      missing: false,
-    });
-  });
-  return docs;
-}
-
-function normalizeDailyTimeline(fetched, n = 30) {
-  const wanted = getLastNDaysISO(n).reverse();
-  const byDate = new Map(fetched.map((d) => [d.dateISO, d]));
-
-  return wanted.map((dateISO) => {
-    const found = byDate.get(dateISO);
-    if (found) {
-      return {
-        dateISO,
-        calories: clampNumber(found.calories),
-        steps: clampNumber(found.steps),
-        waterMl: clampNumber(found.waterMl),
-        missing: false,
-      };
-    }
-    return { dateISO, calories: 0, steps: 0, waterMl: 0, missing: true };
-  });
-}
 
 function mean(values) {
   if (!values.length) return 0;
   return values.reduce((s, v) => s + v, 0) / values.length;
-}
-
-function stdDev(values, avg) {
-  if (!values.length) return 0;
-  const variance = values.reduce((s, v) => s + (v - avg) * (v - avg), 0) / values.length;
-  return Math.sqrt(variance);
-}
-
-function computeTrend(points) {
-  const n = points.length;
-  if (n < 2) return { slope: 0, label: "Building baseline" };
-
-  const xVals = points.map((p) => p.index);
-  const yVals = points.map((p) => p.value);
-  const xMean = mean(xVals);
-  const yMean = mean(yVals);
-
-  let numerator = 0;
-  let denominator = 0;
-  for (let i = 0; i < n; i += 1) {
-    const dx = xVals[i] - xMean;
-    numerator += dx * (yVals[i] - yMean);
-    denominator += dx * dx;
-  }
-
-  const slope = denominator ? numerator / denominator : 0;
-  const threshold = Math.max(0.0001, Math.abs(yMean) * 0.01);
-
-  if (slope > threshold) return { slope, label: "Improving" };
-  if (slope < -threshold) return { slope, label: "Declining" };
-  return { slope, label: "Stable" };
-}
-
-function computeStreaks(series, goal) {
-  if (!goal) return { current: 0, best: 0 };
-
-  let current = 0;
-  for (let i = series.length - 1; i >= 0; i -= 1) {
-    if (series[i] >= goal) current += 1;
-    else break;
-  }
-
-  let best = 0;
-  let run = 0;
-  for (const v of series) {
-    if (v >= goal) {
-      run += 1;
-      if (run > best) best = run;
-    } else {
-      run = 0;
-    }
-  }
-
-  return { current, best };
-}
-
-function computeStats(days, selector, goal, minValidDays) {
-  const mapped = days.map((d, index) => {
-    const value = selector(d);
-    return {
-      index,
-      value,
-      valid: !d.missing || value > 0,
-    };
-  });
-
-  const valid = mapped.filter((m) => m.valid);
-  if (valid.length < minValidDays) {
-    return {
-      enoughData: false,
-      validCount: valid.length,
-      avg: null,
-      adherence: null,
-      consistency: null,
-      trend: { slope: 0, label: "Building baseline" },
-      streaks: { current: 0, best: 0 },
-    };
-  }
-
-  const values = valid.map((v) => v.value);
-  const avg = mean(values);
-  const adherence = goal ? clampPercent((avg / goal) * 100) : null;
-  const sd = stdDev(values, avg);
-  const consistency = avg === 0 ? 0 : clampPercent(100 - (sd / avg) * 100);
-  const trend = computeTrend(valid.map((v) => ({ index: v.index, value: v.value })));
-  const streaks = computeStreaks(days.map((d) => selector(d)), goal);
-
-  return {
-    enoughData: true,
-    validCount: valid.length,
-    avg,
-    adherence,
-    consistency,
-    trend,
-    streaks,
-  };
 }
 
 function sparklinePath(series, width = 520, height = 140, pad = 12) {
@@ -191,7 +36,6 @@ function sparklinePath(series, width = 520, height = 140, pad = 12) {
   const min = Math.min(...safe);
   const max = Math.max(...safe);
   const range = Math.max(1, max - min);
-
   const points = safe.map((value, i) => {
     const x = pad + (i * (width - pad * 2)) / Math.max(1, safe.length - 1);
     const y = height - pad - ((value - min) / range) * (height - pad * 2);
@@ -218,27 +62,24 @@ function Sparkline({ series }) {
   );
 }
 
-function StarterChart({ todayHasValue }) {
-  return (
-    <div className="starter-overlay">
-      <div className="starter-baseline" />
-      {todayHasValue ? <div className="starter-dot" /> : null}
-      <div className="starter-copy">
-        <div>No trend yet</div>
-        <div>Log a few days to reveal patterns.</div>
-      </div>
-    </div>
-  );
+function statusClass(label) {
+  if (label === "Improving") return "up";
+  if (label === "Declining") return "down";
+  if (label === "Stable") return "flat";
+  return "base";
 }
 
-function formatAvg(value, fallbackToday, unit = "") {
-  if (value == null) {
-    if (fallbackToday > 0) {
-      return unit ? `${fallbackToday.toFixed(1)}${unit} avg` : `${Math.round(fallbackToday)} avg`;
-    }
-    return "— avg";
-  }
-  return unit ? `${value.toFixed(1)}${unit} avg` : `${Math.round(value)} avg`;
+async function fetchLastNDaysDaily(uid, n = 30) {
+  if (!uid) return [];
+  const ref = collection(db, "users", uid, "daily");
+  const q = query(ref, orderBy(documentId(), "desc"), limit(n));
+  const snap = await getDocs(q);
+
+  const docs = [];
+  snap.forEach((docSnap) =>
+    docs.push({ dateISO: docSnap.id, ...(docSnap.data() || {}) }),
+  );
+  return docs;
 }
 
 export default function InsightsPage() {
@@ -250,12 +91,14 @@ export default function InsightsPage() {
 
   const [coachOpen, setCoachOpen] = useState(false);
   const [coachMessages, setCoachMessages] = useState([
-    { role: "assistant", text: "Hey — tell me what you need help with today." },
+    {
+      role: "assistant",
+      text: "I can help prioritize one high-leverage move for today.",
+    },
   ]);
   const [coachInput, setCoachInput] = useState("");
   const [coachTyping, setCoachTyping] = useState(false);
   const [coachError, setCoachError] = useState("");
-  const [walkDone, setWalkDone] = useState(false);
 
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
@@ -266,7 +109,6 @@ export default function InsightsPage() {
 
     async function loadTimeline() {
       if (!ready) return;
-
       if (!authUser?.uid) {
         if (!cancelled) {
           setDays30(normalizeDailyTimeline([], 30));
@@ -277,11 +119,9 @@ export default function InsightsPage() {
 
       setLoading(true);
       setLoadError("");
-
       try {
         const fetched = await fetchLastNDaysDaily(authUser.uid, 30);
-        const normalized = normalizeDailyTimeline(fetched, 30);
-        if (!cancelled) setDays30(normalized);
+        if (!cancelled) setDays30(normalizeDailyTimeline(fetched, 30));
       } catch (e) {
         if (!cancelled) {
           setLoadError(e?.message || "Could not load analytics right now.");
@@ -293,7 +133,6 @@ export default function InsightsPage() {
     }
 
     loadTimeline();
-
     return () => {
       cancelled = true;
     };
@@ -302,171 +141,69 @@ export default function InsightsPage() {
   const analytics = useMemo(() => {
     const base = days30.length ? days30 : normalizeDailyTimeline([], 30);
     const week = base.slice(-7);
-    const priorWeek = base.slice(-14, -7);
+    const prevWeek = base.slice(-14, -7);
+    const today = base[base.length - 1] || normalizeDailyTimeline([], 1)[0];
 
-    const today =
-      base[base.length - 1] || {
-        dateISO: todayISO(),
-        calories: 0,
-        steps: 0,
-        waterMl: 0,
-        missing: true,
-      };
+    const pillars = buildPillarAnalytics(base, {
+      calorieGoal,
+      stepGoal,
+      waterGoal,
+      proteinGoal: clampNumber(data?.proteinGoalG) || 120,
+    });
 
-    const validDayFlag = (d) => !d.missing || d.calories > 0 || d.steps > 0 || d.waterMl > 0;
-    const validDays30 = base.filter(validDayFlag).length;
-    const validDays7 = week.filter(validDayFlag).length;
+    const weeklyScore = Math.round(
+      mean([
+        pillars.move.weeklyAvg || 0,
+        pillars.fuel.weeklyAvg || 0,
+        pillars.recover.weeklyAvg || 0,
+        pillars.mood.weeklyAvg || 0,
+        pillars.habits.weeklyAvg || 0,
+      ]),
+    );
 
-    const weekStats = {
-      calories: computeStats(week, (d) => d.calories, calorieGoal, 4),
-      steps: computeStats(week, (d) => d.steps, stepGoal, 4),
-      water: computeStats(week, (d) => d.waterMl / 1000, waterGoal, 4),
-    };
+    const priorScore = Math.round(
+      mean([
+        pillars.move.prevWeekAvg || 0,
+        pillars.fuel.prevWeekAvg || 0,
+        pillars.recover.prevWeekAvg || 0,
+        pillars.mood.prevWeekAvg || 0,
+        pillars.habits.prevWeekAvg || 0,
+      ]),
+    );
 
-    const monthStats = {
-      calories: computeStats(base, (d) => d.calories, calorieGoal, 10),
-      steps: computeStats(base, (d) => d.steps, stepGoal, 10),
-      water: computeStats(base, (d) => d.waterMl / 1000, waterGoal, 10),
-    };
-
-    const priorWeekStats = {
-      calories: computeStats(priorWeek, (d) => d.calories, calorieGoal, 4),
-      steps: computeStats(priorWeek, (d) => d.steps, stepGoal, 4),
-      water: computeStats(priorWeek, (d) => d.waterMl / 1000, waterGoal, 4),
-    };
-
-    const weeklyScoreReady =
-      weekStats.calories.enoughData && weekStats.steps.enoughData && weekStats.water.enoughData;
-
-    let weeklyScore = null;
-    let weeklyLabel = "Building baseline";
-    let weeklyDelta = null;
-
-    if (weeklyScoreReady) {
-      const avgAdherence = mean([
-        weekStats.calories.adherence || 0,
-        weekStats.steps.adherence || 0,
-        weekStats.water.adherence || 0,
-      ]);
-      const avgConsistency = mean([
-        weekStats.calories.consistency || 0,
-        weekStats.steps.consistency || 0,
-        weekStats.water.consistency || 0,
-      ]);
-      weeklyScore = clampPercent(0.55 * avgAdherence + 0.45 * avgConsistency);
-
-      const trends = [
-        monthStats.calories.trend.label,
-        monthStats.steps.trend.label,
-        monthStats.water.trend.label,
-      ];
-      weeklyLabel =
-        trends.filter((x) => x === "Improving").length >= 2
-          ? "Improving"
-          : trends.filter((x) => x === "Declining").length >= 2
-            ? "Declining"
-            : "Stable";
-
-      const priorReady =
-        priorWeekStats.calories.enoughData &&
-        priorWeekStats.steps.enoughData &&
-        priorWeekStats.water.enoughData;
-
-      if (priorReady) {
-        const priorAdherence = mean([
-          priorWeekStats.calories.adherence || 0,
-          priorWeekStats.steps.adherence || 0,
-          priorWeekStats.water.adherence || 0,
-        ]);
-        const priorConsistency = mean([
-          priorWeekStats.calories.consistency || 0,
-          priorWeekStats.steps.consistency || 0,
-          priorWeekStats.water.consistency || 0,
-        ]);
-        const priorScore = clampPercent(0.55 * priorAdherence + 0.45 * priorConsistency);
-        weeklyDelta = weeklyScore - priorScore;
-      }
-    }
+    const coach = buildCoachSummary(pillars, base, { waterGoal });
 
     return {
       base,
+      week,
+      prevWeek,
       today,
-      validDays30,
-      validDays7,
+      pillars,
+      weeklyScore: Number.isFinite(weeklyScore) ? weeklyScore : null,
+      weeklyDelta: Number.isFinite(weeklyScore - priorScore)
+        ? weeklyScore - priorScore
+        : null,
+      coach,
+      validDays30: base.filter((d) => !d.missing).length,
       caloriesSeries: base.map((d) => d.calories),
       stepsSeries: base.map((d) => d.steps),
       waterSeries: base.map((d) => d.waterMl / 1000),
-      seriesValidDays: {
-        calories: base.filter((d) => !d.missing || d.calories > 0).length,
-        steps: base.filter((d) => !d.missing || d.steps > 0).length,
-        water: base.filter((d) => !d.missing || d.waterMl > 0).length,
-      },
-      weekStats,
-      monthStats,
-      weeklyScore,
-      weeklyLabel,
-      weeklyDelta,
-      starterMode: validDays7 < 4,
+      sleepSeries: base.map((d) => d.sleep.hours),
+      moodSeries: base.map((d) => d.mood.rating),
+      sleepAvgWeek:
+        week.filter((d) => d.sleep.hours > 0).length > 0
+          ? mean(
+              week.filter((d) => d.sleep.hours > 0).map((d) => d.sleep.hours),
+            )
+          : null,
+      moodAvgWeek:
+        week.filter((d) => d.mood.rating > 0).length > 0
+          ? mean(
+              week.filter((d) => d.mood.rating > 0).map((d) => d.mood.rating),
+            )
+          : null,
     };
-  }, [days30, calorieGoal, stepGoal, waterGoal]);
-
-  const coachSummary = useMemo(() => {
-    if (analytics.starterMode) {
-      return {
-        heading: "Start simple. Build consistency.",
-        body: "Log one metric per day for the next 4 days. That is enough to generate a real weekly signal.",
-        micro: "Aim: 4 logged days. Any one metric counts.",
-      };
-    }
-
-    const candidates = [
-      {
-        key: "Calories",
-        adherence: analytics.weekStats.calories.adherence || 0,
-        consistency: analytics.weekStats.calories.consistency || 0,
-        trend: analytics.monthStats.calories.trend.label,
-      },
-      {
-        key: "Steps",
-        adherence: analytics.weekStats.steps.adherence || 0,
-        consistency: analytics.weekStats.steps.consistency || 0,
-        trend: analytics.monthStats.steps.trend.label,
-      },
-      {
-        key: "Hydration",
-        adherence: analytics.weekStats.water.adherence || 0,
-        consistency: analytics.weekStats.water.consistency || 0,
-        trend: analytics.monthStats.water.trend.label,
-      },
-    ]
-      .map((c) => ({ ...c, limiting: Math.min(c.adherence, c.consistency) }))
-      .sort((a, b) => a.limiting - b.limiting);
-
-    const primary = candidates[0];
-
-    const heading =
-      primary.key === "Hydration"
-        ? "Hydration is your limiting factor this week."
-        : primary.key === "Steps"
-          ? "Step consistency is your limiting factor this week."
-          : "Calorie consistency is your limiting factor this week.";
-
-    const body =
-      primary.key === "Hydration"
-        ? "Front-load water intake. Two 500ml blocks before lunch improves daily adherence."
-        : primary.key === "Steps"
-          ? "Anchor movement to fixed times. A short walk after lunch stabilizes your day."
-          : "Pre-log dinner before 3pm. It reduces evening drift and improves consistency.";
-
-    const micro =
-      primary.key === "Hydration"
-        ? "Commitment: 500ml before 10:30am each day."
-        : primary.key === "Steps"
-          ? "Commitment: 10-minute walk after lunch each day."
-          : "Commitment: log dinner before first bite each day.";
-
-    return { heading, body, micro };
-  }, [analytics]);
+  }, [days30, calorieGoal, stepGoal, waterGoal, data?.proteinGoalG]);
 
   async function handleDrink500() {
     if (!authUser?.uid) return;
@@ -481,10 +218,14 @@ export default function InsightsPage() {
         calories: 0,
         steps: 0,
         waterMl: 0,
+        mood: { rating: 0, stress: 0, note: "" },
+        sleep: { hours: 0, quality: 0, bedtime: "" },
+        habits: { completed: 0, total: 0 },
+        lifestyle: { focusMinutes: 0, screenTimeMinutes: 0 },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       },
-      { merge: true }
+      { merge: true },
     );
 
     await updateDoc(ref, {
@@ -519,16 +260,29 @@ export default function InsightsPage() {
             stepGoal,
             calories: analytics.today.calories,
             calorieGoal,
+            moodRating: Number(analytics.today?.mood?.rating || 0),
+            sleepHours: Number(analytics.today?.sleep?.hours || 0),
+            habitsRate: analytics.today?.habits?.total
+              ? Math.round(
+                  (Number(analytics.today.habits.completed || 0) /
+                    Number(analytics.today.habits.total || 1)) *
+                    100,
+                )
+              : 0,
           },
         }),
       });
 
       const payload = await res.json();
-      if (!res.ok) throw new Error(payload?.error || "Could not get coach response.");
+      if (!res.ok)
+        throw new Error(payload?.error || "Could not get coach response.");
 
       setCoachMessages((prev) => [
         ...prev,
-        { role: "assistant", text: payload?.reply || "Take one practical action now." },
+        {
+          role: "assistant",
+          text: payload?.reply || "Take one practical action now.",
+        },
       ]);
     } catch (e) {
       setCoachError(e?.message || "Coach is unavailable right now.");
@@ -537,12 +291,61 @@ export default function InsightsPage() {
     }
   }
 
+  const pillarCards = [
+    {
+      key: "Move",
+      stats: analytics.pillars.move,
+      metric:
+        analytics.pillars.move.weeklyAvg == null
+          ? "Log steps/workouts"
+          : `${Math.round(analytics.today.steps)} steps today`,
+    },
+    {
+      key: "Fuel",
+      stats: analytics.pillars.fuel,
+      metric:
+        analytics.pillars.fuel.weeklyAvg == null
+          ? "Log calories + hydration"
+          : `${(analytics.today.waterMl / 1000).toFixed(1)}L water today`,
+    },
+    {
+      key: "Recover",
+      stats: analytics.pillars.recover,
+      metric:
+        analytics.sleepAvgWeek == null
+          ? "Log sleep hours + bedtime"
+          : `${analytics.sleepAvgWeek.toFixed(1)}h sleep avg`,
+    },
+    {
+      key: "Mood",
+      stats: analytics.pillars.mood,
+      metric:
+        analytics.moodAvgWeek == null
+          ? "Log mood + stress"
+          : `${analytics.moodAvgWeek.toFixed(1)}/5 mood avg`,
+    },
+    {
+      key: "Habits",
+      stats: analytics.pillars.habits,
+      metric:
+        analytics.pillars.habits.weeklyAvg == null
+          ? "Log completed habits"
+          : `${Math.round(analytics.pillars.habits.weeklyAvg)}% completion avg`,
+    },
+  ];
+
   return (
     <div className="ins-page">
       <div className="ins-shell">
         <header className="ins-top">
-          <Link href="/dashboard" className="ins-back">← Dashboard</Link>
-          <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>
+          <Link href="/dashboard" className="ins-back">
+            ← Dashboard
+          </Link>
+          <button
+            className="ins-ghost"
+            type="button"
+            onClick={() => setCoachOpen(true)}
+          >
             AI Coach
           </button>
         </header>
@@ -550,142 +353,115 @@ export default function InsightsPage() {
         <section className="card overview">
           <div>
             <h1 className="ins-title">Insights & Analysis</h1>
-            <p className="ins-sub">Clinical progress review with practical guidance.</p>
+            <p className="ins-sub">
+              Cross-hub clinical signal across Move, Fuel, Recover, Mood, and
+              Habits.
+            </p>
           </div>
-
           <div className="score-pill major">
-            <span>Weekly score</span>
-            <strong>{analytics.weeklyScore == null ? "—" : `${analytics.weeklyScore}%`}</strong>
-            <em>{analytics.weeklyScore == null ? "Building baseline" : analytics.weeklyLabel}</em>
-            {analytics.weeklyScore == null ? (
-              <>
-                <div className="score-subtext">Need 4 logged days for a reliable weekly score.</div>
-                <div className="unlock-mini">{Math.min(4, analytics.validDays7)} / 4 days logged</div>
-                <div className="unlock-bar">
-                  <div className="unlock-fill" style={{ width: `${(Math.min(4, analytics.validDays7) / 4) * 100}%` }} />
-                </div>
-              </>
-            ) : analytics.weeklyDelta != null ? (
-              <div className="score-subtext">
-                {analytics.weeklyDelta >= 0 ? `+${analytics.weeklyDelta}` : `${analytics.weeklyDelta}`} vs last week
-              </div>
-            ) : null}
+            <span>Weekly ecosystem score</span>
+            <strong>
+              {analytics.weeklyScore == null
+                ? "—"
+                : `${analytics.weeklyScore}%`}
+            </strong>
+            <em>{analytics.coach?.heading || "Building baseline"}</em>
+            <div className="score-subtext">
+              {analytics.weeklyDelta == null
+                ? `${analytics.validDays30}/30 days logged`
+                : `${analytics.weeklyDelta >= 0 ? "+" : ""}${analytics.weeklyDelta} vs last week`}
+            </div>
           </div>
-        </section>
-
-        <section className="card data-status">
-          <div className="data-title">Data status</div>
-          <div className="data-copy">30-day timeline started.</div>
-          <div className="data-copy">{analytics.validDays30} / 30 days recorded.</div>
-          <div className="unlock-bar">
-            <div className="unlock-fill" style={{ width: `${(analytics.validDays30 / 30) * 100}%` }} />
-          </div>
-          <div className="data-foot">Weekly analysis activates after 4 valid days.</div>
         </section>
 
         {loadError ? <div className="load-error">{loadError}</div> : null}
+
+        <section className="card pillars-wrap">
+          <div className="card-title">Pillars</div>
+          <div className="pillars-grid">
+            {pillarCards.map((p) => (
+              <div key={p.key} className="pillar-card">
+                <div className="pillar-head">
+                  <span>{p.key}</span>
+                  <em className={`status ${statusClass(p.stats.trend.label)}`}>
+                    {p.stats.trend.label}
+                  </em>
+                </div>
+                <div className="pillar-consistency">
+                  Weekly consistency: {p.stats.consistency7}/7
+                </div>
+                <div className="pillar-metric">{p.metric}</div>
+                {p.stats.consistency7 < 3 ? (
+                  <div className="pillar-next">
+                    Next: log this pillar 3+ days/week.
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </section>
 
         <div className="ins-layout">
           <section className="card ins-main">
             <div className="graph-grid">
               {[
-                {
-                  title: "Calories 30D",
-                  avg: formatAvg(analytics.monthStats.calories.avg, analytics.today.calories),
-                  series: analytics.caloriesSeries,
-                  starter: analytics.seriesValidDays.calories < 2,
-                  todayHasValue: analytics.today.calories > 0,
-                },
-                {
-                  title: "Steps 30D",
-                  avg: formatAvg(analytics.monthStats.steps.avg, analytics.today.steps),
-                  series: analytics.stepsSeries,
-                  starter: analytics.seriesValidDays.steps < 2,
-                  todayHasValue: analytics.today.steps > 0,
-                },
-                {
-                  title: "Water 30D",
-                  avg: formatAvg(analytics.monthStats.water.avg, analytics.today.waterMl / 1000, "L"),
-                  series: analytics.waterSeries,
-                  starter: analytics.seriesValidDays.water < 2,
-                  todayHasValue: analytics.today.waterMl > 0,
-                },
+                { title: "Calories 30D", series: analytics.caloriesSeries },
+                { title: "Steps 30D", series: analytics.stepsSeries },
+                { title: "Water 30D", series: analytics.waterSeries },
               ].map((g) => (
                 <div key={g.title} className="graph-card">
                   <div className="graph-head">
                     <span>{g.title}</span>
-                    <strong>{g.avg}</strong>
                   </div>
                   {loading ? (
                     <div className="skeleton chart" />
                   ) : (
-                    <div className="chart-wrap">
-                      <Sparkline series={g.series} />
-                      {g.starter ? <StarterChart todayHasValue={g.todayHasValue} /> : null}
-                    </div>
+                    <Sparkline series={g.series} />
                   )}
                 </div>
               ))}
             </div>
 
-            <div className="period-grid">
-              <div className="period-card">
-                <div className="period-label">This week</div>
-                <div className="period-metric">{analytics.weekStats.steps.avg == null ? "— avg" : `${Math.round(analytics.weekStats.steps.avg)} steps avg`}</div>
-                <div className="period-metric">{analytics.weekStats.water.avg == null ? "— avg" : `${analytics.weekStats.water.avg.toFixed(1)}L water avg`}</div>
-                <div className="period-metric">{analytics.weekStats.calories.avg == null ? "— avg" : `${Math.round(analytics.weekStats.calories.avg)} kcal avg`}</div>
+            <div className="period-grid trend-mini-grid">
+              <div className="period-card mini-trend">
+                <div className="period-label">Sleep consistency</div>
+                <div className="period-metric">
+                  {analytics.pillars.recover.consistency7}/7 days logged
+                </div>
+                <div className="period-metric">
+                  Bedtime consistency: {analytics.pillars.bedtimeConsistency}%
+                </div>
               </div>
 
-              <div className="period-card">
-                <div className="period-label">This month</div>
-                <div className="period-metric">{analytics.monthStats.steps.avg == null ? "— avg" : `${Math.round(analytics.monthStats.steps.avg)} steps avg`}</div>
-                <div className="period-metric">{analytics.monthStats.water.avg == null ? "— avg" : `${analytics.monthStats.water.avg.toFixed(1)}L water avg`}</div>
-                <div className="period-metric">{analytics.monthStats.calories.avg == null ? "— avg" : `${Math.round(analytics.monthStats.calories.avg)} kcal avg`}</div>
-              </div>
-            </div>
-
-            <div className="metric-list">
-              <div className="metric-card">
-                <div className="metric-head"><span>Calories consistency</span><strong>{analytics.monthStats.calories.consistency == null ? "—" : `${analytics.monthStats.calories.consistency}%`}</strong></div>
-                <div className="track"><div className="fill" style={{ width: `${analytics.monthStats.calories.consistency || 0}%` }} /></div>
-                <div className="trend-note">Trend: {analytics.monthStats.calories.trend.label}</div>
-              </div>
-
-              <div className="metric-card">
-                <div className="metric-head"><span>Hydration adherence</span><strong>{analytics.weekStats.water.adherence == null ? "—" : `${analytics.weekStats.water.adherence}%`}</strong></div>
-                <div className="track"><div className="fill" style={{ width: `${analytics.weekStats.water.adherence || 0}%` }} /></div>
-                <div className="trend-note">Trend: {analytics.monthStats.water.trend.label}</div>
-              </div>
-
-              <div className="metric-card">
-                <div className="metric-head"><span>Step consistency</span><strong>{analytics.monthStats.steps.consistency == null ? "—" : `${analytics.monthStats.steps.consistency}%`}</strong></div>
-                <div className="track"><div className="fill" style={{ width: `${analytics.monthStats.steps.consistency || 0}%` }} /></div>
-                <div className="trend-note">Trend: {analytics.monthStats.steps.trend.label}</div>
+              <div className="period-card mini-trend">
+                <div className="period-label">Mood average</div>
+                <div className="period-metric">
+                  {analytics.moodAvgWeek == null
+                    ? "Building baseline"
+                    : `${analytics.moodAvgWeek.toFixed(1)}/5 this week`}
+                </div>
+                <div className="period-metric">
+                  Trend: {analytics.pillars.mood.trend.label}
+                </div>
               </div>
             </div>
           </section>
 
           <aside className="ins-side card">
             <div className="side-title">Coach summary</div>
-            <div className="suggestion-main">{coachSummary.heading}</div>
-            <div className="suggestion-sub">{coachSummary.body}</div>
-
-            {analytics.starterMode ? (
-              <div className="starter-actions">
-                <button className="starter-btn" type="button" onClick={handleDrink500}>500ml water now</button>
-                <button className={walkDone ? "starter-btn done" : "starter-btn"} type="button" onClick={() => setWalkDone((v) => !v)}>
-                  {walkDone ? "10-minute walk logged" : "10-minute walk after lunch"}
-                </button>
-                <Link className="starter-btn link" href="/hubs/nutrition">Log one meal</Link>
-              </div>
-            ) : null}
-
-            <div className="suggestion-micro">{coachSummary.micro}</div>
-
-            <div className="side-title side-gap">Today snapshot</div>
-            <div className="metric-card compact"><div className="metric-head"><span>Calories</span><strong>{Math.round(analytics.today.calories)} / {Math.round(calorieGoal)}</strong></div></div>
-            <div className="metric-card compact"><div className="metric-head"><span>Water</span><strong>{(analytics.today.waterMl / 1000).toFixed(1)}L / {waterGoal}L</strong></div></div>
-            <div className="metric-card compact"><div className="metric-head"><span>Steps</span><strong>{Math.round(analytics.today.steps)} / {Math.round(stepGoal)}</strong></div></div>
+            <div className="suggestion-main">{analytics.coach.heading}</div>
+            <div className="suggestion-sub">{analytics.coach.body}</div>
+            <div className="risk-flag">Risk flag: {analytics.coach.risk}</div>
+            <div className="suggestion-micro">
+              Next best action: {analytics.coach.action}
+            </div>
+            <button
+              className="starter-btn"
+              type="button"
+              onClick={handleDrink500}
+            >
+              +500ml hydration now
+            </button>
           </aside>
         </div>
 
@@ -694,23 +470,54 @@ export default function InsightsPage() {
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
                 <div className="coach-title">AI Coach</div>
-                <button className="ins-ghost" type="button" onClick={() => setCoachOpen(false)}>Close</button>
+                <button
+                  className="ins-ghost"
+                  type="button"
+                  onClick={() => setCoachOpen(false)}
+                >
+                  Close
+                </button>
               </div>
 
               <div className="coach-chat">
                 {coachMessages.map((msg, i) => (
-                  <div key={`${msg.role}-${i}`} className={`coach-bubble ${msg.role === "user" ? "user" : "bot"}`}>
+                  <div
+                    key={`${msg.role}-${i}`}
+                    className={`coach-bubble ${msg.role === "user" ? "user" : "bot"}`}
+                  >
                     {msg.text}
                   </div>
                 ))}
-                {coachTyping ? <div className="coach-typing">Typing…</div> : null}
+                {coachTyping ? (
+                  <div className="coach-typing">Typing…</div>
+                ) : null}
               </div>
 
-              {coachError ? <div className="coach-error">{coachError}</div> : null}
+              {coachError ? (
+                <div className="coach-error">{coachError}</div>
+              ) : null}
 
-              <form className="coach-inputRow" onSubmit={async (e) => { e.preventDefault(); await sendCoachMessage(); }}>
-                <input className="coach-input" type="text" placeholder="Ask for weekly strategy, habit fixes, or next move..." value={coachInput} onChange={(e) => setCoachInput(e.target.value)} />
-                <button className="ins-btn" type="submit" disabled={coachTyping || !coachInput.trim()}>Send</button>
+              <form
+                className="coach-inputRow"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  await sendCoachMessage();
+                }}
+              >
+                <input
+                  className="coach-input"
+                  type="text"
+                  placeholder="Ask for cross-hub strategy..."
+                  value={coachInput}
+                  onChange={(e) => setCoachInput(e.target.value)}
+                />
+                <button
+                  className="ins-btn"
+                  type="submit"
+                  disabled={coachTyping || !coachInput.trim()}
+                >
+                  Send
+                </button>
               </form>
             </div>
           </div>

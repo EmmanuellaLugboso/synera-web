@@ -1,10 +1,25 @@
 .ins-page {
   min-height: 100vh;
   background:
-    radial-gradient(1000px 620px at 8% 0%, rgba(255, 79, 154, 0.1), transparent 58%),
-    radial-gradient(900px 560px at 92% 10%, rgba(255, 79, 154, 0.06), transparent 55%),
+    radial-gradient(
+      1000px 620px at 8% 0%,
+      rgba(255, 79, 154, 0.1),
+      transparent 58%
+    ),
+    radial-gradient(
+      900px 560px at 92% 10%,
+      rgba(255, 79, 154, 0.06),
+      transparent 55%
+    ),
     #f6f6fb;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
   color: #12121a;
 }
 
@@ -105,7 +120,11 @@
 .unlock-card {
   margin-top: 12px;
   border-color: rgba(255, 79, 154, 0.2);
-  background: linear-gradient(180deg, rgba(255, 240, 247, 0.75), rgba(255, 255, 255, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 240, 247, 0.75),
+    rgba(255, 255, 255, 0.95)
+  );
 }
 
 .unlock-title {
@@ -217,7 +236,11 @@
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.82));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.68),
+    rgba(255, 255, 255, 0.82)
+  );
   display: grid;
   place-items: center;
 }
@@ -518,7 +541,11 @@
 
 .coach-bubble.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, rgba(255, 79, 154, 0.92), rgba(244, 89, 166, 1));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 79, 154, 0.92),
+    rgba(244, 89, 166, 1)
+  );
   color: #fff;
 }
 
@@ -581,6 +608,102 @@
   }
 
   .period-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pillars-wrap {
+  margin-top: 14px;
+}
+
+.pillars-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pillar-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.pillar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 1000;
+}
+
+.pillar-head .status {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-style: normal;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.status.up {
+  color: #176641;
+  background: rgba(20, 153, 95, 0.12);
+}
+.status.down {
+  color: #8b2e56;
+  background: rgba(219, 82, 136, 0.16);
+}
+.status.flat {
+  color: #555563;
+  background: rgba(0, 0, 0, 0.08);
+}
+.status.base {
+  color: #686878;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.pillar-consistency {
+  margin-top: 7px;
+  font-size: 12px;
+  color: #666679;
+  font-weight: 900;
+}
+
+.pillar-metric {
+  margin-top: 8px;
+  font-weight: 1000;
+  font-size: 13px;
+}
+
+.pillar-next {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #727287;
+}
+
+.risk-flag {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #5a5a68;
+  font-weight: 900;
+}
+
+.trend-mini-grid {
+  margin-top: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1080px) {
+  .pillars-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .pillars-grid,
+  .trend-mini-grid {
     grid-template-columns: 1fr;
   }
 }

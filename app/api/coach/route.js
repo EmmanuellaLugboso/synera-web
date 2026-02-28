@@ -18,7 +18,10 @@ export async function POST(req) {
     const context = body?.context || {};
 
     if (!message) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Message is required" },
+        { status: 400 },
+      );
     }
 
     const name = String(context?.name || "friend");
@@ -28,6 +31,9 @@ export async function POST(req) {
     const stepGoal = clamp(context?.stepGoal);
     const calories = clamp(context?.calories);
     const calorieGoal = clamp(context?.calorieGoal);
+    const moodRating = clamp(context?.moodRating);
+    const sleepHours = clamp(context?.sleepHours);
+    const habitsRate = clamp(context?.habitsRate);
 
     const waterPct = progress(waterLitres, waterGoal);
     const stepsPct = progress(steps, stepGoal);
@@ -38,10 +44,30 @@ export async function POST(req) {
 
     if (lower.includes("water") || waterPct < stepsPct) {
       reply = `${name}, hydration is your quickest boost. You are at ${waterPct}% of water goal — drink 500ml now.`;
-    } else if (lower.includes("walk") || lower.includes("steps") || stepsPct <= waterPct) {
+    } else if (
+      lower.includes("walk") ||
+      lower.includes("steps") ||
+      stepsPct <= waterPct
+    ) {
       reply = `${name}, get moving for 10 minutes right now. You're at ${stepsPct}% of your step goal and this closes the gap fast.`;
-    } else if (lower.includes("food") || lower.includes("calorie") || lower.includes("eat")) {
+    } else if (
+      lower.includes("food") ||
+      lower.includes("calorie") ||
+      lower.includes("eat")
+    ) {
       reply = `${name}, keep food simple: log one protein + fibre meal next. Calories are at ${calPct}% of goal.`;
+    }
+
+    if (sleepHours > 0 && sleepHours < 6.5) {
+      reply = `${name}, recovery is the limiting factor today. Sleep was ${sleepHours.toFixed(1)}h — keep intensity moderate and lock bedtime tonight.`;
+    }
+
+    if (moodRating > 0 && moodRating <= 2) {
+      reply = `${name}, mood signal is low (${moodRating}/5). Use a low-friction win first: hydration + 10-minute walk, then reassess.`;
+    }
+
+    if (habitsRate > 0 && habitsRate < 60) {
+      reply = `${name}, habits are under target (${habitsRate}%). Pick only 2 non-negotiables and close them before 8pm.`;
     }
 
     if (lower.includes("tired") || lower.includes("energy")) {
@@ -52,7 +78,7 @@ export async function POST(req) {
   } catch (e) {
     return NextResponse.json(
       { error: e?.message || "Failed to generate coach reply" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

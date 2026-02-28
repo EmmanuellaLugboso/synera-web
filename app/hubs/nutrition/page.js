@@ -4,6 +4,8 @@
 import Link from "next/link";
 import "./nutrition.css";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { db } from "../../firebase/config";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 /* ------------------------
@@ -369,9 +371,42 @@ export default function Page() {
     };
   }, [data?.calorieGoal, data?.macroGoals]);
 
-  const remaining = useMemo(() => Math.round(goals.cal - totals.calories), [
-    goals.cal,
+  const remaining = useMemo(
+    () => Math.round(goals.cal - totals.calories),
+    [goals.cal, totals.calories],
+  );
+
+  useEffect(() => {
+    async function syncDailyNutrition() {
+      if (!ready || !user?.uid) return;
+      const ref = doc(db, "users", user.uid, "daily", date);
+      await setDoc(
+        ref,
+        {
+          date,
+          calories: totals.calories,
+          waterMl: Math.round((clampNumber(data?.waterLitres) || 0) * 1000),
+          macros: {
+            proteinG: totals.proteinG,
+            carbsG: totals.carbsG,
+            fatG: totals.fatG,
+          },
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+
+    syncDailyNutrition();
+  }, [
+    ready,
+    user?.uid,
+    date,
     totals.calories,
+    totals.proteinG,
+    totals.carbsG,
+    totals.fatG,
+    data?.waterLitres,
   ]);
 
   function addQuickFoodManual() {
@@ -431,7 +466,9 @@ export default function Page() {
 
   function MacroBar({ label, value, goal: g, percent }) {
     return (
-      <div className="nutri-bar">
+      <div
+        className={`nutri-bar ${label.toLowerCase() === "protein" ? "protein" : label.toLowerCase() === "carbs" ? "carbs" : "fat"}`}
+      >
         <div className="nutri-barTop">
           <span>
             {label}: <span className="nutri-strong">{value}g</span>
@@ -452,19 +489,28 @@ export default function Page() {
   ------------------------ */
   const unit = data?.weightUnit || "kg";
   const weightKg =
-    unit === "lbs" ? Number(data?.weight || 0) * 0.453592 : Number(data?.weight || 0);
+    unit === "lbs"
+      ? Number(data?.weight || 0) * 0.453592
+      : Number(data?.weight || 0);
   const heightCm = Number(data?.height || 0);
   const age = data?.dob
     ? Math.floor(
         (Date.now() - new Date(data.dob).getTime()) /
-          (1000 * 60 * 60 * 24 * 365.25)
+          (1000 * 60 * 60 * 24 * 365.25),
       )
     : null;
 
   const bmi = calcBMI(weightKg, heightCm);
-  const maintenance = estimateMaintenance(weightKg, heightCm, age, data?.activity);
+  const maintenance = estimateMaintenance(
+    weightKg,
+    heightCm,
+    age,
+    data?.activity,
+  );
 
-  const [calGoalInput, setCalGoalInput] = useState(String(data?.calorieGoal ?? goals.cal));
+  const [calGoalInput, setCalGoalInput] = useState(
+    String(data?.calorieGoal ?? goals.cal),
+  );
   useEffect(() => {
     if (!ready) return;
     setCalGoalInput(String(data?.calorieGoal ?? goals.cal));
@@ -476,17 +522,32 @@ export default function Page() {
     const cg = clampNumber(calGoalInput || data?.calorieGoal || goals.cal);
 
     if (!data?.height || !data?.weight || !data?.dob) {
-      arr.push("Add height, weight, and DOB in onboarding for accurate estimates.");
+      arr.push(
+        "Add height, weight, and DOB in onboarding for accurate estimates.",
+      );
     }
     if (cg && cg < 1200) {
-      arr.push("This calorie goal is very low. If you feel weak/dizzy or your training tanks, raise it.");
+      arr.push(
+        "This calorie goal is very low. If you feel weak/dizzy or your training tanks, raise it.",
+      );
     }
     if (maintenance && cg) {
       const diff = maintenance - cg;
-      if (diff > 1000) arr.push("Deficit > 1000 kcal/day is aggressive. Expect fatigue + worse training.");
+      if (diff > 1000)
+        arr.push(
+          "Deficit > 1000 kcal/day is aggressive. Expect fatigue + worse training.",
+        );
     }
     return arr;
-  }, [calGoalInput, data?.height, data?.weight, data?.dob, maintenance, data?.calorieGoal, goals.cal]);
+  }, [
+    calGoalInput,
+    data?.height,
+    data?.weight,
+    data?.dob,
+    maintenance,
+    data?.calorieGoal,
+    goals.cal,
+  ]);
 
   function setGoalFromDropdown(option) {
     const adjusted = adjustForGoal(maintenance, option);
@@ -550,9 +611,12 @@ export default function Page() {
         setRecipeLoading(true);
         setRecipeErr("");
 
-        const res = await fetch(`/api/recipes/search?q=${encodeURIComponent(q)}`, {
-          cache: "no-store",
-        });
+        const res = await fetch(
+          `/api/recipes/search?q=${encodeURIComponent(q)}`,
+          {
+            cache: "no-store",
+          },
+        );
 
         const json = await res.json();
         if (!res.ok) throw new Error(json?.error || "Recipe search failed");
@@ -595,9 +659,12 @@ export default function Page() {
 
     setRecipeDetailLoading(true);
     try {
-      const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, { cache: "no-store" });
+      const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+        cache: "no-store",
+      });
       const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Failed to load recipe details");
+      if (!res.ok)
+        throw new Error(json?.error || "Failed to load recipe details");
       setSelectedRecipe(json?.recipe || null);
     } catch (e) {
       setRecipeDetailErr(e?.message || "Failed to load recipe details");
@@ -641,10 +708,7 @@ export default function Page() {
       fatG: Math.round(perServing.fatG * servings),
     };
 
-    const name =
-      selectedRecipe?.title ||
-      selectedRecipe?.strMeal ||
-      "Recipe";
+    const name = selectedRecipe?.title || selectedRecipe?.strMeal || "Recipe";
 
     const entry = {
       id: uid(),
@@ -674,7 +738,9 @@ export default function Page() {
      SUPPLEMENTS (back)
   ------------------------ */
   const supplementList = useMemo(() => {
-    return Array.isArray(data?.supplementSchedule) ? data.supplementSchedule : [];
+    return Array.isArray(data?.supplementSchedule)
+      ? data.supplementSchedule
+      : [];
   }, [data?.supplementSchedule]);
 
   const [suppPickerOpen, setSuppPickerOpen] = useState(false);
@@ -698,16 +764,22 @@ export default function Page() {
         setSuppLoading(true);
         setSuppErr("");
 
-        const res = await fetch(`/api/supplements?q=${encodeURIComponent(suppSearch)}`, {
-          method: "GET",
-          cache: "no-store",
-        });
+        const res = await fetch(
+          `/api/supplements?q=${encodeURIComponent(suppSearch)}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          },
+        );
 
         const json = await res.json();
         if (!res.ok) throw new Error(json?.error || "Supp request failed");
         setSuppResults(Array.isArray(json?.results) ? json.results : []);
       } catch (e) {
-        setSuppErr(e?.message || "Couldn’t load supplements. Check /api/supplements route.");
+        setSuppErr(
+          e?.message ||
+            "Couldn’t load supplements. Check /api/supplements route.",
+        );
         setSuppResults([]);
       } finally {
         setSuppLoading(false);
@@ -722,7 +794,9 @@ export default function Page() {
     setSuppName(s.name);
 
     const best =
-      Array.isArray(s.bestTime) && s.bestTime.length ? s.bestTime[0] : "morning";
+      Array.isArray(s.bestTime) && s.bestTime.length
+        ? s.bestTime[0]
+        : "morning";
     setSuppTime(best);
 
     if (s.withFood === "with_food") setSuppWithFood(true);
@@ -762,7 +836,7 @@ export default function Page() {
 
   function toggleSupplement(id) {
     const next = supplementList.map((s) =>
-      s.id === id ? { ...s, isActive: !s.isActive } : s
+      s.id === id ? { ...s, isActive: !s.isActive } : s,
     );
     updateMany({ supplementSchedule: next });
   }
@@ -801,9 +875,13 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="nutri-badge">
+          <div
+            className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}
+          >
             <div className="nutri-badgeLabel">Hydration</div>
-            <div className="nutri-badgeValue">{data?.hydrationProgress ?? 0}%</div>
+            <div className="nutri-badgeValue">
+              {data?.hydrationProgress ?? 0}%
+            </div>
           </div>
         </div>
 
@@ -811,7 +889,8 @@ export default function Page() {
           <div className="nutri-mutedBox">Loading your nutrition hub…</div>
         ) : showLoggedOut ? (
           <div className="nutri-mutedBox">
-            You’re not logged in. Please log in to save food, hydration, recipes, and supplements.
+            You’re not logged in. Please log in to save food, hydration,
+            recipes, and supplements.
           </div>
         ) : (
           <>
@@ -822,8 +901,12 @@ export default function Page() {
                   <div className="nutri-stickyTitle">Today</div>
                   <div className="nutri-stickySub">
                     {totals.calories}/{goals.cal} kcal • {bars.cal}% •{" "}
-                    <span className={remaining < 0 ? "nutri-over" : "nutri-strong"}>
-                      {remaining < 0 ? `${Math.abs(remaining)} over` : `${remaining} left`}
+                    <span
+                      className={remaining < 0 ? "nutri-over" : "nutri-strong"}
+                    >
+                      {remaining < 0
+                        ? `${Math.abs(remaining)} over`
+                        : `${remaining} left`}
                     </span>
                   </div>
                 </div>
@@ -838,35 +921,37 @@ export default function Page() {
             )}
 
             {/* Tabs */}
-            <div className="nutri-tabs">
-              <button
-                className={`nutri-tab ${tab === "tracker" ? "active" : ""}`}
-                onClick={() => setTab("tracker")}
-                type="button"
-              >
-                Tracker
-              </button>
-              <button
-                className={`nutri-tab ${tab === "recipes" ? "active" : ""}`}
-                onClick={() => setTab("recipes")}
-                type="button"
-              >
-                Recipes
-              </button>
-              <button
-                className={`nutri-tab ${tab === "supplements" ? "active" : ""}`}
-                onClick={() => setTab("supplements")}
-                type="button"
-              >
-                Supplements
-              </button>
+            <div className="nutri-tabsWrap">
+              <div className="nutri-tabs">
+                <button
+                  className={`nutri-tab ${tab === "tracker" ? "active" : ""}`}
+                  onClick={() => setTab("tracker")}
+                  type="button"
+                >
+                  Tracker
+                </button>
+                <button
+                  className={`nutri-tab ${tab === "recipes" ? "active" : ""}`}
+                  onClick={() => setTab("recipes")}
+                  type="button"
+                >
+                  Recipes
+                </button>
+                <button
+                  className={`nutri-tab ${tab === "supplements" ? "active" : ""}`}
+                  onClick={() => setTab("supplements")}
+                  type="button"
+                >
+                  Supplements
+                </button>
+              </div>
             </div>
 
             {/* ---------------- TRACKER ---------------- */}
             {tab === "tracker" && (
               <>
                 <div className="nutri-grid2">
-                  <div className="nutri-card">
+                  <div className="nutri-card nutri-card-metric">
                     <div className="nutri-cardTop">
                       <div className="nutri-label">Calories</div>
                       <div className="nutri-chip">
@@ -877,19 +962,24 @@ export default function Page() {
                     <div className="nutri-big">{totals.calories}</div>
                     <div className="nutri-small">
                       {remaining < 0 ? (
-                        <span className="nutri-over">{Math.abs(remaining)} kcal over</span>
+                        <span className="nutri-over">
+                          {Math.abs(remaining)} kcal over
+                        </span>
                       ) : (
                         `${remaining} kcal left`
                       )}
                     </div>
 
                     <div className="nutri-miniTrack">
-                      <div className="nutri-miniFill" style={{ width: `${bars.cal}%` }} />
+                      <div
+                        className="nutri-miniFill"
+                        style={{ width: `${bars.cal}%` }}
+                      />
                     </div>
                     <div className="nutri-tiny">{bars.cal}% of goal</div>
                   </div>
 
-                  <div className="nutri-card">
+                  <div className="nutri-card nutri-card-metric">
                     <div className="nutri-cardTop">
                       <div className="nutri-label">Macros</div>
                       <div className="nutri-chip">P / C / F</div>
@@ -903,32 +993,70 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="nutri-actions">
-                  <button className="nutri-primary" type="button" onClick={() => setLogFoodOpen(true)}>
+                <div className="nutri-actions nutri-actions-main">
+                  <button
+                    className="nutri-primary nutri-primary-main"
+                    type="button"
+                    onClick={() => setLogFoodOpen(true)}
+                  >
                     + Log Food
                   </button>
-                  <button className="nutri-pillBtn" type="button" onClick={() => setTab("recipes")}>
+                  <button
+                    className="nutri-pillBtn"
+                    type="button"
+                    onClick={() => setTab("recipes")}
+                  >
                     Browse Recipes
                   </button>
-                  <button className="nutri-pillBtn" type="button" onClick={() => setTab("supplements")}>
+                  <button
+                    className="nutri-pillBtn"
+                    type="button"
+                    onClick={() => setTab("supplements")}
+                  >
                     Supplements
                   </button>
                 </div>
 
-                <Section title="Macro progress" sub="Quick visual so it’s not just numbers." defaultOpen>
-                  <MacroBar label="Protein" value={totals.proteinG} goal={goals.proteinG} percent={bars.protein} />
-                  <MacroBar label="Carbs" value={totals.carbsG} goal={goals.carbsG} percent={bars.carbs} />
-                  <MacroBar label="Fat" value={totals.fatG} goal={goals.fatG} percent={bars.fat} />
+                <Section
+                  title="Macro progress"
+                  sub="Thin, controlled bars for daily macro pacing."
+                  defaultOpen
+                >
+                  <MacroBar
+                    label="Protein"
+                    value={totals.proteinG}
+                    goal={goals.proteinG}
+                    percent={bars.protein}
+                  />
+                  <MacroBar
+                    label="Carbs"
+                    value={totals.carbsG}
+                    goal={goals.carbsG}
+                    percent={bars.carbs}
+                  />
+                  <MacroBar
+                    label="Fat"
+                    value={totals.fatG}
+                    goal={goals.fatG}
+                    percent={bars.fat}
+                  />
                 </Section>
 
-                <Section title="Smart calories" sub="Maintenance estimate + safer goal setting.">
+                <Section
+                  title="Smart calories"
+                  sub="Maintenance estimate + safer goal setting."
+                >
                   <div className="nutri-grid2">
                     <div className="nutri-card">
                       <div className="nutri-cardTop">
                         <div className="nutri-label">BMI</div>
-                        <div className="nutri-chip">{bmi ? bmiCategory(bmi) : "--"}</div>
+                        <div className="nutri-chip">
+                          {bmi ? bmiCategory(bmi) : "--"}
+                        </div>
                       </div>
-                      <div className="nutri-big">{bmi ? bmi.toFixed(1) : "--"}</div>
+                      <div className="nutri-big">
+                        {bmi ? bmi.toFixed(1) : "--"}
+                      </div>
                       <div className="nutri-small">
                         Age: {age || "--"} • Activity: {data?.activity || "--"}
                       </div>
@@ -962,7 +1090,9 @@ export default function Page() {
                       type="button"
                       onClick={resetToMaintenance}
                       disabled={!maintenance}
-                      title={!maintenance ? "Add height/weight/DOB first" : "Reset"}
+                      title={
+                        !maintenance ? "Add height/weight/DOB first" : "Reset"
+                      }
                     >
                       Reset
                     </button>
@@ -977,7 +1107,11 @@ export default function Page() {
                       value={calGoalInput}
                       onChange={(e) => setCalGoalInput(e.target.value)}
                     />
-                    <button className="nutri-primary" type="button" onClick={saveCalorieGoal}>
+                    <button
+                      className="nutri-primary"
+                      type="button"
+                      onClick={saveCalorieGoal}
+                    >
                       Save
                     </button>
                   </div>
@@ -998,28 +1132,35 @@ export default function Page() {
 
                 <Section title="Today" sub={date} defaultOpen>
                   {todaysLogs.length === 0 ? (
-                    <div className="nutri-mutedBox">No food logged yet. Hit “Log Food”.</div>
+                    <div className="nutri-mutedBox">
+                      No food logged yet. Hit “Log Food”.
+                    </div>
                   ) : (
                     ["breakfast", "lunch", "dinner", "snack"].map((m) => {
                       const mealLogs = todaysLogs
                         .slice()
                         .filter((x) => x.meal === m)
-                        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                        .sort(
+                          (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+                        );
 
                       if (!mealLogs.length) return null;
 
                       const mealKcal = mealLogs.reduce(
                         (acc, x) => acc + (x.totals?.calories || 0),
-                        0
+                        0,
                       );
 
                       return (
                         <div key={`meal-${m}`} className="nutri-mealGroup">
                           <div className="nutri-mealTitle">
                             <span>
-                              {m.charAt(0).toUpperCase() + m.slice(1)} • {mealKcal} kcal
+                              {m.charAt(0).toUpperCase() + m.slice(1)} •{" "}
+                              {mealKcal} kcal
                             </span>
-                            <span className="nutri-mealHint">Swipe left to delete</span>
+                            <span className="nutri-mealHint">
+                              Swipe left to delete
+                            </span>
                           </div>
 
                           <div className="nutri-list">
@@ -1031,7 +1172,9 @@ export default function Page() {
                               >
                                 <div className="nutri-rowCard">
                                   <div>
-                                    <div className="nutri-rowName">{x.name}</div>
+                                    <div className="nutri-rowName">
+                                      {x.name}
+                                    </div>
                                     <div className="nutri-rowSub">
                                       {x.source === "recipe"
                                         ? `${x.servings || 0} serving(s)`
@@ -1039,7 +1182,9 @@ export default function Page() {
                                       • {x.totals?.calories ?? 0} kcal
                                     </div>
                                   </div>
-                                  <div className="nutri-kcalPill">{x.totals?.calories ?? 0} kcal</div>
+                                  <div className="nutri-kcalPill">
+                                    {x.totals?.calories ?? 0} kcal
+                                  </div>
                                 </div>
                               </SwipeRow>
                             ))}
@@ -1050,15 +1195,22 @@ export default function Page() {
                   )}
                 </Section>
 
-                <Section title="Hydration" sub={`Preview: ${hydrationPreview.litres}L → ${hydrationPreview.pct}%`}>
+                <Section
+                  title="Hydration"
+                  sub={`Preview: ${hydrationPreview.litres}L → ${hydrationPreview.pct}%`}
+                >
                   <div className="nutri-grid2">
                     <div className="nutri-card">
                       <div className="nutri-cardTop">
                         <div className="nutri-label">Water</div>
-                        <div className="nutri-chip">{hydrationPreview.pct}%</div>
+                        <div className="nutri-chip">
+                          {hydrationPreview.pct}%
+                        </div>
                       </div>
                       <div className="nutri-big">{data?.waterLitres ?? 0}L</div>
-                      <div className="nutri-small">Goal: {data?.waterGoalLitres ?? 3}L</div>
+                      <div className="nutri-small">
+                        Goal: {data?.waterGoalLitres ?? 3}L
+                      </div>
                     </div>
 
                     <div className="nutri-card">
@@ -1068,13 +1220,25 @@ export default function Page() {
                       </div>
 
                       <div className="nutri-row">
-                        <button className="nutri-pillBtn" onClick={() => addQuickWater(0.25)} type="button">
+                        <button
+                          className="nutri-pillBtn"
+                          onClick={() => addQuickWater(0.25)}
+                          type="button"
+                        >
                           +0.25
                         </button>
-                        <button className="nutri-pillBtn" onClick={() => addQuickWater(0.5)} type="button">
+                        <button
+                          className="nutri-pillBtn"
+                          onClick={() => addQuickWater(0.5)}
+                          type="button"
+                        >
                           +0.5
                         </button>
-                        <button className="nutri-pillBtn" onClick={() => addQuickWater(1)} type="button">
+                        <button
+                          className="nutri-pillBtn"
+                          onClick={() => addQuickWater(1)}
+                          type="button"
+                        >
                           +1
                         </button>
                       </div>
@@ -1095,7 +1259,9 @@ export default function Page() {
                         onChange={(e) => setWater(e.target.value)}
                         placeholder="e.g. 2.1"
                       />
-                      <div className="nutri-tiny">Dashboard shows {hydrationPreview.litres}L</div>
+                      <div className="nutri-tiny">
+                        Dashboard shows {hydrationPreview.litres}L
+                      </div>
                     </div>
 
                     <div className="nutri-field">
@@ -1114,19 +1280,35 @@ export default function Page() {
                   </div>
 
                   <div className="nutri-row">
-                    <button className="nutri-primary" onClick={saveHydration} type="button">
+                    <button
+                      className="nutri-primary"
+                      onClick={saveHydration}
+                      type="button"
+                    >
                       Save
                     </button>
-                    <button className="nutri-ghost" onClick={resetHydration} type="button">
+                    <button
+                      className="nutri-ghost"
+                      onClick={resetHydration}
+                      type="button"
+                    >
                       Reset
                     </button>
                   </div>
                 </Section>
 
                 {/* Log food modal (manual only, clean & reliable) */}
-                <Modal open={logFoodOpen} onClose={() => setLogFoodOpen(false)} title="Log Food (Manual)">
+                <Modal
+                  open={logFoodOpen}
+                  onClose={() => setLogFoodOpen(false)}
+                  title="Log Food (Manual)"
+                >
                   <div className="nutri-row">
-                    <select className="nutri-select" value={meal} onChange={(e) => setMeal(e.target.value)}>
+                    <select
+                      className="nutri-select"
+                      value={meal}
+                      onChange={(e) => setMeal(e.target.value)}
+                    >
                       <option value="breakfast">Breakfast</option>
                       <option value="lunch">Lunch</option>
                       <option value="dinner">Dinner</option>
@@ -1158,7 +1340,9 @@ export default function Page() {
                     </div>
 
                     <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Calories (per serving)</label>
+                      <label className="nutri-fieldLabel">
+                        Calories (per serving)
+                      </label>
                       <input
                         className="nutri-input"
                         type="number"
@@ -1203,10 +1387,18 @@ export default function Page() {
                   </div>
 
                   <div className="nutri-row" style={{ marginTop: 12 }}>
-                    <button className="nutri-primary" onClick={addQuickFoodManual} type="button">
+                    <button
+                      className="nutri-primary"
+                      onClick={addQuickFoodManual}
+                      type="button"
+                    >
                       Add
                     </button>
-                    <button className="nutri-ghost" onClick={() => setLogFoodOpen(false)} type="button">
+                    <button
+                      className="nutri-ghost"
+                      onClick={() => setLogFoodOpen(false)}
+                      type="button"
+                    >
                       Close
                     </button>
                   </div>
@@ -1235,7 +1427,10 @@ export default function Page() {
                       Searching…
                     </div>
                   ) : recipeErr ? (
-                    <div className="nutri-mutedBox nutri-danger" style={{ marginTop: 12 }}>
+                    <div
+                      className="nutri-mutedBox nutri-danger"
+                      style={{ marginTop: 12 }}
+                    >
                       {recipeErr}
                     </div>
                   ) : recipeQuery.trim() && recipeResults.length === 0 ? (
@@ -1248,13 +1443,17 @@ export default function Page() {
                     <div className="nutri-recipeGrid">
                       {recipeResults.map((r) => (
                         <button
-                          key={r.id}              // ✅ normalized id (never missing)
+                          key={r.id} // ✅ normalized id (never missing)
                           type="button"
                           className="nutri-recipeCard"
                           onClick={() => openRecipeModal(r)}
                         >
                           {r.image ? (
-                            <img className="nutri-recipeImg" src={r.image} alt={r.title} />
+                            <img
+                              className="nutri-recipeImg"
+                              src={r.image}
+                              alt={r.title}
+                            />
                           ) : (
                             <div className="nutri-recipeImgPh">🍽️</div>
                           )}
@@ -1268,11 +1467,17 @@ export default function Page() {
                   ) : null}
                 </div>
 
-                <Modal open={recipeOpen} onClose={() => setRecipeOpen(false)} title="Recipe">
+                <Modal
+                  open={recipeOpen}
+                  onClose={() => setRecipeOpen(false)}
+                  title="Recipe"
+                >
                   {recipeDetailLoading ? (
                     <div className="nutri-mutedBox">Loading recipe…</div>
                   ) : recipeDetailErr ? (
-                    <div className="nutri-mutedBox nutri-danger">{recipeDetailErr}</div>
+                    <div className="nutri-mutedBox nutri-danger">
+                      {recipeDetailErr}
+                    </div>
                   ) : selectedRecipe ? (
                     <>
                       <div className="nutri-recipeHeader">
@@ -1284,12 +1489,18 @@ export default function Page() {
                           />
                         ) : null}
                         <div>
-                          <div className="nutri-recipeH1">{selectedRecipe.title}</div>
+                          <div className="nutri-recipeH1">
+                            {selectedRecipe.title}
+                          </div>
                           {selectedRecipe.area || selectedRecipe.category ? (
                             <div className="nutri-tiny">
                               {selectedRecipe.area ? selectedRecipe.area : ""}
-                              {selectedRecipe.area && selectedRecipe.category ? " • " : ""}
-                              {selectedRecipe.category ? selectedRecipe.category : ""}
+                              {selectedRecipe.area && selectedRecipe.category
+                                ? " • "
+                                : ""}
+                              {selectedRecipe.category
+                                ? selectedRecipe.category
+                                : ""}
                             </div>
                           ) : null}
                         </div>
@@ -1299,62 +1510,122 @@ export default function Page() {
                         <div className="nutri-block">
                           <div className="nutri-blockTitle">Ingredients</div>
                           <div className="nutri-ingredList">
-                            {mealDBIngredients(selectedRecipe).map((it, idx) => (
-                              <div key={`${it.ingredient}-${idx}`} className="nutri-ingredRow">
-                                <span className="nutri-strong">{it.ingredient}</span>
-                                <span className="nutri-muted">{it.measure}</span>
-                              </div>
-                            ))}
+                            {mealDBIngredients(selectedRecipe).map(
+                              (it, idx) => (
+                                <div
+                                  key={`${it.ingredient}-${idx}`}
+                                  className="nutri-ingredRow"
+                                >
+                                  <span className="nutri-strong">
+                                    {it.ingredient}
+                                  </span>
+                                  <span className="nutri-muted">
+                                    {it.measure}
+                                  </span>
+                                </div>
+                              ),
+                            )}
                           </div>
                         </div>
 
                         <div className="nutri-block">
-                          <div className="nutri-blockTitle">Estimate macros (per serving)</div>
+                          <div className="nutri-blockTitle">
+                            Estimate macros (per serving)
+                          </div>
                           <div className="nutri-grid2">
                             <div className="nutri-field">
-                              <label className="nutri-fieldLabel">Calories</label>
-                              <input className="nutri-input" value={estCals} onChange={(e) => setEstCals(e.target.value)} type="number" min="0" />
+                              <label className="nutri-fieldLabel">
+                                Calories
+                              </label>
+                              <input
+                                className="nutri-input"
+                                value={estCals}
+                                onChange={(e) => setEstCals(e.target.value)}
+                                type="number"
+                                min="0"
+                              />
                             </div>
                             <div className="nutri-field">
-                              <label className="nutri-fieldLabel">Protein (g)</label>
-                              <input className="nutri-input" value={estP} onChange={(e) => setEstP(e.target.value)} type="number" min="0" />
+                              <label className="nutri-fieldLabel">
+                                Protein (g)
+                              </label>
+                              <input
+                                className="nutri-input"
+                                value={estP}
+                                onChange={(e) => setEstP(e.target.value)}
+                                type="number"
+                                min="0"
+                              />
                             </div>
                             <div className="nutri-field">
-                              <label className="nutri-fieldLabel">Carbs (g)</label>
-                              <input className="nutri-input" value={estC} onChange={(e) => setEstC(e.target.value)} type="number" min="0" />
+                              <label className="nutri-fieldLabel">
+                                Carbs (g)
+                              </label>
+                              <input
+                                className="nutri-input"
+                                value={estC}
+                                onChange={(e) => setEstC(e.target.value)}
+                                type="number"
+                                min="0"
+                              />
                             </div>
                             <div className="nutri-field">
-                              <label className="nutri-fieldLabel">Fat (g)</label>
-                              <input className="nutri-input" value={estF} onChange={(e) => setEstF(e.target.value)} type="number" min="0" />
+                              <label className="nutri-fieldLabel">
+                                Fat (g)
+                              </label>
+                              <input
+                                className="nutri-input"
+                                value={estF}
+                                onChange={(e) => setEstF(e.target.value)}
+                                type="number"
+                                min="0"
+                              />
                             </div>
                           </div>
 
                           <div className="nutri-row" style={{ marginTop: 10 }}>
-                            <div className="nutri-inlineLabel">Servings to log</div>
+                            <div className="nutri-inlineLabel">
+                              Servings to log
+                            </div>
                             <input
                               className="nutri-miniInput"
                               type="number"
                               min="0"
                               step="0.5"
                               value={recipeServings}
-                              onChange={(e) => setRecipeServings(e.target.value)}
+                              onChange={(e) =>
+                                setRecipeServings(e.target.value)
+                              }
                             />
                           </div>
 
                           <div className="nutri-row" style={{ marginTop: 10 }}>
-                            <button className="nutri-primary" type="button" onClick={addRecipeToLog}>
+                            <button
+                              className="nutri-primary"
+                              type="button"
+                              onClick={addRecipeToLog}
+                            >
                               Add to {meal}
                             </button>
-                            <button className="nutri-pillBtn" type="button" onClick={saveRecipeEstimate}>
+                            <button
+                              className="nutri-pillBtn"
+                              type="button"
+                              onClick={saveRecipeEstimate}
+                            >
                               Save estimate
                             </button>
-                            <button className="nutri-ghost" type="button" onClick={() => setRecipeOpen(false)}>
+                            <button
+                              className="nutri-ghost"
+                              type="button"
+                              onClick={() => setRecipeOpen(false)}
+                            >
                               Close
                             </button>
                           </div>
 
                           <div className="nutri-tiny" style={{ marginTop: 8 }}>
-                            Tip: once you save an estimate, it auto-fills next time.
+                            Tip: once you save an estimate, it auto-fills next
+                            time.
                           </div>
                         </div>
                       </div>
@@ -1362,7 +1633,8 @@ export default function Page() {
                       <div className="nutri-block" style={{ marginTop: 12 }}>
                         <div className="nutri-blockTitle">Instructions</div>
                         <div className="nutri-instructions">
-                          {selectedRecipe.instructions || "No instructions provided."}
+                          {selectedRecipe.instructions ||
+                            "No instructions provided."}
                         </div>
                       </div>
                     </>
@@ -1382,7 +1654,8 @@ export default function Page() {
                     <div className="nutri-chip">library</div>
                   </div>
                   <div className="nutri-small" style={{ marginTop: 6 }}>
-                    General info only. If you’re on medication or have conditions, double-check with a pharmacist/doctor.
+                    General info only. If you’re on medication or have
+                    conditions, double-check with a pharmacist/doctor.
                   </div>
 
                   <div className="nutri-row" style={{ marginTop: 12 }}>
@@ -1398,7 +1671,9 @@ export default function Page() {
                     </button>
 
                     {selectedSuppInfo?.category ? (
-                      <div className="nutri-chip">{selectedSuppInfo.category}</div>
+                      <div className="nutri-chip">
+                        {selectedSuppInfo.category}
+                      </div>
                     ) : null}
                   </div>
 
@@ -1412,7 +1687,9 @@ export default function Page() {
                         placeholder="Pick from the library (recommended)"
                       />
                       {selectedSuppInfo?.benefits?.length ? (
-                        <div className="nutri-tiny">{selectedSuppInfo.benefits[0]}</div>
+                        <div className="nutri-tiny">
+                          {selectedSuppInfo.benefits[0]}
+                        </div>
                       ) : null}
                     </div>
 
@@ -1435,7 +1712,9 @@ export default function Page() {
                       <select
                         className="nutri-select"
                         value={suppWithFood ? "yes" : "no"}
-                        onChange={(e) => setSuppWithFood(e.target.value === "yes")}
+                        onChange={(e) =>
+                          setSuppWithFood(e.target.value === "yes")
+                        }
                       >
                         <option value="yes">Yes</option>
                         <option value="no">No</option>
@@ -1451,11 +1730,16 @@ export default function Page() {
                         placeholder="e.g. 200–400 mg"
                       />
                       {selectedSuppInfo?.typicalDose ? (
-                        <div className="nutri-tiny">Typical: {selectedSuppInfo.typicalDose}</div>
+                        <div className="nutri-tiny">
+                          Typical: {selectedSuppInfo.typicalDose}
+                        </div>
                       ) : null}
                     </div>
 
-                    <div className="nutri-field" style={{ gridColumn: "1 / -1" }}>
+                    <div
+                      className="nutri-field"
+                      style={{ gridColumn: "1 / -1" }}
+                    >
                       <label className="nutri-fieldLabel">Note</label>
                       <input
                         className="nutri-input"
@@ -1473,7 +1757,10 @@ export default function Page() {
                       </div>
 
                       {selectedSuppInfo.benefits?.length ? (
-                        <div className="nutri-small" style={{ marginBottom: 8 }}>
+                        <div
+                          className="nutri-small"
+                          style={{ marginBottom: 8 }}
+                        >
                           <span className="nutri-strong">What it does:</span>{" "}
                           {selectedSuppInfo.benefits.join(" • ")}
                         </div>
@@ -1489,7 +1776,11 @@ export default function Page() {
                   ) : null}
 
                   <div className="nutri-row" style={{ marginTop: 12 }}>
-                    <button className="nutri-primary" onClick={addSupplement} type="button">
+                    <button
+                      className="nutri-primary"
+                      onClick={addSupplement}
+                      type="button"
+                    >
                       Add to my stack
                     </button>
                     {selectedSuppInfo ? (
@@ -1527,10 +1818,13 @@ export default function Page() {
                             <div>
                               <div className="nutri-rowName">
                                 {s.name}{" "}
-                                {!s.isActive && <span className="nutri-muted">(paused)</span>}
+                                {!s.isActive && (
+                                  <span className="nutri-muted">(paused)</span>
+                                )}
                               </div>
                               <div className="nutri-rowSub">
-                                {s.time} • {s.withFood ? "with food" : "no food"}
+                                {s.time} •{" "}
+                                {s.withFood ? "with food" : "no food"}
                                 {s.dose ? ` • ${s.dose}` : ""}
                                 {s.note ? ` • ${s.note}` : ""}
                               </div>
@@ -1560,7 +1854,11 @@ export default function Page() {
                 </div>
 
                 {/* Modal Picker */}
-                <Modal open={suppPickerOpen} onClose={() => setSuppPickerOpen(false)} title="Pick a supplement">
+                <Modal
+                  open={suppPickerOpen}
+                  onClose={() => setSuppPickerOpen(false)}
+                  title="Pick a supplement"
+                >
                   <input
                     className="nutri-search"
                     value={suppSearch}
@@ -1573,7 +1871,10 @@ export default function Page() {
                       Loading…
                     </div>
                   ) : suppErr ? (
-                    <div className="nutri-mutedBox nutri-danger" style={{ marginTop: 12 }}>
+                    <div
+                      className="nutri-mutedBox nutri-danger"
+                      style={{ marginTop: 12 }}
+                    >
                       {suppErr}
                     </div>
                   ) : suppResults.length === 0 ? (

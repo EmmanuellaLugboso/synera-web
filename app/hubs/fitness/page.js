@@ -5,6 +5,8 @@ import "./fitness.css";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { db } from "../../firebase/config";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 /* ---------- Starter templates & library ---------- */
 
@@ -745,6 +747,40 @@ export default function FitnessHub() {
     });
     return count;
   }, [todaysWorkouts]);
+
+  const totalCardioMinutesToday = useMemo(() => {
+    return todaysCardio.reduce(
+      (sum, entry) => sum + safeNum(entry?.durationMin),
+      0,
+    );
+  }, [todaysCardio]);
+
+  useEffect(() => {
+    async function syncDailyFitness() {
+      if (!ready || !user?.uid) return;
+      const ref = doc(db, "users", user.uid, "daily", todayIso);
+      await setDoc(
+        ref,
+        {
+          date: todayIso,
+          steps: safeNum(todaysSteps),
+          workouts: todaysWorkouts.length,
+          cardioMinutes: totalCardioMinutesToday,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+
+    syncDailyFitness();
+  }, [
+    ready,
+    user?.uid,
+    todayIso,
+    todaysSteps,
+    todaysWorkouts.length,
+    totalCardioMinutesToday,
+  ]);
 
   /* =========================
      RENDER
