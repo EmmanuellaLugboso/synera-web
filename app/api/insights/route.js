@@ -1,47 +1,44 @@
 import { NextResponse } from "next/server";
 
-function clamp(n) {
-  const x = Number(n);
-  return Number.isFinite(x) && x >= 0 ? x : 0;
+function clamp(value) {
+  const n = Number(value);
+  if (Number.isNaN(n) || n < 0) return 0;
+  return n;
 }
 
-function pickFastWin({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal }) {
-  const waterPct = waterGoal ? (waterLitres / waterGoal) : 0;
-  const stepsPct = stepGoal ? (steps / stepGoal) : 0;
-  const calPct = calorieGoal ? (calories / calorieGoal) : 0;
+export function buildInsight({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal }) {
+  const waterProgress = waterGoal ? waterLitres / waterGoal : 0;
+  const stepProgress = stepGoal ? steps / stepGoal : 0;
+  const calorieProgress = calorieGoal ? calories / calorieGoal : 0;
 
-  // Choose the “lowest progress” lever as the fast win
-  const scores = [
-    { key: "water", score: waterPct },
-    { key: "steps", score: stepsPct },
-    { key: "calories", score: Math.min(1, calPct) },
-  ].sort((a, b) => a.score - b.score);
+  const lowest = [
+    { key: "water", progress: waterProgress },
+    { key: "steps", progress: stepProgress },
+    { key: "calories", progress: Math.min(1, calorieProgress) },
+  ].sort((a, b) => a.progress - b.progress)[0]?.key;
 
-  const winner = scores[0]?.key || "water";
-
-  if (winner === "water") {
+  if (lowest === "water") {
     return {
       kicker: "FAST WIN",
       headline: "Hydration is the fastest ROI.",
-      text: "Hit 500ml now — energy + hunger control improves fast.",
+      text: "Drink 500ml now to boost focus and appetite control this afternoon.",
       action: { type: "water", amountMl: 500 },
     };
   }
 
-  if (winner === "steps") {
+  if (lowest === "steps") {
     return {
-      kicker: "FAST WIN",
-      headline: "A 10-minute walk fixes everything.",
-      text: "Quick walk = mood lift + steps bump + appetite regulation.",
+      kicker: "MOMENTUM MOVE",
+      headline: "A 10-minute walk resets your day.",
+      text: "Quick walk, quick win: get your heart rate up and stack steps with almost zero friction.",
       action: { type: "walk", minutes: 10 },
     };
   }
 
-  // calories / nutrition
   return {
-    kicker: "FAST WIN",
-    headline: "Log anything. Accuracy later.",
-    text: "Logging reduces overeating by making the day feel ‘real’.",
+    kicker: "NUTRITION NUDGE",
+    headline: "Log one meal with protein + fibre.",
+    text: "Keep it simple: log one honest meal to tighten your calories and avoid random snacking.",
     action: { type: "logFood" },
   };
 }
@@ -50,26 +47,19 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    const waterLitres = clamp(body?.waterLitres);
-    const waterGoal = clamp(body?.waterGoal);
-    const steps = clamp(body?.steps);
-    const stepGoal = clamp(body?.stepGoal);
-    const calories = clamp(body?.calories);
-    const calorieGoal = clamp(body?.calorieGoal);
-
-    const fastWin = pickFastWin({ waterLitres, waterGoal, steps, stepGoal, calories, calorieGoal });
-
-    // AI-ready: later you can generate coachMessage here using an LLM
-    const coachMessage =
-      "Based on today so far: do one small win first, then build. If you do the fast win now, the rest of your day becomes easier.";
-
-    return NextResponse.json({
-      fastWin,
-      coachMessage,
+    const insight = buildInsight({
+      waterLitres: clamp(body?.waterLitres),
+      waterGoal: clamp(body?.waterGoal),
+      steps: clamp(body?.steps),
+      stepGoal: clamp(body?.stepGoal),
+      calories: clamp(body?.calories),
+      calorieGoal: clamp(body?.calorieGoal),
     });
+
+    return NextResponse.json({ insight });
   } catch (e) {
     return NextResponse.json(
-      { error: e?.message || "Failed to generate insights" },
+      { error: e?.message || "Failed to generate insight" },
       { status: 500 }
     );
   }
