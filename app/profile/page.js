@@ -52,7 +52,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
-        router.push("/login");
+        router.replace("/login");
         return;
       }
       setAuthUser(u);

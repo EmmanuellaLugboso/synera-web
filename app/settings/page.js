@@ -29,7 +29,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
-        router.push("/login");
+        router.replace("/login");
         return;
       }
 
@@ -73,6 +73,11 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+
+  if (!user) {
+    return <div className="settings-page">Redirecting to login…</div>;
   }
 
   return (
