@@ -284,6 +284,8 @@ export default function Dashboard() {
   const waterPct = pct(waterLitres, waterGoal);
 
   const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
+  const completedPlanCount = planItems.filter((item) => item?.done).length;
+  const nextPlanId = planItems.find((item) => !item?.done)?.id || null;
 
   const loadInsights = useCallback(async (forceRefresh = false) => {
     if (!ready || !authUser) return;
@@ -735,24 +737,61 @@ export default function Dashboard() {
 
           {/* Plan */}
           <section className="card plan">
-            <div className="card-title">Today’s plan</div>
-            <div className="card-sub">Tick these off. Progress saves.</div>
+            <div className="card-title">Today’s protocol</div>
+            <div className="card-sub">Coach-guided actions. Keep momentum tight.</div>
 
-            <ul className="plan-list">
-              {planItems.map((p) => (
-                <li key={p.id} className="plan-row">
-                  <input
-                    className="plan-check"
-                    type="checkbox"
-                    checked={!!p.done}
-                    onChange={() => togglePlanItem(p.id)}
-                  />
-                  <span className={p.done ? "plan-text done" : "plan-text"}>
-                    {p.text}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div className="plan-progress" aria-label="Plan progress">
+              <div className="plan-progress-top">
+                <span>Plan progress</span>
+                <strong>{completedPlanCount} / {planItems.length}</strong>
+              </div>
+              <div className="plan-progress-track">
+                <div
+                  className="plan-progress-fill"
+                  style={{ width: `${planItems.length ? (completedPlanCount / planItems.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="plan-actions">
+              {planItems.map((p) => {
+                const status = p.done ? "Done" : p.id === nextPlanId ? "Next" : "Later";
+                const statusTone = p.done ? "done" : p.id === nextPlanId ? "next" : "later";
+
+                return (
+                  <div
+                    key={p.id}
+                    className={`plan-action ${p.done ? "is-done" : ""}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => togglePlanItem(p.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        togglePlanItem(p.id);
+                      }
+                    }}
+                  >
+                    <span className={`plan-status ${statusTone}`}>{status}</span>
+                    <span className="plan-action-text">{p.text}</span>
+                    {!p.done ? (
+                      <button
+                        className="plan-quick-btn"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCoachOpen(true);
+                        }}
+                      >
+                        Guide
+                      </button>
+                    ) : (
+                      <span className="plan-action-dot" aria-hidden="true" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </section>
         </div>
 

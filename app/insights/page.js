@@ -7,7 +7,7 @@ import { db } from "../firebase/config";
 import {
   collection,
   doc,
-  FieldPath,
+  documentId,
   getDocs,
   increment,
   limit,
@@ -47,7 +47,7 @@ function getLastNDaysISO(n) {
 async function fetchLastNDaysDaily(uid, n = 30) {
   if (!uid) return [];
   const ref = collection(db, "users", uid, "daily");
-  const q = query(ref, orderBy(FieldPath.documentId(), "desc"), limit(n));
+  const q = query(ref, orderBy(documentId(), "desc"), limit(n));
   const snap = await getDocs(q);
 
   console.log("[Insights] fetched daily docs count:", snap.size);
