@@ -138,10 +138,9 @@ export function OnboardingProvider({ children }) {
 
       try {
         const remoteDoc = (await getUserProfile(u.uid)) || {};
-        const remoteData = remoteDoc.data || {};
+        const remoteData = safeObject(remoteDoc.data) || safeObject(remoteDoc) || {};
 
         if (Object.keys(remoteDoc).length > 0) {
-
           // Merge: defaults -> current local -> remote data
           setData((prev) =>
             mergeData(DEFAULT_DATA, mergeData(prev, remoteData))

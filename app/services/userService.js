@@ -1,31 +1,10 @@
-import { db } from "../firebase/config";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
+import { sanitizeForFirestore } from "./firestoreSanitize";
 
 /**
  * We store profile at: users/{uid}
  */
-
-
-function isPlainObject(value) {
-  return Object.prototype.toString.call(value) === "[object Object]";
-}
-
-export function sanitizeForFirestore(value) {
-  if (value === undefined) return undefined;
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => sanitizeForFirestore(item))
-      .filter((item) => item !== undefined);
-  }
-  if (isPlainObject(value)) {
-    return Object.fromEntries(
-      Object.entries(value)
-        .map(([key, val]) => [key, sanitizeForFirestore(val)])
-        .filter(([, val]) => val !== undefined)
-    );
-  }
-  return value;
-}
 
 export async function mergeUserProfile(uid, data) {
   if (!uid) throw new Error("Missing uid");
@@ -50,7 +29,7 @@ export async function createUserProfile(uid, data) {
 export async function updateUserProfile(uid, data) {
   if (!uid) throw new Error("Missing uid");
   const ref = doc(db, "users", uid);
-  await updateDoc(ref, data);
+  await updateDoc(ref, sanitizeForFirestore(data));
   return true;
 }
 
@@ -80,3 +59,4 @@ export async function ensureUserProfile(authUser) {
   await createUserProfile(uid, base);
   return base;
 }
+export { sanitizeForFirestore };
