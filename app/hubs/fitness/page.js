@@ -3,6 +3,7 @@
 
 import "./fitness.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
@@ -325,6 +326,7 @@ function bmiCategory(bmi) {
 ========================= */
 
 export default function FitnessHub() {
+  const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
   const d = data || {};
 
@@ -918,6 +920,12 @@ export default function FitnessHub() {
      RENDER
   ========================= */
 
+
+
+  useEffect(() => {
+    if (ready && !user) router.push("/login");
+  }, [ready, user, router]);
+
   if (!ready) {
     return (
       <div className="fit2-page">
@@ -939,10 +947,7 @@ export default function FitnessHub() {
             ← Back
           </Link>
         </div>
-        <div className="fit2-mutedbox">
-          You’re not logged in. Please log in to save workouts, steps, and
-          cardio.
-        </div>
+        <div className="fit2-mutedbox">Redirecting to login…</div>
       </div>
     );
   }

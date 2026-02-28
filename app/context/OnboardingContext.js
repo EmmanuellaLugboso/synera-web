@@ -12,7 +12,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
 import { auth } from "../firebase/config";
 import { getUserProfile, mergeUserProfile, sanitizeForFirestore } from "../services/userService";
-import { mergeOnboardingData, normalizeOnboardingData } from "./onboardingData";
 
 const OnboardingContext = createContext({
   data: {},
@@ -96,6 +95,49 @@ const DEFAULT_DATA = {
   supplementSchedule: [],
 };
 
+function safeObject(x) {
+  return x && typeof x === "object" && !Array.isArray(x) ? x : null;
+}
+
+
+function parseLitres(value) {
+  if (value == null) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, value);
+  const raw = String(value).trim().toLowerCase();
+  if (!raw) return null;
+  const num = Number(raw.replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(num)) return null;
+  return Math.max(0, num);
+}
+
+function normalizeOnboardingData(input) {
+  const obj = safeObject(input);
+  if (!obj) return {};
+
+  const next = { ...obj };
+
+  const macroGoals = safeObject(next.macroGoals) || {};
+  const legacyProtein = Number(next.proteinGoalG);
+  if (!Number.isFinite(Number(macroGoals.proteinG)) && Number.isFinite(legacyProtein) && legacyProtein > 0) {
+    next.macroGoals = { ...macroGoals, proteinG: legacyProtein };
+  }
+
+  const goalLitres = parseLitres(next.waterGoalLitres);
+  const legacyGoal = parseLitres(next.waterGoal);
+  if (goalLitres == null && legacyGoal != null) next.waterGoalLitres = legacyGoal;
+
+  const litres = parseLitres(next.waterLitres);
+  const intakeLitres = parseLitres(next.waterIntake);
+  if (litres == null && intakeLitres != null) next.waterLitres = intakeLitres;
+
+  return next;
+}
+function mergeData(base, incoming) {
+  const obj = safeObject(incoming);
+  if (!obj) return base;
+  return { ...base, ...obj };
+}
+
 export function OnboardingProvider({ children }) {
   const [data, setData] = useState(() => {
     if (typeof window === "undefined") return DEFAULT_DATA;
@@ -103,7 +145,7 @@ export function OnboardingProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return DEFAULT_DATA;
       const parsed = JSON.parse(saved);
-      return mergeOnboardingData(DEFAULT_DATA, normalizeOnboardingData(parsed));
+      return mergeData(DEFAULT_DATA, normalizeOnboardingData(parsed));
     } catch {
       return DEFAULT_DATA;
     }
@@ -129,14 +171,10 @@ export function OnboardingProvider({ children }) {
 
       try {
         const remoteDoc = (await getUserProfile(u.uid)) || {};
-        const nested = remoteDoc && typeof remoteDoc.data === "object" && !Array.isArray(remoteDoc.data)
-          ? remoteDoc.data
-          : null;
-        const flat = remoteDoc && typeof remoteDoc === "object" && !Array.isArray(remoteDoc)
-          ? remoteDoc
-          : {};
-        const isNestedDataDoc = nested !== null;
-        const remoteData = normalizeOnboardingData(nested || flat);
+        const isNestedDataDoc = safeObject(remoteDoc.data) !== null;
+        const remoteData = normalizeOnboardingData(
+          safeObject(remoteDoc.data) || safeObject(remoteDoc) || {},
+        );
 
         if (Object.keys(remoteDoc).length > 0) {
           // Merge: defaults -> current local -> remote data

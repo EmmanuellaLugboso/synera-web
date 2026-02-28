@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import "./nutrition.css";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
@@ -264,6 +265,7 @@ function SwipeRow({ children, onDelete, deleteLabel = "Delete" }) {
 }
 
 export default function Page() {
+  const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
 
   /* ------------------------
@@ -271,6 +273,11 @@ export default function Page() {
   ------------------------ */
   const [tab, setTab] = useState("tracker"); // tracker | recipes | supplements
   const date = todayISO();
+
+
+  useEffect(() => {
+    if (ready && !user) router.push("/login");
+  }, [ready, user, router]);
 
   // sticky mini header
   const [stickyOn, setStickyOn] = useState(false);

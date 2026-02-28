@@ -2,6 +2,7 @@
 
 import "./profile.css";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -14,6 +15,7 @@ import {
 } from "../../services/userService";
 
 export default function ProfileHub() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userAuth, setUserAuth] = useState(null);
 
@@ -36,6 +38,7 @@ export default function ProfileHub() {
         setProfile(null);
         setDraft(null);
         setLoading(false);
+        router.push("/login");
         return;
       }
 
@@ -47,7 +50,7 @@ export default function ProfileHub() {
     });
 
     return () => unsub();
-  }, []);
+  }, [router]);
 
   function toggleEdit() {
     setEditMode((v) => !v);
@@ -139,7 +142,7 @@ export default function ProfileHub() {
   }
 
   if (loading) return <div className="pro-page">Loading…</div>;
-  if (!userAuth) return <div className="pro-page">You’re not logged in.</div>;
+  if (!userAuth) return <div className="pro-page">Redirecting to login…</div>;
   if (!profile) return <div className="pro-page">No profile found.</div>;
 
   return (

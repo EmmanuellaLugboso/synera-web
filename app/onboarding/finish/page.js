@@ -4,12 +4,16 @@ import { useOnboarding } from "../../context/OnboardingContext";
 import { auth } from "../../firebase/config";
 import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function FinishPage() {
   const { data } = useOnboarding();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!auth.currentUser) router.push("/login");
+  }, [router]);
 
   async function saveOnboarding() {
     setLoading(true);
