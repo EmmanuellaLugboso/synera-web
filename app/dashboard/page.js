@@ -298,6 +298,17 @@ export default function Dashboard() {
     setDaily((prev) => ({ ...(prev || {}), plan: next }));
   }
 
+  async function markPlanItemDone(itemId) {
+    if (!authUser) return;
+
+    const current = Array.isArray(daily?.plan) ? daily.plan : [];
+    const next = current.map((p) => (p.id === itemId ? { ...p, done: true } : p));
+
+    const ref = doc(db, "users", authUser.uid, "daily", date);
+    await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
+    setDaily((prev) => ({ ...(prev || {}), plan: next }));
+  }
+
   async function handleLogout() {
     try {
       await signOut(auth);
