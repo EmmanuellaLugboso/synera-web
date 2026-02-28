@@ -1,9 +1,17 @@
-import { db } from "../firebase/config";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
+import { sanitizeForFirestore } from "./firestoreSanitize";
 
 /**
  * We store profile at: users/{uid}
  */
+
+export async function mergeUserProfile(uid, data) {
+  if (!uid) throw new Error("Missing uid");
+  const ref = doc(db, "users", uid);
+  await setDoc(ref, sanitizeForFirestore(data), { merge: true });
+  return true;
+}
 
 export async function getUserProfile(uid) {
   if (!uid) return null;
@@ -14,15 +22,14 @@ export async function getUserProfile(uid) {
 
 export async function createUserProfile(uid, data) {
   if (!uid) throw new Error("Missing uid");
-  const ref = doc(db, "users", uid);
-  await setDoc(ref, data, { merge: true });
+  await mergeUserProfile(uid, data);
   return true;
 }
 
 export async function updateUserProfile(uid, data) {
   if (!uid) throw new Error("Missing uid");
   const ref = doc(db, "users", uid);
-  await updateDoc(ref, data);
+  await updateDoc(ref, sanitizeForFirestore(data));
   return true;
 }
 
@@ -52,3 +59,4 @@ export async function ensureUserProfile(authUser) {
   await createUserProfile(uid, base);
   return base;
 }
+export { sanitizeForFirestore };

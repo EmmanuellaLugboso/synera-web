@@ -2,6 +2,7 @@
 
 import "./dashboard.css";
 import Link from "next/link";
+import Image from "next/image";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -158,7 +159,7 @@ export default function Dashboard() {
   const [insightUpdatedAt, setInsightUpdatedAt] = useState(null);
   const [coachOpen, setCoachOpen] = useState(false);
   const [coachMessages, setCoachMessages] = useState([
-    { role: "assistant", text: "Hey — tell me what you need help with today." },
+    { role: "assistant", text: "Hey — I can build a real action plan. Tell me your goal or what feels stuck today.", focus: "daily execution", plan: ["Hydrate", "Move", "Execute one key habit"] },
   ]);
   const [coachInput, setCoachInput] = useState("");
   const [coachTyping, setCoachTyping] = useState(false);
@@ -310,16 +311,6 @@ export default function Dashboard() {
     setDaily((prev) => ({ ...(prev || {}), plan: next }));
   }
 
-  async function markPlanItemDone(itemId) {
-    if (!authUser) return;
-
-    const current = Array.isArray(daily?.plan) ? daily.plan : [];
-    const next = current.map((p) => (p.id === itemId ? { ...p, done: true } : p));
-
-    const ref = doc(db, "users", authUser.uid, "daily", date);
-    await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
-    setDaily((prev) => ({ ...(prev || {}), plan: next }));
-  }
 
   async function handleLogout() {
     try {
@@ -480,6 +471,7 @@ export default function Dashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
+          history: coachMessages.slice(-6),
           context: {
             name: username,
             waterLitres,
@@ -510,6 +502,10 @@ export default function Dashboard() {
         {
           role: "assistant",
           text: payload?.reply || "One small action now. You’ve got this.",
+          focus: payload?.focus || "",
+          plan: Array.isArray(payload?.plan) ? payload.plan : [],
+          checkInMin: payload?.checkInMin || null,
+          nextPrompt: payload?.nextPrompt || "",
         },
       ]);
     } catch (e) {
@@ -521,82 +517,18 @@ export default function Dashboard() {
   const displayName = profileDoc?.name?.trim() || username;
   const profilePhotoURL = profileDoc?.photoURL || data?.photoURL || "";
 
-  useEffect(() => {
-    if (!ready || !authUser || dailyLoading) return;
-    loadInsights(false);
-  }, [ready, authUser, dailyLoading, loadInsights]);
+  const coachQuickPrompts = [
+    "Give me a 3-hour execution plan",
+    "I feel tired. Reset me",
+    "Plan my next workout",
+    "Help me hit calories tonight",
+  ];
 
-  async function handleInsightAction() {
-    const action = insight?.action;
-    if (!action || action.type !== "water" || insightActionLoading) return;
-
-    setInsightActionLoading(true);
-    setInsightStatus("");
-
-    try {
-      const amount = action.amountMl || 500;
-      await addWater(amount);
-      setInsightStatus(`Done: added ${amount}ml water.`);
-    } catch (e) {
-      setInsightError(e?.message || "Could not apply fast win right now.");
-    } finally {
-      setInsightActionLoading(false);
-    }
+  function setCoachPrompt(prompt) {
+    setCoachInput(prompt);
   }
 
-  async function sendCoachMessage() {
-    const message = coachInput.trim();
-    if (!message || coachTyping) return;
 
-    setCoachError("");
-    setCoachInput("");
-    setCoachMessages((prev) => [...prev, { role: "user", text: message }]);
-    setCoachTyping(true);
-
-    try {
-      const res = await fetch("/api/coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          context: {
-            name: username,
-            waterLitres,
-            waterGoal,
-            steps: stepsToday,
-            stepGoal,
-            calories: caloriesToday,
-            calorieGoal,
-            moodRating: Number(daily?.mood?.rating || 0),
-            sleepHours: Number(daily?.sleep?.hours || 0),
-            habitsRate: daily?.habits?.total
-              ? Math.round(
-                  (Number(daily.habits.completed || 0) /
-                    Number(daily.habits.total || 1)) *
-                    100,
-                )
-              : 0,
-          },
-        }),
-      });
-
-      const payload = await res.json();
-      if (!res.ok)
-        throw new Error(payload?.error || "Could not get coach response.");
-
-      setCoachMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: payload?.reply || "One small action now. You’ve got this.",
-        },
-      ]);
-    } catch (e) {
-      setCoachError(e?.message || "Coach is unavailable right now.");
-    } finally {
-      setCoachTyping(false);
-    }
-  }
   const hubChips = {
     fitness: [
       { label: "Steps", value: formatK(stepsToday) },
@@ -670,9 +602,9 @@ export default function Dashboard() {
             <button className="icon-btn" type="button" aria-label="Alerts">
               🔔
             </button>
-            <button className="icon-btn" type="button" aria-label="Settings">
+            <Link className="icon-btn" href="/settings" aria-label="Settings">
               ⚙️
-            </button>
+            </Link>
 
             <button
               className="dash-btn"
@@ -711,7 +643,7 @@ export default function Dashboard() {
               <div className="mini-user">
                 <div className="mini-user-avatar" aria-hidden>
                   {profilePhotoURL ? (
-                    <img src={profilePhotoURL} alt="Profile" />
+                    <Image src={profilePhotoURL} alt="Profile" width={56} height={56} unoptimized />
                   ) : (
                     <span className="avatar-fallback">
                       {displayName.charAt(0)}
@@ -810,7 +742,7 @@ export default function Dashboard() {
             <div className="profile-user">
               <div className="profile-avatar" aria-hidden>
                 {profilePhotoURL ? (
-                  <img src={profilePhotoURL} alt="Profile" />
+                  <Image src={profilePhotoURL} alt="Profile" width={56} height={56} unoptimized />
                 ) : (
                   <span className="avatar-fallback">
                     {displayName.charAt(0)}
@@ -1133,7 +1065,23 @@ export default function Dashboard() {
                     key={`${msg.role}-${i}`}
                     className={`coach-bubble ${msg.role === "user" ? "user" : "bot"}`}
                   >
-                    {msg.text}
+                    <div>{msg.text}</div>
+                    {msg.role === "assistant" && msg.focus ? (
+                      <div className="coach-focus">Focus: {msg.focus}</div>
+                    ) : null}
+                    {msg.role === "assistant" && Array.isArray(msg.plan) && msg.plan.length ? (
+                      <ul className="coach-planList">
+                        {msg.plan.map((step, idx) => (
+                          <li key={`${i}-${idx}`}>{step}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {msg.role === "assistant" && msg.checkInMin ? (
+                      <div className="coach-meta">Check-in: {msg.checkInMin} min</div>
+                    ) : null}
+                    {msg.role === "assistant" && msg.nextPrompt ? (
+                      <div className="coach-meta">{msg.nextPrompt}</div>
+                    ) : null}
                   </div>
                 ))}
                 {coachTyping ? (
@@ -1144,6 +1092,20 @@ export default function Dashboard() {
               {coachError ? (
                 <div className="coach-error">{coachError}</div>
               ) : null}
+
+              <div className="coach-quickRow">
+                {coachQuickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className="coach-quickBtn"
+                    onClick={() => setCoachPrompt(prompt)}
+                    disabled={coachTyping}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
 
               <form
                 className="coach-inputRow"

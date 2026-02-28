@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
 import {
@@ -70,6 +71,7 @@ async function fetchLastNDaysDaily(uid, n = 30) {
 }
 
 export default function InsightsPage() {
+  const router = useRouter();
   const { data, user: authUser, ready } = useOnboarding();
 
   const [loading, setLoading] = useState(true);
@@ -87,9 +89,15 @@ export default function InsightsPage() {
   const [coachTyping, setCoachTyping] = useState(false);
   const [coachError, setCoachError] = useState("");
 
+  useEffect(() => {
+    if (ready && !authUser) router.replace("/login");
+  }, [ready, authUser, router]);
+
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
   const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
+  const proteinGoal =
+    clampNumber(data?.macroGoals?.proteinG) || clampNumber(data?.proteinGoalG) || 120;
 
   useEffect(() => {
     let cancelled = false;
@@ -97,10 +105,7 @@ export default function InsightsPage() {
     async function loadTimeline() {
       if (!ready) return;
       if (!authUser?.uid) {
-        if (!cancelled) {
-          setDays30(normalizeDailyTimeline([], 30));
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
         return;
       }
 
@@ -135,7 +140,7 @@ export default function InsightsPage() {
       calorieGoal,
       stepGoal,
       waterGoal,
-      proteinGoal: clampNumber(data?.proteinGoalG) || 120,
+      proteinGoal,
     });
 
     const weeklyScore = Math.round(
@@ -190,7 +195,7 @@ export default function InsightsPage() {
             )
           : null,
     };
-  }, [days30, calorieGoal, stepGoal, waterGoal, data?.proteinGoalG]);
+  }, [days30, calorieGoal, stepGoal, waterGoal, proteinGoal]);
 
   async function sendCoachMessage() {
     const message = coachInput.trim();

@@ -1,6 +1,7 @@
 "use client";
 
 import "./signup.css";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -103,7 +104,7 @@ export default function SignupPage() {
         </div>
 
         <button className="google-btn" onClick={handleGoogleSignup} type="button" disabled={loading}>
-          <img src="/google.svg" className="google-icon" alt="Google" />
+          <Image src="/google.svg" className="google-icon" alt="Google" width={18} height={18} />
           Continue with Google
         </button>
 

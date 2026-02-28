@@ -453,3 +453,39 @@
   background:#FFF6FA;
   color:#FF4F9A;
 }
+
+
+/* Theme overrides */
+.ms3-tab,
+.ms3-card,
+.ms3-item,
+.ms3-scorebtn,
+.ms3-select,
+.ms3-search,
+.ms3-iconbtn {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.ms3-tab.active,
+.ms3-scorebtn.active,
+.ms3-chip {
+  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
+  color: var(--text) !important;
+}
+
+.ms3-primary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 72%, white),
+    var(--accent)
+  ) !important;
+}
+
+.ms3-sub,
+.ms3-muted,
+.ms3-preview {
+  color: var(--muted) !important;
+}
