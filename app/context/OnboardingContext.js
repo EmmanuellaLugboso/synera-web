@@ -132,7 +132,7 @@ function normalizeOnboardingData(input) {
 
   return next;
 }
-function mergeData(base, incoming) {
+function mergeOnboardingData(base, incoming) {
   const obj = safeObject(incoming);
   if (!obj) return base;
   return { ...base, ...obj };
@@ -145,7 +145,7 @@ export function OnboardingProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return DEFAULT_DATA;
       const parsed = JSON.parse(saved);
-      return mergeData(DEFAULT_DATA, normalizeOnboardingData(parsed));
+      return mergeOnboardingData(DEFAULT_DATA, normalizeOnboardingData(parsed));
     } catch {
       return DEFAULT_DATA;
     }
@@ -178,7 +178,7 @@ export function OnboardingProvider({ children }) {
 
         if (Object.keys(remoteDoc).length > 0) {
           // Merge: defaults -> current local -> remote data
-          setData((prev) =>
+            setData((prev) =>
             mergeOnboardingData(DEFAULT_DATA, mergeOnboardingData(prev, remoteData))
           );
 
