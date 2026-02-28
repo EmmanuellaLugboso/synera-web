@@ -179,7 +179,7 @@ export function OnboardingProvider({ children }) {
         if (Object.keys(remoteDoc).length > 0) {
           // Merge: defaults -> current local -> remote data
           setData((prev) =>
-            mergeData(DEFAULT_DATA, mergeData(prev, remoteData))
+            mergeOnboardingData(DEFAULT_DATA, mergeOnboardingData(prev, remoteData))
           );
 
           if (!isNestedDataDoc) {
