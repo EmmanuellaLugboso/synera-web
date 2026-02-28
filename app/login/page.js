@@ -1,6 +1,7 @@
 "use client";
 
 import "./login.css";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -133,7 +134,7 @@ export default function LoginPage() {
             type="button"
           >
             <span className="auth-googleIcon" aria-hidden="true">
-              <img src="/google.svg" alt="" />
+              <Image src="/google.svg" alt="" width={18} height={18} />
             </span>
             Continue with Google
           </button>

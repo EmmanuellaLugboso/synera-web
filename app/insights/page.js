@@ -90,6 +90,8 @@ export default function InsightsPage() {
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
   const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
+  const proteinGoal =
+    clampNumber(data?.macroGoals?.proteinG) || clampNumber(data?.proteinGoalG) || 120;
 
   useEffect(() => {
     let cancelled = false;
@@ -135,7 +137,7 @@ export default function InsightsPage() {
       calorieGoal,
       stepGoal,
       waterGoal,
-      proteinGoal: clampNumber(data?.proteinGoalG) || 120,
+      proteinGoal,
     });
 
     const weeklyScore = Math.round(
@@ -190,7 +192,7 @@ export default function InsightsPage() {
             )
           : null,
     };
-  }, [days30, calorieGoal, stepGoal, waterGoal, data?.proteinGoalG]);
+  }, [days30, calorieGoal, stepGoal, waterGoal, proteinGoal]);
 
   async function sendCoachMessage() {
     const message = coachInput.trim();
