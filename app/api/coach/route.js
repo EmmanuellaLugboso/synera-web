@@ -8,76 +8,171 @@ function clamp(value) {
 
 function progress(current, goal) {
   if (!goal) return 0;
-  return Math.round((current / goal) * 100);
+  return Math.max(0, Math.min(100, Math.round((current / goal) * 100)));
+}
+
+function topPriorities(context) {
+  const deficits = [
+    {
+      key: "hydration",
+      score: 100 - progress(context.waterLitres, context.waterGoal),
+      summary: `Hydration ${progress(context.waterLitres, context.waterGoal)}%`,
+    },
+    {
+      key: "steps",
+      score: 100 - progress(context.steps, context.stepGoal),
+      summary: `Steps ${progress(context.steps, context.stepGoal)}%`,
+    },
+    {
+      key: "nutrition",
+      score: 100 - progress(context.calories, context.calorieGoal),
+      summary: `Calories ${progress(context.calories, context.calorieGoal)}%`,
+    },
+    {
+      key: "habits",
+      score: Math.max(0, 100 - clamp(context.habitsRate)),
+      summary: `Habits ${Math.round(clamp(context.habitsRate))}%`,
+    },
+  ];
+
+  if (context.sleepHours > 0 && context.sleepHours < 6.5) {
+    deficits.push({
+      key: "recovery",
+      score: Math.round((6.5 - context.sleepHours) * 20),
+      summary: `Sleep ${context.sleepHours.toFixed(1)}h`,
+    });
+  }
+
+  if (context.moodRating > 0 && context.moodRating <= 2) {
+    deficits.push({
+      key: "mood",
+      score: 35,
+      summary: `Mood ${context.moodRating}/5`,
+    });
+  }
+
+  return deficits.sort((a, b) => b.score - a.score).slice(0, 2);
+}
+
+function generatePlan(message, context) {
+  const lower = message.toLowerCase();
+  const top = topPriorities(context);
+  const primary = top[0]?.key || "hydration";
+
+  if (lower.includes("tired") || lower.includes("energy")) {
+    return {
+      focus: "energy reset",
+      checkInMin: 25,
+      plan: [
+        "Drink 400–500ml water now.",
+        "Take a 10-minute light walk outside or by a window.",
+        "Eat protein + fruit at your next meal/snack.",
+      ],
+      reply: `${context.name}, let's run a fast energy reset.`,
+    };
+  }
+
+  if (lower.includes("workout") || lower.includes("gym")) {
+    return {
+      focus: "training execution",
+      checkInMin: 45,
+      plan: [
+        "Do a 5-minute warm-up right now.",
+        "Complete your first 2 main sets before checking phone.",
+        "Log session + recovery (water + protein) immediately after.",
+      ],
+      reply: `${context.name}, let's keep training simple and executable.`,
+    };
+  }
+
+  if (lower.includes("food") || lower.includes("eat") || lower.includes("calorie")) {
+    return {
+      focus: "nutrition consistency",
+      checkInMin: 60,
+      plan: [
+        "Pick one meal with protein + fiber in the next hour.",
+        "Log that meal before the next one starts.",
+        "Pre-decide your next snack so evening choices are easier.",
+      ],
+      reply: `${context.name}, nutrition focus is on consistency, not perfection.`,
+    };
+  }
+
+  if (primary === "recovery") {
+    return {
+      focus: "recovery protection",
+      checkInMin: 90,
+      plan: [
+        "Keep training intensity at 70–80% today.",
+        "No caffeine in the 8 hours before bed.",
+        "Set tonight's bedtime now and protect it.",
+      ],
+      reply: `${context.name}, recovery is the bottleneck today.`,
+    };
+  }
+
+  if (primary === "steps") {
+    return {
+      focus: "movement momentum",
+      checkInMin: 35,
+      plan: [
+        "Take a 10-minute walk immediately.",
+        "Add 2 short movement breaks before dinner.",
+        "Close remaining step gap with a post-meal walk.",
+      ],
+      reply: `${context.name}, movement gives you the fastest momentum boost right now.`,
+    };
+  }
+
+  return {
+    focus: "daily execution",
+    checkInMin: 30,
+    plan: [
+      "Drink 500ml water now.",
+      "Do one 10-minute movement block.",
+      "Complete your next most important habit before 8pm.",
+    ],
+    reply: `${context.name}, we can win this day with a focused 3-step plan.`,
+  };
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const message = String(body?.message || "").trim();
-    const context = body?.context || {};
+    const contextRaw = body?.context || {};
 
     if (!message) {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
-    const name = String(context?.name || "friend");
-    const waterLitres = clamp(context?.waterLitres);
-    const waterGoal = clamp(context?.waterGoal);
-    const steps = clamp(context?.steps);
-    const stepGoal = clamp(context?.stepGoal);
-    const calories = clamp(context?.calories);
-    const calorieGoal = clamp(context?.calorieGoal);
-    const moodRating = clamp(context?.moodRating);
-    const sleepHours = clamp(context?.sleepHours);
-    const habitsRate = clamp(context?.habitsRate);
+    const context = {
+      name: String(contextRaw?.name || "friend"),
+      waterLitres: clamp(contextRaw?.waterLitres),
+      waterGoal: clamp(contextRaw?.waterGoal),
+      steps: clamp(contextRaw?.steps),
+      stepGoal: clamp(contextRaw?.stepGoal),
+      calories: clamp(contextRaw?.calories),
+      calorieGoal: clamp(contextRaw?.calorieGoal),
+      moodRating: clamp(contextRaw?.moodRating),
+      sleepHours: clamp(contextRaw?.sleepHours),
+      habitsRate: clamp(contextRaw?.habitsRate),
+    };
 
-    const waterPct = progress(waterLitres, waterGoal);
-    const stepsPct = progress(steps, stepGoal);
-    const calPct = progress(calories, calorieGoal);
+    const planResult = generatePlan(message, context);
+    const priorities = topPriorities(context).map((x) => x.summary);
+    const nextPrompt = "Want me to turn this into a timed schedule for the next 3 hours?";
 
-    const lower = message.toLowerCase();
-    let reply = `${name}, pick one easy win: 500ml water or a 10-min walk. Then check back.`;
-
-    if (lower.includes("water") || waterPct < stepsPct) {
-      reply = `${name}, hydration is your quickest boost. You are at ${waterPct}% of water goal — drink 500ml now.`;
-    } else if (
-      lower.includes("walk") ||
-      lower.includes("steps") ||
-      stepsPct <= waterPct
-    ) {
-      reply = `${name}, get moving for 10 minutes right now. You're at ${stepsPct}% of your step goal and this closes the gap fast.`;
-    } else if (
-      lower.includes("food") ||
-      lower.includes("calorie") ||
-      lower.includes("eat")
-    ) {
-      reply = `${name}, keep food simple: log one protein + fibre meal next. Calories are at ${calPct}% of goal.`;
-    }
-
-    if (sleepHours > 0 && sleepHours < 6.5) {
-      reply = `${name}, recovery is the limiting factor today. Sleep was ${sleepHours.toFixed(1)}h — keep intensity moderate and lock bedtime tonight.`;
-    }
-
-    if (moodRating > 0 && moodRating <= 2) {
-      reply = `${name}, mood signal is low (${moodRating}/5). Use a low-friction win first: hydration + 10-minute walk, then reassess.`;
-    }
-
-    if (habitsRate > 0 && habitsRate < 60) {
-      reply = `${name}, habits are under target (${habitsRate}%). Pick only 2 non-negotiables and close them before 8pm.`;
-    }
-
-    if (lower.includes("tired") || lower.includes("energy")) {
-      reply = `${name}, low energy fix: 500ml water + 10-minute walk before caffeine. Quick reset, no overthinking.`;
-    }
-
-    return NextResponse.json({ reply });
-  } catch (e) {
+    return NextResponse.json({
+      reply: `${planResult.reply} Top priorities: ${priorities.join(" • ")}.`,
+      focus: planResult.focus,
+      plan: planResult.plan,
+      checkInMin: planResult.checkInMin,
+      nextPrompt,
+    });
+  } catch (error) {
     return NextResponse.json(
-      { error: e?.message || "Failed to generate coach reply" },
+      { error: error?.message || "Failed to generate coach reply" },
       { status: 500 },
     );
   }

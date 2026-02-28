@@ -41,7 +41,7 @@
   max-width: 100%;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
   color: var(--text);
   padding: 10px 12px;
   font-weight: 900;
@@ -51,4 +51,57 @@
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
+}
+
+.settings-toggleRow {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-toggleTitle {
+  font-weight: 900;
+}
+
+.settings-toggleSub {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings-switch {
+  width: 56px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--accentSoft);
+  padding: 3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.settings-switch.on {
+  background: var(--accent);
+}
+
+.settings-switch-knob {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease;
+}
+
+.settings-switch.on .settings-switch-knob {
+  transform: translateX(24px);
 }

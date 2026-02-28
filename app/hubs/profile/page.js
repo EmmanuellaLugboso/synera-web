@@ -1,6 +1,7 @@
 "use client";
 
 import "./profile.css";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -158,7 +159,7 @@ export default function ProfileHub() {
         <div className="pro-row">
           <div className="pro-avatar">
             {profile.photoURL ? (
-              <img src={profile.photoURL} alt="avatar" />
+              <Image src={profile.photoURL} alt="avatar" width={104} height={104} unoptimized />
             ) : (
               <div className="pro-avatarFallback" />
             )}

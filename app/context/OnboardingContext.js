@@ -9,13 +9,9 @@ import {
   useState,
 } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { auth, db } from "../firebase/config";
+import { serverTimestamp } from "firebase/firestore";
+import { auth } from "../firebase/config";
+import { getUserProfile, mergeUserProfile, sanitizeForFirestore } from "../services/userService";
 
 const OnboardingContext = createContext({
   data: {},
@@ -40,6 +36,7 @@ const DEFAULT_DATA = {
 
   // FITNESS (from onboarding)
   activity: "",
+  experience: "",
   focus: [],
 
   // GOALS / NUTRITION (from onboarding)
@@ -109,24 +106,23 @@ function mergeData(base, incoming) {
 }
 
 export function OnboardingProvider({ children }) {
-  const [data, setData] = useState(DEFAULT_DATA);
+  const [data, setData] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_DATA;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return DEFAULT_DATA;
+      const parsed = JSON.parse(saved);
+      return mergeData(DEFAULT_DATA, parsed);
+    } catch {
+      return DEFAULT_DATA;
+    }
+  });
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
   const hasLoadedRemote = useRef(false);
   const saveTimer = useRef(null);
   const lastSavedJSON = useRef("");
-
-  // ---- LocalStorage load (fast startup / offline)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setData((prev) => mergeData(DEFAULT_DATA, mergeData(prev, parsed)));
-      }
-    } catch (e) {}
-  }, []);
 
   // ---- Auth listener + Firestore load
   useEffect(() => {
@@ -141,12 +137,10 @@ export function OnboardingProvider({ children }) {
       }
 
       try {
-        const ref = doc(db, "users", u.uid);
-        const snap = await getDoc(ref);
+        const remoteDoc = (await getUserProfile(u.uid)) || {};
+        const remoteData = remoteDoc.data || {};
 
-        if (snap.exists()) {
-          const remoteDoc = snap.data() || {};
-          const remoteData = remoteDoc.data || {};
+        if (Object.keys(remoteDoc).length > 0) {
 
           // Merge: defaults -> current local -> remote data
           setData((prev) =>
@@ -154,22 +148,18 @@ export function OnboardingProvider({ children }) {
           );
         } else {
           // First-time user: create clean doc
-          await setDoc(
-            ref,
-            {
-              email: u.email || "",
-              onboardingComplete: false,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-              data: JSON.parse(JSON.stringify(DEFAULT_DATA)),
-            },
-            { merge: true }
-          );
+          await mergeUserProfile(u.uid, {
+            email: u.email || "",
+            onboardingComplete: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            data: sanitizeForFirestore(DEFAULT_DATA),
+          });
 
           setData(DEFAULT_DATA);
         }
-      } catch (e) {
-        console.log("Firestore load failed:", e);
+      } catch (error) {
+        console.log("Firestore load failed:", error);
         // Keep local data if Firestore fails
       }
 
@@ -184,7 +174,7 @@ export function OnboardingProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {}
+    } catch {}
   }, [data]);
 
   // ---- Debounced Firestore autosave (ONLY writes to doc.data)
@@ -199,24 +189,17 @@ export function OnboardingProvider({ children }) {
 
     saveTimer.current = setTimeout(async () => {
       try {
-        const ref = doc(db, "users", user.uid);
+        const payload = sanitizeForFirestore(data);
 
-        // Remove undefined safely
-        const payload = JSON.parse(JSON.stringify(data));
-
-        await setDoc(
-          ref,
-          {
-            email: user.email || "",
-            updatedAt: serverTimestamp(),
-            data: payload,
-          },
-          { merge: true }
-        );
+        await mergeUserProfile(user.uid, {
+          email: user.email || "",
+          updatedAt: serverTimestamp(),
+          data: payload,
+        });
 
         lastSavedJSON.current = json;
-      } catch (e) {
-        console.log("Firestore save failed:", e);
+      } catch (error) {
+        console.log("Firestore save failed:", error);
       }
     }, 450);
 

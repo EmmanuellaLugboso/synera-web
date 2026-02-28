@@ -2,6 +2,7 @@
 
 import "./profile.css";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
@@ -196,7 +197,7 @@ export default function ProfilePage() {
           <div className="profile-photoRow">
             <div className="profile-photoCircle">
               {form.photoURL ? (
-                <img src={form.photoURL} alt="Profile" />
+                <Image src={form.photoURL} alt="Profile" width={112} height={112} unoptimized />
               ) : (
                 <span>{initials}</span>
               )}

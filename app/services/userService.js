@@ -5,6 +5,35 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
  * We store profile at: users/{uid}
  */
 
+
+function isPlainObject(value) {
+  return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+export function sanitizeForFirestore(value) {
+  if (value === undefined) return undefined;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => sanitizeForFirestore(item))
+      .filter((item) => item !== undefined);
+  }
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([key, val]) => [key, sanitizeForFirestore(val)])
+        .filter(([, val]) => val !== undefined)
+    );
+  }
+  return value;
+}
+
+export async function mergeUserProfile(uid, data) {
+  if (!uid) throw new Error("Missing uid");
+  const ref = doc(db, "users", uid);
+  await setDoc(ref, sanitizeForFirestore(data), { merge: true });
+  return true;
+}
+
 export async function getUserProfile(uid) {
   if (!uid) return null;
   const ref = doc(db, "users", uid);
@@ -14,8 +43,7 @@ export async function getUserProfile(uid) {
 
 export async function createUserProfile(uid, data) {
   if (!uid) throw new Error("Missing uid");
-  const ref = doc(db, "users", uid);
-  await setDoc(ref, data, { merge: true });
+  await mergeUserProfile(uid, data);
   return true;
 }
 
