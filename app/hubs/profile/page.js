@@ -1,7 +1,7 @@
 "use client";
 
 import "./profile.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -22,6 +22,10 @@ export default function ProfileHub() {
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState("");
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -82,15 +86,37 @@ export default function ProfileHub() {
     }
   }
 
+  function openPhotoPicker() {
+    setUploadError("");
+    setUploadSuccess("");
+    fileInputRef.current?.click();
+  }
+
   async function uploadAvatar(e) {
     const file = e.target.files?.[0];
     if (!file || !userAuth) return;
 
+    setUploadError("");
+    setUploadSuccess("");
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please choose an image file.");
+      e.target.value = "";
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setUploadError("Image is too large. Please upload up to 5MB.");
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
     try {
-      // store in: avatars/{uid}.jpg (or original extension)
+      // store in: avatars/{uid}-{ts}.ext
       const ext = file.name.split(".").pop() || "jpg";
-      const fileRef = ref(storage, `avatars/${userAuth.uid}.${ext}`);
+      const fileRef = ref(storage, `avatars/${userAuth.uid}-${Date.now()}.${ext}`);
 
       await uploadBytes(fileRef, file);
       const url = await getDownloadURL(fileRef);
@@ -102,8 +128,12 @@ export default function ProfileHub() {
 
       // persist
       await updateUserProfile(userAuth.uid, { photoURL: url, updatedAt: Date.now() });
+      setUploadSuccess("Profile photo updated.");
+    } catch (err) {
+      setUploadError(err?.message || "Failed to upload photo. Try again.");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   }
 
@@ -133,25 +163,26 @@ export default function ProfileHub() {
               <div className="pro-avatarFallback" />
             )}
 
-            {editMode && (
-              <input
-                className="pro-file"
-                type="file"
-                accept="image/*"
-                onChange={uploadAvatar}
-                disabled={uploading}
-                title="Upload photo"
-              />
-            )}
+            <input
+              ref={fileInputRef}
+              className="pro-file"
+              type="file"
+              accept="image/*"
+              onChange={uploadAvatar}
+              disabled={uploading}
+              title="Upload photo"
+            />
           </div>
 
           <div className="pro-identity">
             <div className="pro-name">{profile.name || "Friend"}</div>
             <div className="pro-email">{profile.email || userAuth.email || "--"}</div>
-            {uploading ? (
-              <div style={{ marginTop: 8, fontWeight: 800, opacity: 0.7 }}>
-                Uploading photo…
-              </div>
+            <button className="pro-photoBtn" type="button" onClick={openPhotoPicker} disabled={uploading}>
+              {uploading ? "Uploading…" : "Upload photo"}
+            </button>
+            {uploadError ? <div className="pro-uploadMsg error">{uploadError}</div> : null}
+            {!uploadError && uploadSuccess ? (
+              <div className="pro-uploadMsg success">{uploadSuccess}</div>
             ) : null}
           </div>
         </div>

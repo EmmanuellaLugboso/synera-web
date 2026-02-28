@@ -5,6 +5,8 @@ import "./fitness.css";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { db } from "../../firebase/config";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 /* ---------- Starter templates & library ---------- */
 
@@ -165,8 +167,8 @@ function buildExerciseHistoryMap(workouts = []) {
               }`
             : "--"
           : bestReps
-          ? `${bestReps.weight}${unit} × ${bestReps.reps}`
-          : "--";
+            ? `${bestReps.weight}${unit} × ${bestReps.reps}`
+            : "--";
 
       const entry = map.get(name) || {
         last: null,
@@ -258,7 +260,7 @@ function upsertStepsLog(stepsLog, date, steps) {
 function calcStepStreak(stepsLog, stepGoal) {
   const goal = Number(stepGoal) || 8000;
   const map = new Map(
-    (stepsLog || []).map((x) => [x.date, Number(x.steps) || 0])
+    (stepsLog || []).map((x) => [x.date, Number(x.steps) || 0]),
   );
 
   let streak = 0;
@@ -361,7 +363,7 @@ export default function FitnessHub() {
   // maps
   const historyMap = useMemo(
     () => buildExerciseHistoryMap(workouts),
-    [workouts]
+    [workouts],
   );
 
   const workoutDates = useMemo(() => {
@@ -372,7 +374,7 @@ export default function FitnessHub() {
 
   const calCells = useMemo(
     () => getMonthDays(calYear, calMonth),
-    [calYear, calMonth]
+    [calYear, calMonth],
   );
 
   const workoutsOnSelectedDate = useMemo(() => {
@@ -384,12 +386,12 @@ export default function FitnessHub() {
 
   const recentWorkouts = useMemo(
     () => workouts.slice().reverse().slice(0, 3),
-    [workouts]
+    [workouts],
   );
 
   const streak = useMemo(
     () => calcStepStreak(stepsLog, stepGoal),
-    [stepsLog, stepGoal]
+    [stepsLog, stepGoal],
   );
 
   // set stepsToday from log
@@ -665,7 +667,9 @@ export default function FitnessHub() {
   /* ---------- History screens ---------- */
 
   const sortedWorkouts = useMemo(() => {
-    return workouts.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return workouts
+      .slice()
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [workouts]);
 
   const detailWorkout = useMemo(() => {
@@ -744,6 +748,40 @@ export default function FitnessHub() {
     return count;
   }, [todaysWorkouts]);
 
+  const totalCardioMinutesToday = useMemo(() => {
+    return todaysCardio.reduce(
+      (sum, entry) => sum + safeNum(entry?.durationMin),
+      0,
+    );
+  }, [todaysCardio]);
+
+  useEffect(() => {
+    async function syncDailyFitness() {
+      if (!ready || !user?.uid) return;
+      const ref = doc(db, "users", user.uid, "daily", todayIso);
+      await setDoc(
+        ref,
+        {
+          date: todayIso,
+          steps: safeNum(todaysSteps),
+          workouts: todaysWorkouts.length,
+          cardioMinutes: totalCardioMinutesToday,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+
+    syncDailyFitness();
+  }, [
+    ready,
+    user?.uid,
+    todayIso,
+    todaysSteps,
+    todaysWorkouts.length,
+    totalCardioMinutesToday,
+  ]);
+
   /* =========================
      RENDER
   ========================= */
@@ -770,7 +808,8 @@ export default function FitnessHub() {
           </Link>
         </div>
         <div className="fit2-mutedbox">
-          You’re not logged in. Please log in to save workouts, steps, and cardio.
+          You’re not logged in. Please log in to save workouts, steps, and
+          cardio.
         </div>
       </div>
     );
@@ -864,52 +903,55 @@ export default function FitnessHub() {
             </div>
           </div>
 
-          <div className="fit2-tilegrid">
-            <button className="fit2-tile" onClick={goStrength} type="button">
-              <div className="fit2-tileTop">
-                <div className="fit2-tileIcon">🏋️‍♀️</div>
-                <div className="fit2-tileBadge">{workouts.length} saved</div>
-              </div>
-              <div className="fit2-tileTitle">Strength</div>
-              <div className="fit2-tileSub">Templates • Logging • PRs</div>
-            </button>
+          <section className="fit2-featureSection">
+            <div className="fit2-featureTitle">Training lanes</div>
+            <div className="fit2-tilegrid">
+              <button className="fit2-tile" onClick={goStrength} type="button">
+                <div className="fit2-tileTop">
+                  <div className="fit2-tileIcon">🏋️‍♀️</div>
+                  <div className="fit2-tileBadge">{workouts.length} saved</div>
+                </div>
+                <div className="fit2-tileTitle">Strength</div>
+                <div className="fit2-tileSub">Templates • Logging • PRs</div>
+              </button>
 
-            <button className="fit2-tile" onClick={goHistory} type="button">
-              <div className="fit2-tileTop">
-                <div className="fit2-tileIcon">📜</div>
-                <div className="fit2-tileBadge">View</div>
-              </div>
-              <div className="fit2-tileTitle">History</div>
-              <div className="fit2-tileSub">All workouts • Details</div>
-            </button>
+              <button className="fit2-tile" onClick={goHistory} type="button">
+                <div className="fit2-tileTop">
+                  <div className="fit2-tileIcon">📜</div>
+                  <div className="fit2-tileBadge">View</div>
+                </div>
+                <div className="fit2-tileTitle">History</div>
+                <div className="fit2-tileSub">All workouts • Details</div>
+              </button>
 
-            <button className="fit2-tile" onClick={goCardio} type="button">
-              <div className="fit2-tileTop">
-                <div className="fit2-tileIcon">🏃‍♀️</div>
-                <div className="fit2-tileBadge">{cardioLogs.length}</div>
-              </div>
-              <div className="fit2-tileTitle">Cardio</div>
-              <div className="fit2-tileSub">Run • Walk • Cycle logs</div>
-            </button>
+              <button className="fit2-tile" onClick={goCardio} type="button">
+                <div className="fit2-tileTop">
+                  <div className="fit2-tileIcon">🏃‍♀️</div>
+                  <div className="fit2-tileBadge">{cardioLogs.length}</div>
+                </div>
+                <div className="fit2-tileTitle">Cardio</div>
+                <div className="fit2-tileSub">Run • Walk • Cycle logs</div>
+              </button>
 
-            <button className="fit2-tile" onClick={goSteps} type="button">
-              <div className="fit2-tileTop">
-                <div className="fit2-tileIcon">👟</div>
-                <div className="fit2-tileBadge">{streak} day streak</div>
-              </div>
-              <div className="fit2-tileTitle">Steps</div>
-              <div className="fit2-tileSub">Daily steps • Goal • streak</div>
-            </button>
+              <button className="fit2-tile" onClick={goSteps} type="button">
+                <div className="fit2-tileTop">
+                  <div className="fit2-tileIcon">👟</div>
+                  <div className="fit2-tileBadge">{streak} day streak</div>
+                </div>
+                <div className="fit2-tileTitle">Steps</div>
+                <div className="fit2-tileSub">Daily steps • Goal • streak</div>
+              </button>
 
-            <button className="fit2-tile" onClick={goBody} type="button">
-              <div className="fit2-tileTop">
-                <div className="fit2-tileIcon">📊</div>
-                <div className="fit2-tileBadge">BMI</div>
-              </div>
-              <div className="fit2-tileTitle">Body</div>
-              <div className="fit2-tileSub">BMI • Category</div>
-            </button>
-          </div>
+              <button className="fit2-tile" onClick={goBody} type="button">
+                <div className="fit2-tileTop">
+                  <div className="fit2-tileIcon">📊</div>
+                  <div className="fit2-tileBadge">BMI</div>
+                </div>
+                <div className="fit2-tileTitle">Body</div>
+                <div className="fit2-tileSub">BMI • Category</div>
+              </button>
+            </div>
+          </section>
         </div>
       )}
 
@@ -947,7 +989,8 @@ export default function FitnessHub() {
 
             {!d.height || !d.weight ? (
               <div className="fit2-mutedbox" style={{ marginTop: 12 }}>
-                Add your <strong>height</strong> and <strong>weight</strong> in onboarding to calculate BMI.
+                Add your <strong>height</strong> and <strong>weight</strong> in
+                onboarding to calculate BMI.
               </div>
             ) : null}
           </div>
@@ -996,7 +1039,9 @@ export default function FitnessHub() {
               </div>
             </div>
 
-            <div className="fit2-subtitle">My Templates ({templates.length})</div>
+            <div className="fit2-subtitle">
+              My Templates ({templates.length})
+            </div>
 
             <div className="fit2-templategrid">
               {templates.map((tpl) => (
@@ -1025,11 +1070,19 @@ export default function FitnessHub() {
             <div className="fit2-calhead">
               <div className="fit2-sectiontitle">Calendar</div>
               <div className="fit2-calnav">
-                <button className="fit2-calbtn" onClick={prevMonth} type="button">
+                <button
+                  className="fit2-calbtn"
+                  onClick={prevMonth}
+                  type="button"
+                >
                   ←
                 </button>
                 <div className="fit2-callabel">{monthLabel}</div>
-                <button className="fit2-calbtn" onClick={nextMonth} type="button">
+                <button
+                  className="fit2-calbtn"
+                  onClick={nextMonth}
+                  type="button"
+                >
                   →
                 </button>
               </div>
@@ -1043,7 +1096,10 @@ export default function FitnessHub() {
               ))}
 
               {calCells.map((day, idx) => {
-                if (!day) return <div key={`e-${idx}`} className="fit2-calcell empty" />;
+                if (!day)
+                  return (
+                    <div key={`e-${idx}`} className="fit2-calcell empty" />
+                  );
                 const iso = isoFromYMD(calYear, calMonth, day);
                 const hasWorkout = workoutDates.has(iso);
                 const isSelected = selectedDate === iso;
@@ -1065,7 +1121,9 @@ export default function FitnessHub() {
             <div style={{ marginTop: 14 }}>
               <div className="fit2-subtitle">Workouts on {selectedDate}</div>
               {workoutsOnSelectedDate.length === 0 ? (
-                <div className="fit2-mutedbox">No workouts saved for this day.</div>
+                <div className="fit2-mutedbox">
+                  No workouts saved for this day.
+                </div>
               ) : (
                 <div className="fit2-recentlist">
                   {workoutsOnSelectedDate.map((w) => (
@@ -1127,21 +1185,37 @@ export default function FitnessHub() {
               <div className="fit2-timervalue">{formatTime(elapsedMs)}</div>
               <div className="fit2-timerbtns">
                 {!running ? (
-                  <button className="fit2-pillbtn" onClick={resumeTimer} type="button">
+                  <button
+                    className="fit2-pillbtn"
+                    onClick={resumeTimer}
+                    type="button"
+                  >
                     Resume
                   </button>
                 ) : (
-                  <button className="fit2-pillbtn" onClick={pauseTimer} type="button">
+                  <button
+                    className="fit2-pillbtn"
+                    onClick={pauseTimer}
+                    type="button"
+                  >
                     Pause
                   </button>
                 )}
-                <button className="fit2-pillbtn ghost" onClick={resetTimer} type="button">
+                <button
+                  className="fit2-pillbtn ghost"
+                  onClick={resetTimer}
+                  type="button"
+                >
                   Reset
                 </button>
               </div>
             </div>
 
-            <button className="fit2-finish" onClick={finishWorkout} type="button">
+            <button
+              className="fit2-finish"
+              onClick={finishWorkout}
+              type="button"
+            >
               Finish
             </button>
           </div>
@@ -1166,11 +1240,19 @@ export default function FitnessHub() {
               </div>
             </div>
 
-            <button className="fit2-addex" onClick={() => setPickerOpen(true)} type="button">
+            <button
+              className="fit2-addex"
+              onClick={() => setPickerOpen(true)}
+              type="button"
+            >
               Add Exercises
             </button>
 
-            <button className="fit2-cancel" onClick={cancelWorkout} type="button">
+            <button
+              className="fit2-cancel"
+              onClick={cancelWorkout}
+              type="button"
+            >
               Cancel Workout
             </button>
           </div>
@@ -1184,7 +1266,9 @@ export default function FitnessHub() {
                       <input
                         className="fit2-exname"
                         value={ex.name}
-                        onChange={(e) => updateExerciseName(exIndex, e.target.value)}
+                        onChange={(e) =>
+                          updateExerciseName(exIndex, e.target.value)
+                        }
                         placeholder="Exercise"
                       />
                       <div className="fit2-lastline">
@@ -1209,7 +1293,9 @@ export default function FitnessHub() {
                   </div>
 
                   <div className="fit2-exmeta">
-                    {ex.category ? <span className="fit2-tag">{ex.category}</span> : null}
+                    {ex.category ? (
+                      <span className="fit2-tag">{ex.category}</span>
+                    ) : null}
 
                     <div className="fit2-mode">
                       <button
@@ -1232,14 +1318,20 @@ export default function FitnessHub() {
                   <textarea
                     className="fit2-note"
                     value={ex.note}
-                    onChange={(e) => updateExerciseNote(exIndex, e.target.value)}
+                    onChange={(e) =>
+                      updateExerciseNote(exIndex, e.target.value)
+                    }
                     placeholder="Notes (optional) — e.g. felt heavy today, slow tempo, etc."
                   />
 
                   <div className="fit2-sethead">
                     <div>SET</div>
                     <div>TYPE</div>
-                    {ex.mode === "reps" ? <div>{unit.toUpperCase()}</div> : <div>TIME</div>}
+                    {ex.mode === "reps" ? (
+                      <div>{unit.toUpperCase()}</div>
+                    ) : (
+                      <div>TIME</div>
+                    )}
                     {ex.mode === "reps" ? <div>REPS</div> : <div>DIST</div>}
                     <div>✓</div>
                     <div></div>
@@ -1252,7 +1344,9 @@ export default function FitnessHub() {
                       <select
                         className="fit2-select"
                         value={s.type}
-                        onChange={(e) => updateSet(exIndex, setIndex, "type", e.target.value)}
+                        onChange={(e) =>
+                          updateSet(exIndex, setIndex, "type", e.target.value)
+                        }
                       >
                         <option>Normal</option>
                         <option>Warm-up</option>
@@ -1266,7 +1360,14 @@ export default function FitnessHub() {
                             type="number"
                             min="0"
                             value={s.weight}
-                            onChange={(e) => updateSet(exIndex, setIndex, "weight", e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exIndex,
+                                setIndex,
+                                "weight",
+                                e.target.value,
+                              )
+                            }
                             placeholder={unit}
                           />
                           <input
@@ -1274,7 +1375,14 @@ export default function FitnessHub() {
                             type="number"
                             min="0"
                             value={s.reps}
-                            onChange={(e) => updateSet(exIndex, setIndex, "reps", e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exIndex,
+                                setIndex,
+                                "reps",
+                                e.target.value,
+                              )
+                            }
                             placeholder="reps"
                           />
                         </>
@@ -1285,7 +1393,14 @@ export default function FitnessHub() {
                             type="number"
                             min="0"
                             value={s.timeSec}
-                            onChange={(e) => updateSet(exIndex, setIndex, "timeSec", e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exIndex,
+                                setIndex,
+                                "timeSec",
+                                e.target.value,
+                              )
+                            }
                             placeholder="sec"
                           />
                           <input
@@ -1293,7 +1408,14 @@ export default function FitnessHub() {
                             type="number"
                             min="0"
                             value={s.distance}
-                            onChange={(e) => updateSet(exIndex, setIndex, "distance", e.target.value)}
+                            onChange={(e) =>
+                              updateSet(
+                                exIndex,
+                                setIndex,
+                                "distance",
+                                e.target.value,
+                              )
+                            }
                             placeholder="km (opt)"
                           />
                         </>
@@ -1301,7 +1423,9 @@ export default function FitnessHub() {
 
                       <button
                         className={`fit2-done ${s.done ? "on" : ""}`}
-                        onClick={() => updateSet(exIndex, setIndex, "done", !s.done)}
+                        onClick={() =>
+                          updateSet(exIndex, setIndex, "done", !s.done)
+                        }
                         type="button"
                       >
                         {s.done ? "✓" : ""}
@@ -1319,7 +1443,11 @@ export default function FitnessHub() {
                   ))}
 
                   <div className="fit2-exfooter">
-                    <button className="fit2-pillbtn" onClick={() => addSet(exIndex)} type="button">
+                    <button
+                      className="fit2-pillbtn"
+                      onClick={() => addSet(exIndex)}
+                      type="button"
+                    >
                       + Add Set
                     </button>
                   </div>
@@ -1337,7 +1465,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">History</div>
             <h1 className="fit2-h1">All Workouts</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("hub")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("hub")}
+              >
                 ← Fitness Hub
               </button>
             </div>
@@ -1379,7 +1511,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Workout</div>
             <h1 className="fit2-h1">Details</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("history")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("history")}
+              >
                 ← Back to History
               </button>
             </div>
@@ -1389,15 +1525,29 @@ export default function FitnessHub() {
             <div className="fit2-mutedbox">Workout not found.</div>
           ) : (
             <div className="fit2-simpleCard">
-              <div style={{ fontWeight: 900, fontSize: 16 }}>{detailWorkout.title}</div>
+              <div style={{ fontWeight: 900, fontSize: 16 }}>
+                {detailWorkout.title}
+              </div>
               <div className="fit2-small" style={{ marginTop: 6 }}>
-                {detailWorkout.date} • {Math.floor((detailWorkout.durationSec || 0) / 60)} mins •{" "}
+                {detailWorkout.date} •{" "}
+                {Math.floor((detailWorkout.durationSec || 0) / 60)} mins •{" "}
                 {detailWorkout.unit}
               </div>
 
-              <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div
+                style={{
+                  marginTop: 14,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
                 {(detailWorkout.exercises || []).map((ex, idx) => (
-                  <div key={`${ex.name}-${idx}`} className="fit2-simpleCard" style={{ boxShadow: "none" }}>
+                  <div
+                    key={`${ex.name}-${idx}`}
+                    className="fit2-simpleCard"
+                    style={{ boxShadow: "none" }}
+                  >
                     <div style={{ fontWeight: 900 }}>{ex.name}</div>
                     {ex.note ? (
                       <div className="fit2-small" style={{ marginTop: 6 }}>
@@ -1409,7 +1559,14 @@ export default function FitnessHub() {
                       {(ex.sets || []).length} sets
                     </div>
 
-                    <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div
+                      style={{
+                        marginTop: 10,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
+                    >
                       {(ex.sets || []).map((s, sIdx) => (
                         <div key={sIdx} className="fit2-row">
                           <div className="fit2-recentpill">#{sIdx + 1}</div>
@@ -1432,7 +1589,9 @@ export default function FitnessHub() {
                   className="fit2-pillbtn fit2-danger"
                   type="button"
                   onClick={() => {
-                    const next = workouts.filter((w) => w.id !== detailWorkout.id);
+                    const next = workouts.filter(
+                      (w) => w.id !== detailWorkout.id,
+                    );
                     updateMany({ workouts: next });
                     setScreen("history");
                   }}
@@ -1452,7 +1611,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Cardio</div>
             <h1 className="fit2-h1">Quick Log</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("hub")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("hub")}
+              >
                 ← Fitness Hub
               </button>
             </div>
@@ -1460,7 +1623,11 @@ export default function FitnessHub() {
 
           <div className="fit2-simpleCard">
             <div className="fit2-row">
-              <select className="fit2-input" value={cardioType} onChange={(e) => setCardioType(e.target.value)}>
+              <select
+                className="fit2-input"
+                value={cardioType}
+                onChange={(e) => setCardioType(e.target.value)}
+              >
                 <option>Run</option>
                 <option>Walk</option>
                 <option>Cycle</option>
@@ -1500,7 +1667,11 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-row" style={{ marginTop: 12 }}>
-              <button className="fit2-primarywide" type="button" onClick={addCardio}>
+              <button
+                className="fit2-primarywide"
+                type="button"
+                onClick={addCardio}
+              >
                 Save Cardio
               </button>
             </div>
@@ -1538,7 +1709,11 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Steps</div>
             <h1 className="fit2-h1">Daily Movement</h1>
             <div className="fit2-row" style={{ marginTop: 10 }}>
-              <button className="fit2-pillbtn" type="button" onClick={() => setScreen("hub")}>
+              <button
+                className="fit2-pillbtn"
+                type="button"
+                onClick={() => setScreen("hub")}
+              >
                 ← Fitness Hub
               </button>
             </div>
@@ -1563,7 +1738,11 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-row" style={{ marginTop: 12 }}>
-              <button className="fit2-primarywide" type="button" onClick={saveSteps}>
+              <button
+                className="fit2-primarywide"
+                type="button"
+                onClick={saveSteps}
+              >
                 Save Steps
               </button>
             </div>
@@ -1604,22 +1783,39 @@ export default function FitnessHub() {
         <div className="fit2-modal">
           <div className="fit2-modalcard">
             <div className="fit2-modaltop">
-              <button className="fit2-ghosticon" onClick={() => setPickerOpen(false)} type="button">
+              <button
+                className="fit2-ghosticon"
+                onClick={() => setPickerOpen(false)}
+                type="button"
+              >
                 ✕
               </button>
               <div className="fit2-modaltitle">Add Exercise</div>
-              <button className="fit2-pillbtn" onClick={() => setPickerOpen(false)} type="button">
+              <button
+                className="fit2-pillbtn"
+                onClick={() => setPickerOpen(false)}
+                type="button"
+              >
                 Done
               </button>
             </div>
 
-            <input className="fit2-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" />
+            <input
+              className="fit2-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search"
+            />
 
             {search.trim().length > 0 &&
-              !EXERCISE_LIBRARY.some((x) => x.name.toLowerCase() === search.trim().toLowerCase()) && (
+              !EXERCISE_LIBRARY.some(
+                (x) => x.name.toLowerCase() === search.trim().toLowerCase(),
+              ) && (
                 <button
                   className="fit2-addcustom"
-                  onClick={() => addExerciseByName(search.trim(), { useLast: false })}
+                  onClick={() =>
+                    addExerciseByName(search.trim(), { useLast: false })
+                  }
                   type="button"
                 >
                   + Add “{search.trim()}” (Custom)
@@ -1633,18 +1829,24 @@ export default function FitnessHub() {
                   ? `Last: ${info.last.summary} • ${formatRelativeDate(info.last.date)}`
                   : "No history yet";
                 const bestText = info?.best ? `Best: ${info.best.summary}` : "";
-                const isPR = info?.bestDate && info?.last?.date && info.bestDate === info.last.date;
+                const isPR =
+                  info?.bestDate &&
+                  info?.last?.date &&
+                  info.bestDate === info.last.date;
 
                 return (
                   <div key={item.name} className="fit2-listrowwrap">
                     <button
                       className="fit2-listrow"
-                      onClick={() => addExerciseByName(item.name, { useLast: false })}
+                      onClick={() =>
+                        addExerciseByName(item.name, { useLast: false })
+                      }
                       type="button"
                     >
                       <div>
                         <div className="fit2-listname">
-                          {item.name} {isPR ? <span className="fit2-pr">PR</span> : null}
+                          {item.name}{" "}
+                          {isPR ? <span className="fit2-pr">PR</span> : null}
                         </div>
                         <div className="fit2-listsub">{item.category}</div>
                         <div className="fit2-historyline">
@@ -1656,7 +1858,13 @@ export default function FitnessHub() {
                     </button>
 
                     {info?.lastSets?.length ? (
-                      <button className="fit2-uselast" onClick={() => addExerciseByName(item.name, { useLast: true })} type="button">
+                      <button
+                        className="fit2-uselast"
+                        onClick={() =>
+                          addExerciseByName(item.name, { useLast: true })
+                        }
+                        type="button"
+                      >
                         Use last
                       </button>
                     ) : null}

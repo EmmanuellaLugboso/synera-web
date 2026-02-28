@@ -1,0 +1,54 @@
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+}
+.settings-shell {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.settings-back {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 900;
+}
+.settings-card {
+  margin-top: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.settings-card h1 {
+  margin: 0;
+}
+.settings-card p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.settings-field {
+  margin-top: 14px;
+  display: grid;
+  gap: 6px;
+  font-weight: 900;
+  color: var(--muted);
+}
+.settings-field select {
+  width: 280px;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  padding: 10px 12px;
+  font-weight: 900;
+}
+.settings-note {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
