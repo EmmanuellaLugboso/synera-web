@@ -16,7 +16,8 @@ export default function DobPage() {
     const entered = new Date(dob);
     if (isNaN(entered.getTime())) return false;
 
-    const ageDifMs = Date.now() - entered.getTime();
+    const now = new Date();
+    const ageDifMs = now.getTime() - entered.getTime();
     const ageDate = new Date(ageDifMs);
     const age = Math.abs(ageDate.getUTCFullYear() - 1970);
 
@@ -27,7 +28,7 @@ export default function DobPage() {
     <div className="onboard-container">
       <div className="onboard-card">
 
-        <h1 className="onboard-title">When's your birthday? 🎂</h1>
+        <h1 className="onboard-title">When&apos;s your birthday? 🎂</h1>
 
         <input
           type="date"

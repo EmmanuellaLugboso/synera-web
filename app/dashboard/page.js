@@ -310,6 +310,17 @@ export default function Dashboard() {
     setDaily((prev) => ({ ...(prev || {}), plan: next }));
   }
 
+  async function markPlanItemDone(itemId) {
+    if (!authUser) return;
+
+    const current = Array.isArray(daily?.plan) ? daily.plan : [];
+    const next = current.map((p) => (p.id === itemId ? { ...p, done: true } : p));
+
+    const ref = doc(db, "users", authUser.uid, "daily", date);
+    await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
+    setDaily((prev) => ({ ...(prev || {}), plan: next }));
+  }
+
   async function handleLogout() {
     try {
       await signOut(auth);
@@ -510,6 +521,82 @@ export default function Dashboard() {
   const displayName = profileDoc?.name?.trim() || username;
   const profilePhotoURL = profileDoc?.photoURL || data?.photoURL || "";
 
+  useEffect(() => {
+    if (!ready || !authUser || dailyLoading) return;
+    loadInsights(false);
+  }, [ready, authUser, dailyLoading, loadInsights]);
+
+  async function handleInsightAction() {
+    const action = insight?.action;
+    if (!action || action.type !== "water" || insightActionLoading) return;
+
+    setInsightActionLoading(true);
+    setInsightStatus("");
+
+    try {
+      const amount = action.amountMl || 500;
+      await addWater(amount);
+      setInsightStatus(`Done: added ${amount}ml water.`);
+    } catch (e) {
+      setInsightError(e?.message || "Could not apply fast win right now.");
+    } finally {
+      setInsightActionLoading(false);
+    }
+  }
+
+  async function sendCoachMessage() {
+    const message = coachInput.trim();
+    if (!message || coachTyping) return;
+
+    setCoachError("");
+    setCoachInput("");
+    setCoachMessages((prev) => [...prev, { role: "user", text: message }]);
+    setCoachTyping(true);
+
+    try {
+      const res = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          context: {
+            name: username,
+            waterLitres,
+            waterGoal,
+            steps: stepsToday,
+            stepGoal,
+            calories: caloriesToday,
+            calorieGoal,
+            moodRating: Number(daily?.mood?.rating || 0),
+            sleepHours: Number(daily?.sleep?.hours || 0),
+            habitsRate: daily?.habits?.total
+              ? Math.round(
+                  (Number(daily.habits.completed || 0) /
+                    Number(daily.habits.total || 1)) *
+                    100,
+                )
+              : 0,
+          },
+        }),
+      });
+
+      const payload = await res.json();
+      if (!res.ok)
+        throw new Error(payload?.error || "Could not get coach response.");
+
+      setCoachMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: payload?.reply || "One small action now. You’ve got this.",
+        },
+      ]);
+    } catch (e) {
+      setCoachError(e?.message || "Coach is unavailable right now.");
+    } finally {
+      setCoachTyping(false);
+    }
+  }
   const hubChips = {
     fitness: [
       { label: "Steps", value: formatK(stepsToday) },

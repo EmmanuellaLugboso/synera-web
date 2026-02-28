@@ -3,18 +3,13 @@
 import Link from "next/link";
 import { useOnboarding } from "../context/OnboardingContext";
 import "./hub.css";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export default function Page() {
   const { data, updateMany } = useOnboarding();
 
-  const [habitsDone, setHabitsDone] = useState("");
-  const [habitGoal, setHabitGoal] = useState("");
-
-  useEffect(() => {
-    setHabitsDone(String(data.habitsDone ?? 0));
-    setHabitGoal(String(data.habitGoal ?? 5));
-  }, [data.habitsDone, data.habitGoal]);
+  const habitsDone = String(data.habitsDone ?? 0);
+  const habitGoal = String(data.habitGoal ?? 5);
 
   function clampNumber(value) {
     const n = Number(value);
@@ -38,7 +33,15 @@ export default function Page() {
 
   function resetToday() {
     updateMany({ habitsDone: 0 });
-    setHabitsDone("0");
+  }
+
+  function handleHabitsDoneChange(value) {
+    updateMany({ habitsDone: clampNumber(value) });
+  }
+
+  function handleHabitGoalChange(value) {
+    const normalized = Math.max(1, clampNumber(value));
+    updateMany({ habitGoal: normalized });
   }
 
   return (
@@ -101,7 +104,7 @@ export default function Page() {
               type="number"
               min="0"
               value={habitsDone}
-              onChange={(e) => setHabitsDone(e.target.value)}
+              onChange={(e) => handleHabitsDoneChange(e.target.value)}
               placeholder="e.g. 3"
             />
             <div className="tiny-note">How many habits you completed today</div>
@@ -114,7 +117,7 @@ export default function Page() {
               type="number"
               min="1"
               value={habitGoal}
-              onChange={(e) => setHabitGoal(e.target.value)}
+              onChange={(e) => handleHabitGoalChange(e.target.value)}
               placeholder="e.g. 5"
             />
             <div className="tiny-note">Default goal is 5</div>
