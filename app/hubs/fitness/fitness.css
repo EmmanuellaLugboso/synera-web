@@ -949,3 +949,83 @@ body {
   font-weight: 900;
   outline: none;
 }
+
+
+.fit2-syncStatus {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-sync-syncing {
+  color: color-mix(in srgb, #f59e0b 75%, var(--text));
+}
+
+.fit2-sync-synced {
+  color: color-mix(in srgb, #10b981 70%, var(--text));
+}
+
+.fit2-sync-offline {
+  color: color-mix(in srgb, #ef4444 80%, var(--text));
+}
+
+.fit2-weeklyRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.fit2-weeklyCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  padding: 10px;
+}
+
+.fit2-weeklyLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-weeklyValue {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 1000;
+}
+
+.fit2-templatetop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fit2-templateDelete {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fit2-progressionTip {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-templateModal {
+  width: min(640px, 100%);
+}
+
+@media (max-width: 720px) {
+  .fit2-weeklyRow {
+    grid-template-columns: 1fr;
+  }
+}

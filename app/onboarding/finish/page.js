@@ -1,15 +1,19 @@
 "use client";
 
 import { useOnboarding } from "../../context/OnboardingContext";
-import { auth, db } from "../../firebase/config";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth } from "../../firebase/config";
+import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function FinishPage() {
   const { data } = useOnboarding();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!auth.currentUser) router.push("/login");
+  }, [router]);
 
   async function saveOnboarding() {
     setLoading(true);
@@ -23,23 +27,7 @@ export default function FinishPage() {
     }
 
     try {
-      const userRef = doc(db, "users", user.uid);
-
-      // Clean undefined values
-      const clean = JSON.parse(JSON.stringify(data || {}));
-
-      await setDoc(
-        userRef,
-        {
-          email: user.email || "",
-          onboardingComplete: true,
-          updatedAt: serverTimestamp(),
-          createdAt: serverTimestamp(), // will only set once if not existing
-          data: clean, // ✅ single source of truth
-        },
-        { merge: true }
-      );
-
+      await saveOnboardingData(data);
       router.push("/dashboard");
     } catch (err) {
       console.error("Error saving onboarding:", err);
