@@ -88,3 +88,103 @@
 .text-input:focus {
   border-color: var(--pink-main);
 }
+
+
+/* Theme alignment overrides */
+.onboard-container {
+  background:
+    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
+    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    var(--bg);
+  color: var(--text);
+}
+
+.onboard-card,
+.sex-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.onboard-title,
+.sex-title,
+.sex-kicker,
+.mcq-main,
+.day-main,
+.type-label,
+.time-label,
+.env-title,
+.nutri-title,
+.meal-label,
+.water-label,
+.supp-label {
+  color: var(--text) !important;
+}
+
+.onboard-subtitle,
+.sex-sub,
+.sub,
+.mcq-desc,
+.day-desc,
+.type-sub,
+.time-sub,
+.env-sub,
+.nutri-desc,
+.meal-desc,
+.water-desc,
+.supp-desc,
+.tiny-note,
+.small-note,
+.converted-text {
+  color: var(--muted) !important;
+}
+
+.onboard-button,
+.bigger-btn {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 72%, white),
+    var(--accent)
+  ) !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.text-input,
+.dob-input,
+.other-input {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.choice-grid button,
+.pill-grid button,
+.sex-button,
+.days-list button,
+.type-grid button,
+.time-grid button,
+.env-grid button,
+.nutrition-list button,
+.meal-cards button,
+.water-cards button,
+.supp-grid button {
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.choice-grid button.selected,
+.pill-grid button.selected,
+.sex-button.active,
+.days-list button.selected,
+.type-grid button.selected,
+.time-grid button.selected,
+.env-grid button.selected,
+.nutrition-list button.selected,
+.meal-cards button.selected,
+.water-cards button.selected,
+.supp-grid button.selected {
+  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
+}
