@@ -44,6 +44,35 @@ export default function HubsIndexPage() {
     router.push("/login");
   }
 
+const HUBS = [
+  {
+    href: "/hubs/fitness",
+    title: "Fitness",
+    sub: "Strength, cardio, steps, body metrics",
+  },
+  {
+    href: "/hubs/nutrition",
+    title: "Nutrition",
+    sub: "Food logs, hydration, recipes, supplements",
+  },
+  {
+    href: "/hubs/mind-sleep",
+    title: "Mind & Sleep",
+    sub: "Journal, check-ins, sleep insights",
+  },
+  {
+    href: "/hubs/lifestyle",
+    title: "Lifestyle",
+    sub: "Habits, routines, goals, discipline score",
+  },
+  {
+    href: "/hubs/profile",
+    title: "Profile",
+    sub: "Account details and photo",
+  },
+];
+
+export default function HubsIndexPage() {
   return (
     <div className="hub-page">
       <div className="hub-topbar">
