@@ -299,14 +299,9 @@ export default function InsightsPage() {
     },
   ];
 
-  const topLever = pillarCards
-    .map((p) => ({
-      ...p,
-      score:
-        p.stats.consistency7 / 7 +
-        (p.stats.trend.label === "Improving" ? 0.2 : 0),
-    }))
-    .sort((a, b) => a.score - b.score)[0];
+  const topLever =
+    pillarCards.find((p) => p.id === analytics.coach?.topLeverId) ||
+    null;
 
   const baselinePillars = pillarCards.filter(
     (p) => p.stats.consistency7 < 3,
@@ -389,11 +384,18 @@ export default function InsightsPage() {
 
         <section className="card coach-brain">
           <div className="side-title">Coach summary</div>
-          <div className="suggestion-main">{analytics.coach.heading}</div>
-          <div className="suggestion-sub">{analytics.coach.body}</div>
-          <div className="risk-flag">Risk flag: {analytics.coach.risk}</div>
+          <div className="suggestion-main">{analytics.coach.headline}</div>
+          <div className="suggestion-sub">Top lever: {analytics.coach.topLeverWhy}</div>
+          <div className="risk-flag">
+            Risks: {(analytics.coach.risks || []).length ? analytics.coach.risks.join(" • ") : "No acute risk signal."}
+          </div>
           <div className="suggestion-micro emphasis">
-            Next best action: {analytics.coach.action}
+            <div>Micro-plan</div>
+            <ul>
+              {(analytics.coach.microPlan || []).slice(0, 3).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </div>
           <div className="coach-confidence">
             Confidence:{" "}

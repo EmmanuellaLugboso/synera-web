@@ -1140,7 +1140,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .coach-planList {
@@ -1159,7 +1159,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .coach-quickRow {
@@ -1171,8 +1171,8 @@
 .coach-quickBtn {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--card-bg);
-  color: var(--text-primary);
+  background: var(--card);
+  color: var(--text);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
