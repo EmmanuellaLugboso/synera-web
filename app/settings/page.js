@@ -4,7 +4,7 @@ import "./settings.css";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
 import { auth } from "../firebase/config";
 import { getUserProfile, mergeUserProfile } from "../services/userService";
@@ -57,6 +57,13 @@ export default function SettingsPage() {
     applyTheme(theme);
   }, [theme]);
 
+
+
+  async function handleLogout() {
+    await signOut(auth);
+    router.push("/login");
+  }
+
   async function onChangeTheme(next) {
     setTheme(next);
     setStoredTheme(next);
@@ -87,6 +94,9 @@ export default function SettingsPage() {
           <Link href="/dashboard" className="settings-back">
             ← Dashboard
           </Link>
+          <button type="button" className="settings-logout" onClick={handleLogout}>
+            Log out
+          </button>
         </header>
 
         <section className="settings-card">

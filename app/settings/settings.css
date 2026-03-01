@@ -8,6 +8,28 @@
   max-width: 860px;
   margin: 0 auto;
 }
+
+.settings-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-logout {
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.settings-logout:hover {
+  background: color-mix(in srgb, var(--accent) 20%, var(--card));
+}
+
 .settings-back {
   text-decoration: none;
   color: var(--text);

@@ -1,40 +1,61 @@
 "use client";
 
 import { useOnboarding } from "../../context/OnboardingContext";
-import { auth } from "../../firebase/config";
 import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getUserProfile } from "../../services/userService";
 
 export default function FinishPage() {
-  const { data } = useOnboarding();
+  const { data, user, ready } = useOnboarding();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!auth.currentUser) router.push("/login");
-  }, [router]);
+    let cancelled = false;
+
+    async function checkAccess() {
+      if (!ready) return;
+      if (!user?.uid) {
+        router.replace("/login");
+        return;
+      }
+
+      const profile = await getUserProfile(user.uid);
+      if (!cancelled && profile?.onboardingComplete) {
+        router.replace("/dashboard");
+      }
+    }
+
+    checkAccess();
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, user?.uid, router]);
 
   async function saveOnboarding() {
+    if (loading) return;
+    setError("");
     setLoading(true);
 
-    const user = auth.currentUser;
-
-    if (!user) {
-      console.error("No authenticated user.");
-      setLoading(false);
-      return;
-    }
-
     try {
+      if (!user?.uid) {
+        router.replace("/login");
+        return;
+      }
+
       await saveOnboardingData(data);
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (err) {
       console.error("Error saving onboarding:", err);
+      setError("Could not finish onboarding. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
+
+  if (!ready) return <div className="onboard-container">Loading…</div>;
 
   return (
     <div className="onboard-container">
@@ -48,6 +69,7 @@ export default function FinishPage() {
         >
           {loading ? "Saving..." : "Finish"}
         </button>
+        {error ? <p className="onboard-subtitle">{error}</p> : null}
       </div>
     </div>
   );

@@ -5,6 +5,9 @@ import "../hub.css";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { buildLifestyleDailyPayload } from "../../services/dailySync";
 
 /* ------------------------
    Helpers
@@ -582,6 +585,43 @@ export default function Page() {
     adminSummary,
     routines.length,
   ]);
+
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function syncDailyLifestyle() {
+      if (!ready || !user?.uid) return;
+
+      const payload = buildLifestyleDailyPayload({
+        date: dateISO,
+        disciplineDays,
+        habitLogs,
+        habits,
+      });
+
+      try {
+        await setDoc(
+          doc(db, "users", user.uid, "daily", dateISO),
+          {
+            ...payload,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      } catch {
+        if (!cancelled) {
+          // ignore sync errors in UI path
+        }
+      }
+    }
+
+    syncDailyLifestyle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, user?.uid, dateISO, disciplineDays, habitLogs, habits]);
 
   return (
     <div className="hub-page">

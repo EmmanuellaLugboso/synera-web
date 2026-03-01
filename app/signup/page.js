@@ -6,10 +6,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../firebase/config";
+import { getUserProfile } from "../services/userService";
+import { getPostAuthRoute } from "../lib/authRouting";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -48,8 +51,22 @@ export default function SignupPage() {
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push("/onboarding/name");
+      const result = await signInWithPopup(auth, provider);
+      const info = getAdditionalUserInfo(result);
+
+      if (info?.isNewUser) {
+        router.push("/onboarding/name");
+        return;
+      }
+
+      const uid = result.user?.uid;
+      if (!uid) {
+        router.push("/dashboard");
+        return;
+      }
+
+      const profile = await getUserProfile(uid);
+      router.push(getPostAuthRoute(profile));
     } catch (err) {
       console.log(err);
       setError(err?.message || "Google sign-up failed.");
