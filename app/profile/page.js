@@ -135,8 +135,8 @@ export default function ProfilePage() {
       });
 
       setSavedMsg("Profile saved.");
-    } catch (e) {
-      setErrorMsg(e?.message || "Could not save profile.");
+    } catch {
+      setErrorMsg("Could not save profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -155,7 +155,7 @@ export default function ProfilePage() {
     setErrorMsg("");
 
     try {
-      const fileRef = ref(storage, `users/${authUser.uid}/avatar.jpg`);
+      const fileRef = ref(storage, `users/${authUser.uid}/avatar_${Date.now()}.jpg`);
       await uploadBytes(fileRef, file, {
         contentType: file.type || "image/jpeg",
       });
@@ -169,8 +169,8 @@ export default function ProfilePage() {
       );
       updateMany({ photoURL: url });
       setSavedMsg("Profile picture updated.");
-    } catch (e2) {
-      setErrorMsg(e2?.message || "Image upload failed.");
+    } catch {
+      setErrorMsg("Image upload failed. Please try another file.");
     } finally {
       setUploading(false);
       e.target.value = "";

@@ -9,7 +9,7 @@
   --shadow2: 0 10px 22px rgba(0, 0, 0, 0.05);
   --radius: 22px;
 
-  --pink1: color-mix(in srgb, var(--accent) 72%, #fff 28%);
+  --pink1: color-mix(in srgb, var(--accent) 72%, var(--card) 28%);
   --pink2: var(--accent);
 }
 
@@ -94,7 +94,7 @@ body {
 }
 .fit2-unitbtn.active {
   color: var(--text);
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
@@ -163,7 +163,7 @@ body {
   font-weight: 1000;
   padding: 8px 12px;
   border-radius: 999px;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, var(--pink1), var(--pink2));
   box-shadow: 0 10px 22px rgba(255, 79, 154, 0.25);
 }
@@ -341,7 +341,7 @@ body {
   height: 42px;
   padding: 0 16px;
   font-weight: 1100;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, #ea5c9f, #d84f92);
   box-shadow:
     0 10px 22px rgba(221, 82, 145, 0.24),
@@ -551,7 +551,7 @@ body {
   border-radius: 14px;
   padding: 12px 14px;
   font-weight: 1100;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, #111, #333);
 }
 
@@ -599,7 +599,7 @@ body {
   border-radius: 16px;
   padding: 12px 14px;
   font-weight: 1100;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
 
@@ -700,7 +700,7 @@ body {
   background: transparent;
 }
 .fit2-modebtn.active {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
 }
@@ -878,7 +878,7 @@ body {
   border-radius: 16px;
   padding: 12px 14px;
   font-weight: 1100;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
 .fit2-list {

@@ -1,9 +1,7 @@
 export const THEME_OPTIONS = [
-  { value: "system", label: "System" },
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
-  { value: "blue", label: "Blue / White" },
-  { value: "pink", label: "Pink" },
+  { value: "blue", label: "Blue" },
 ];
 
 export const DEFAULT_THEME = "light";
@@ -12,18 +10,10 @@ export function isValidTheme(theme) {
   return THEME_OPTIONS.some((t) => t.value === theme);
 }
 
-function resolveSystemTheme() {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
-    ? "dark"
-    : "light";
-}
-
 export function applyTheme(theme) {
   const chosen = isValidTheme(theme) ? theme : DEFAULT_THEME;
-  const next = chosen === "system" ? resolveSystemTheme() : chosen;
   if (typeof document !== "undefined") {
-    document.documentElement.dataset.theme = next;
+    document.documentElement.dataset.theme = chosen;
   }
   return chosen;
 }

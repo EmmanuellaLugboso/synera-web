@@ -165,9 +165,10 @@ export default function Dashboard() {
   }, []);
 
   const date = clientDate;
-  const username = mounted ? data?.name?.trim() || "Friend" : "Friend";
-  const email = mounted ? authUser?.email || "" : "";
-  const greeting = mounted ? clientGreeting : "Hello";
+  const canShowIdentity = mounted && ready && !!authUser;
+  const username = canShowIdentity ? data?.name?.trim() || "Friend" : "—";
+  const email = canShowIdentity ? authUser?.email || "" : "";
+  const greeting = canShowIdentity ? clientGreeting : "Hello";
 
   useEffect(() => {
     if (ready && !authUser) router.push("/login");
@@ -520,7 +521,7 @@ export default function Dashboard() {
       setCoachTyping(false);
     }
   }
-  const displayName = profileDoc?.name?.trim() || username;
+  const displayName = canShowIdentity ? (profileDoc?.name?.trim() || username) : "—";
   const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
   const coachQuickPrompts = [
@@ -908,7 +909,7 @@ export default function Dashboard() {
             <div className="card-head insight-head-row">
               <div>
                 <div className="card-title">Insights</div>
-                <div className="card-sub">Today’s coaching signal</div>
+                <div className="card-sub">One fast win + weekly signal</div>
               </div>
               <Link className="insight-link" href="/insights">
                 Full analysis
@@ -977,9 +978,9 @@ export default function Dashboard() {
 
           {/* Plan */}
           <section className="card plan">
-            <div className="card-title">Today’s protocol</div>
+            <div className="card-title">Today’s plan</div>
             <div className="card-sub">
-              Coach-guided actions. Keep momentum tight.
+              Coach-guided actions in compact cards.
             </div>
 
             <div className="plan-progress" aria-label="Plan progress">
@@ -1030,20 +1031,17 @@ export default function Dashboard() {
                       {status}
                     </span>
                     <span className="plan-action-text">{p.text}</span>
-                    {!p.done ? (
-                      <button
-                        className="plan-quick-btn"
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCoachOpen(true);
-                        }}
-                      >
-                        Guide
-                      </button>
-                    ) : (
-                      <span className="plan-action-dot" aria-hidden="true" />
-                    )}
+                    <button
+                      className={`plan-toggle ${p.done ? "done" : ""}`}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePlanItem(p.id);
+                      }}
+                      aria-label={p.done ? "Mark as not done" : "Mark as done"}
+                    >
+                      {p.done ? "✓" : "○"}
+                    </button>
                   </div>
                 );
               })}

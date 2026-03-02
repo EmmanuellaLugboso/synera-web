@@ -91,7 +91,7 @@
 }
 .chip {
   border: 1px solid rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: var(--card);
   border-radius: 999px;
   padding: 8px 12px;
   font-weight: 900;
@@ -112,7 +112,7 @@
 }
 .profile-btn {
   border: 1px solid rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   height: 38px;
   padding: 0 14px;
@@ -121,7 +121,7 @@
 }
 .profile-btn.primary {
   border: none;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, #ec76ad, #d85f97);
 }
 .msg {

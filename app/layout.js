@@ -1,7 +1,6 @@
-// app/layout.js
 import "./globals.css";
 import { OnboardingProvider } from "./context/OnboardingContext";
-import ThemeInitializer from "./components/ThemeInitializer";
+import ThemeProvider from "./components/ThemeProvider";
 
 export const metadata = {
   title: "Synera",
@@ -12,10 +11,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <OnboardingProvider>
-          <ThemeInitializer />
-          {children}
-        </OnboardingProvider>
+        <ThemeProvider>
+          <OnboardingProvider>{children}</OnboardingProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
