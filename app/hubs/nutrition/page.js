@@ -298,11 +298,6 @@ export default function Page() {
     if (ready && !user) router.push("/login");
   }, [ready, user, router]);
 
-
-  useEffect(() => {
-    if (ready && !user) router.push("/login");
-  }, [ready, user, router]);
-
   // sticky mini header
   const [stickyOn, setStickyOn] = useState(false);
   useEffect(() => {

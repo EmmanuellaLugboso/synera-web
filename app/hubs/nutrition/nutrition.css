@@ -862,7 +862,6 @@
 }
 
 .nutri-page .nutri-topbar,
-.nutri-page .nutri-hero,
 .nutri-page .nutri-card,
 .nutri-page .nutri-rowCard,
 .nutri-page .nutri-mutedBox,
@@ -874,6 +873,13 @@
   border-color: var(--border) !important;
   color: var(--text-primary);
   box-shadow: var(--shadow);
+}
+
+.nutri-page .nutri-hero {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0;
 }
 
 .nutri-page .nutri-muted,

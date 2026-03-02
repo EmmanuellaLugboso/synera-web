@@ -1839,7 +1839,6 @@
 }
 
 .hub-page .hub-topbar,
-.hub-page .hub-hero,
 .hub-page .hub-section,
 .hub-page .hub-section-white,
 .hub-page .stat-card,
@@ -1856,6 +1855,13 @@
   color: var(--text-primary);
   border-color: var(--border);
   box-shadow: var(--shadow);
+}
+
+.hub-page .hub-hero {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
 .hub-page .back-link,
