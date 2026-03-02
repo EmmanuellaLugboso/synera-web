@@ -245,47 +245,136 @@ export function buildCoachSummary(pillars, days, goals) {
     { key: "Habits", id: "habits", ...pillars.habits },
   ];
 
-  const lever = entries
-    .map((x) => ({
+  const withScores = entries.map((x) => {
+    const weeklyAvg = clampNumber(x.weeklyAvg);
+    const deficit = Math.max(0, 100 - weeklyAvg);
+    const consistencyPct = Math.round((Math.max(0, Math.min(7, x.consistency7 || 0)) / 7) * 100);
+    const consistencyGap = Math.max(0, 100 - consistencyPct);
+
+    // Constraint-first scoring:
+    // 1) weekly weakness (deficit) drives lever selection
+    // 2) consistency and negative trend only refine priority
+    // This prevents strong pillars from becoming "top lever" in edge profiles.
+    const negativeTrendOnly = clampPercent(Math.max(0, -(x?.trend?.slope || 0)) * 100);
+    const leverScore =
+      deficit * 0.55 +
+      consistencyGap * 0.30 +
+      negativeTrendOnly * 0.15;
+
+    return {
       ...x,
-      consistencyRate: x.consistency7 / 7,
-      trendPenalty: x.trend.label === "Declining" ? 0.2 : 0,
-      score: x.consistency7 / 7 + (x.trend.label === "Improving" ? 0.2 : 0),
-    }))
-    .sort((a, b) => a.score - b.score)[0];
+      weeklyAvg,
+      deficit,
+      consistencyPct,
+      consistencyGap,
+      negativeTrendOnly,
+      leverScore,
+    };
+  });
+
+  const allStrong = withScores.every((x) => x.weeklyAvg >= 90);
+  const eligible = allStrong
+    ? withScores
+    : withScores.filter((x) => x.weeklyAvg < 90);
+
+  let lever = eligible
+    .slice()
+    .sort((a, b) => {
+      if (b.leverScore !== a.leverScore) return b.leverScore - a.leverScore;
+      if (a.weeklyAvg !== b.weeklyAvg) return a.weeklyAvg - b.weeklyAvg;
+      return a.key.localeCompare(b.key);
+    })[0] || null;
+
+  if (!allStrong) {
+    const move = withScores.find((x) => x.id === "move");
+    const weaker = withScores.find((x) => x.weeklyAvg < 80);
+    if (move && weaker && move.weeklyAvg >= 100 && lever?.id === "move") {
+      lever = withScores
+        .filter((x) => x.weeklyAvg < 80)
+        .sort((a, b) => b.leverScore - a.leverScore || a.weeklyAvg - b.weeklyAvg)[0] || lever;
+    }
+  }
+
+  const riskCandidates = withScores
+    .map((x) => {
+      const impactScore = x.deficit * 0.6 + x.negativeTrendOnly * 0.25 + x.consistencyGap * 0.15;
+      const weakOrDeclining = x.deficit >= 18 || x.negativeTrendOnly >= 18;
+      return { ...x, impactScore, weakOrDeclining };
+    })
+    .filter((x) => x.weakOrDeclining)
+    .sort((a, b) => b.impactScore - a.impactScore);
+
+  const riskLabelById = {
+    move: "Movement inconsistency",
+    fuel: "Hydration + fuel drift",
+    recover: "Sleep/recovery debt",
+    mood: "Mood load accumulating",
+    habits: "Habit closure gap",
+  };
+
+  const risks = riskCandidates.slice(0, 3).map((x) => riskLabelById[x.id] || `${x.key} risk`);
 
   const latest = days[days.length - 1] || null;
-  const riskFlags = [];
+  const lowHydration = (latest?.waterMl || 0) / 1000 < Math.max(1, goals.waterGoal * 0.6);
+  if (lowHydration && !risks.some((x) => /Hydration/i.test(x))) {
+    risks.unshift("Hydration lag");
+  }
 
-  if (latest?.sleep?.hours > 0 && latest.sleep.hours < 6.2)
-    riskFlags.push("Sleep debt risk");
-  if (latest?.mood?.rating > 0 && latest.mood.rating <= 2)
-    riskFlags.push("Low mood signal");
-  if ((latest?.waterMl || 0) / 1000 < Math.max(1, goals.waterGoal * 0.6))
-    riskFlags.push("Hydration lag");
+  const finalRisks = risks.slice(0, 3);
 
-  let action = "Log one key metric tonight to tighten signal quality.";
-  if (lever?.id === "recover")
-    action = "Lock a bedtime window (±30 min) for the next 3 nights.";
-  if (lever?.id === "move")
-    action = "Anchor one 12-minute walk after lunch today.";
-  if (lever?.id === "fuel")
-    action = "Front-load 500ml water before noon and pre-log dinner.";
-  if (lever?.id === "mood")
-    action = "Run a 5-minute downshift break before your evening screen block.";
-  if (lever?.id === "habits")
-    action = "Pick 2 non-negotiable habits and close them before 8pm.";
+  const leverWhy = lever
+    ? `${lever.key} is the clearest constraint this week (${Math.round(lever.weeklyAvg)}% avg, ${lever.consistencyPct}% consistency).`
+    : "Signal quality is still building, so hold a simple baseline this week.";
+
+  const planByLever = {
+    move: [
+      "Today: lock one 12-minute walk after lunch.",
+      "Today: add one short evening movement block before dinner.",
+      "Today: close the remaining step gap with a post-meal walk.",
+    ],
+    fuel: [
+      "Today: drink 500ml water before noon.",
+      "Today: pre-log one protein-first meal before 4pm.",
+      "Today: keep dinner simple and repeatable.",
+    ],
+    recover: [
+      "Today: set tonight’s lights-out time now.",
+      "Today: no caffeine in the last 8 hours before bed.",
+      "Today: run a 20-minute wind-down before sleep.",
+    ],
+    mood: [
+      "Today: take one 5-minute downshift break before your busiest block.",
+      "Today: reduce one avoidable stress input for tonight.",
+      "Today: close with one short reflection line before bed.",
+    ],
+    habits: [
+      "Today: pick two non-negotiables and finish them before 8pm.",
+      "Today: stack your first habit right after an existing routine.",
+      "Today: mark completion immediately after each win.",
+    ],
+  };
+
+  const microPlan = (planByLever[lever?.id] || [
+    "Today: log one key metric before midday.",
+    "Today: complete one high-leverage habit before dinner.",
+    "Today: close with a short reset plan for tomorrow.",
+  ]).slice(0, 3);
+
+  const headline = lever
+    ? `${lever.key} is the lever that moves your week fastest.`
+    : "Build one clean week of signal before optimizing.";
 
   return {
-    heading: lever
-      ? `${lever.key} is your top lever right now.`
-      : "Building baseline across pillars.",
-    body: lever
-      ? `${lever.key} is inconsistent this week. ${lever.trend.label === "Declining" ? "Trend is softening, so intervene early." : "Stabilize execution before increasing intensity."}`
-      : "Add at least 4 logged days to unlock stronger weekly signal.",
-    risk: riskFlags.length
-      ? riskFlags.join(" • ")
-      : "No acute risk flag from current data.",
-    action,
+    headline,
+    heading: headline,
+    topLever: lever?.key || null,
+    topLeverId: lever?.id || null,
+    topLeverWhy: leverWhy,
+    body: leverWhy,
+    risks: finalRisks,
+    risk: finalRisks.length ? finalRisks.join(" • ") : "No acute risk flag from current data.",
+    microPlan,
+    action: microPlan[0] || "Today: lock one practical action.",
   };
 }
+
