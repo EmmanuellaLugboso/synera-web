@@ -3,12 +3,12 @@
 :root {
   --bg: var(--bg-primary);
 
-  --card: var(--card-bg);
-  --cardSoft: color-mix(in srgb, var(--card-bg) 86%, transparent);
+  --card: var(--card);
+  --cardSoft: color-mix(in srgb, var(--card) 86%, transparent);
 
   --border: var(--border);
-  --text: var(--text-primary);
-  --muted: var(--text-muted);
+  --text: var(--text);
+  --muted: var(--muted);
 
   /* softer pink */
   --pink: var(--accent);
@@ -16,7 +16,7 @@
   --pinkSoft2: color-mix(in srgb, var(--accent) 8%, transparent);
 
   --shadow: var(--shadow);
-  --shadowSoft: 0 14px 34px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  --shadowSoft: 0 14px 34px color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 * {
@@ -33,7 +33,7 @@
       transparent 60%
     ),
     var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text);
   font-family:
     ui-sans-serif,
     system-ui,
@@ -51,7 +51,7 @@
   z-index: 30;
   backdrop-filter: blur(14px);
   background: rgba(246, 246, 251, 0.78);
-  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 6%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 .dash-topbar-inner {
@@ -92,7 +92,7 @@
 }
 .brand-sub {
   margin-top: 2px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 850;
   font-size: 13px;
 }
@@ -109,15 +109,15 @@
   gap: 10px;
   padding: 10px 14px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+  background: color-mix(in srgb, var(--card) 86%, transparent);
   border: 1px solid var(--border);
-  box-shadow: 0 10px 22px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--text) 6%, transparent);
   font-weight: 1000;
 }
 
 .date-pill-label {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 950;
 }
 .date-pill-dot {
@@ -132,8 +132,8 @@
   width: min(640px, 52vw);
   height: 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--text-primary) 7%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 5%, transparent);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
   overflow: hidden;
 }
 .thin-progress-fill {
@@ -158,8 +158,8 @@
   height: 36px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card-bg) 86%, transparent);
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text-primary) 5%, transparent);
+  background: color-mix(in srgb, var(--card) 86%, transparent);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
   cursor: pointer;
   font-weight: 900;
 }
@@ -174,17 +174,17 @@
   border-radius: 999px;
   font-weight: 1000;
   font-size: 14px;
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  color: var(--text);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   border: 1px solid var(--border);
-  box-shadow: 0 12px 26px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--text) 6%, transparent);
   transition:
     transform 0.12s ease,
     box-shadow 0.12s ease;
 }
 .dash-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 34px color-mix(in srgb, var(--text-primary) 8%, transparent);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--text) 8%, transparent);
 }
 .dash-btn.primary {
   color: white;
@@ -208,10 +208,10 @@
   margin-bottom: 12px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+  background: color-mix(in srgb, var(--card) 86%, transparent);
   border: 1px solid var(--border);
   font-weight: 900;
-  color: var(--text-muted);
+  color: var(--muted);
   width: fit-content;
 }
 
@@ -223,7 +223,7 @@
 }
 
 .card {
-  background: var(--card-bg);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 22px;
   box-shadow: var(--shadow);
@@ -246,7 +246,7 @@
 }
 .card-sub {
   margin-top: 4px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 900;
   font-size: 14px;
 }
@@ -256,19 +256,19 @@
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
   font-weight: 1000;
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .pill-btn {
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   font-weight: 1000;
   cursor: pointer;
-  box-shadow: 0 12px 24px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 6%, transparent);
 }
 .pill-btn.primary {
   border-color: color-mix(in srgb, var(--accent) 22%, transparent);
@@ -290,7 +290,7 @@
       rgba(255, 79, 154, 0.08),
       transparent 62%
     ),
-    color-mix(in srgb, var(--card-bg) 86%, transparent);
+    color-mix(in srgb, var(--card) 86%, transparent);
 }
 
 .hero-top {
@@ -328,8 +328,8 @@
 .mini-user {
   min-width: 300px;
   max-width: 360px;
-  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 7%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
   border-radius: 18px;
   padding: 10px 10px;
   display: grid;
@@ -380,7 +380,7 @@
   margin-top: 2px;
   font-size: 13px;
   font-weight: 900;
-  color: var(--text-muted);
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -399,14 +399,14 @@
   height: 36px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   cursor: pointer;
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text-primary) 5%, transparent);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
   font-weight: 1000;
 }
 
 .mini-user-logout {
-  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 .mini-user-logout:hover {
   transform: translateY(-1px);
@@ -421,7 +421,7 @@
 }
 
 .mini-kpi {
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 14px;
@@ -429,7 +429,7 @@
 }
 
 .mini-kpi-label {
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 950;
   font-size: 14px;
 }
@@ -454,7 +454,7 @@
 }
 .hero-note {
   margin-top: 10px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 900;
   font-size: 13px;
 }
@@ -499,7 +499,7 @@
 }
 .profile-email {
   margin-top: 2px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 900;
   font-size: 14px;
   white-space: nowrap;
@@ -516,18 +516,18 @@
 }
 
 .profile-field {
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 22px color-mix(in srgb, var(--text-primary) 5%, transparent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--text) 5%, transparent);
 }
 .profile-field.wide {
   grid-column: 1 / -1;
 }
 
 .profile-field-label {
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 950;
   font-size: 14px;
 }
@@ -547,7 +547,7 @@
       rgba(255, 79, 154, 0.06),
       transparent 62%
     ),
-    color-mix(in srgb, var(--card-bg) 90%, transparent);
+    color-mix(in srgb, var(--card) 90%, transparent);
 }
 
 .hub-grid {
@@ -562,14 +562,14 @@
   text-decoration: none;
   border-radius: 20px;
   padding: 16px;
-  border: 1px solid color-mix(in srgb, var(--text-primary) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
   box-shadow: var(--shadowSoft);
   min-height: 150px;
   display: grid;
   grid-template-columns: 56px 1fr;
   gap: 12px;
   align-items: start;
-  color: var(--text-primary);
+  color: var(--text);
   background: rgba(255, 255, 255, 0.96);
 }
 
@@ -632,8 +632,8 @@
 .hub-pill {
   padding: 7px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   color: #14141a;
   font-weight: 1000;
   font-size: 13px;
@@ -681,9 +681,9 @@
   width: 42px;
   height: 42px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
-  color: var(--text-primary)114;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text)114;
   display: grid;
   place-items: center;
   font-weight: 1100;
@@ -699,7 +699,7 @@
       rgba(255, 79, 154, 0.05),
       transparent 62%
     ),
-    color-mix(in srgb, var(--card-bg) 92%, transparent);
+    color-mix(in srgb, var(--card) 92%, transparent);
 }
 
 .insight-head-row {
@@ -708,8 +708,8 @@
 
 .insight-link {
   text-decoration: none;
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   color: #1a1a21;
   border-radius: 999px;
   padding: 8px 12px;
@@ -757,7 +757,7 @@
     color-mix(in srgb, var(--accent) 82%, transparent),
     rgba(255, 79, 154, 0.96)
   );
-  color: var(--card-bg);
+  color: var(--card);
   border-radius: 999px;
   padding: 10px 14px;
   font-weight: 1000;
@@ -778,7 +778,7 @@
 }
 
 .insight-metric {
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px;
@@ -786,7 +786,7 @@
 }
 
 .insight-metric-label {
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 900;
   font-size: 12px;
 }
@@ -799,7 +799,7 @@
 
 .insight-note {
   margin: 12px 18px 0;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 850;
   font-size: 12px;
   display: flex;
@@ -827,7 +827,7 @@
 .plan {
   grid-column: 1 / -1;
   padding: 16px;
-  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
 }
 
 .plan-progress {
@@ -839,7 +839,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 900;
 }
 
@@ -852,7 +852,7 @@
   margin-top: 8px;
   height: 7px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
   overflow: hidden;
 }
 
@@ -879,8 +879,8 @@
   gap: 10px;
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--text-primary) 7%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
   transition:
     transform 0.18s ease,
@@ -891,7 +891,7 @@
 
 .plan-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 .plan-action.is-done {
@@ -919,8 +919,8 @@
 }
 
 .plan-status.done {
-  color: var(--text-muted);
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  color: var(--muted);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
 }
 
 .plan-status.next {
@@ -929,12 +929,12 @@
 }
 
 .plan-status.later {
-  color: var(--text-muted)672;
-  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  color: var(--muted);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 .plan-quick-btn {
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   background: rgba(255, 255, 255, 0.95);
   color: #4a4a56;
   height: 28px;
@@ -964,7 +964,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-weight: 1000;
   font-size: 15px;
 }
@@ -1047,7 +1047,7 @@
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   gap: 12px;
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 24px;
   box-shadow: 0 28px 64px rgba(0, 0, 0, 0.22);
@@ -1085,7 +1085,7 @@
 .coach-bubble.bot {
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.96);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
 }
 
 .coach-bubble.user {
@@ -1095,7 +1095,7 @@
     rgba(255, 79, 154, 0.92),
     rgba(244, 89, 166, 1)
   );
-  color: var(--card-bg);
+  color: var(--card);
 }
 
 .coach-inputRow {
@@ -1140,7 +1140,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .coach-planList {
@@ -1159,7 +1159,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .coach-quickRow {
@@ -1171,8 +1171,8 @@
 .coach-quickBtn {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--card-bg);
-  color: var(--text-primary);
+  background: var(--card);
+  color: var(--text);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
@@ -1187,7 +1187,7 @@
 /* Theme consistency overrides */
 .dash-page {
   background: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .dash-topbar {
@@ -1205,21 +1205,21 @@
 .water,
 .quick,
 .facts {
-  background: var(--card-bg) !important;
+  background: var(--card) !important;
   border-color: var(--border) !important;
   box-shadow: var(--shadow);
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .hub-card,
 .insight-metric,
 .mini-kpi,
 .profile-field {
-  background: var(--card-soft) !important;
+  background: var(--card2) !important;
 }
 
 .hub-card.white {
-  background: var(--card-bg) !important;
+  background: var(--card) !important;
 }
 
 .hub-desc,
@@ -1229,14 +1229,14 @@
 .insight-text,
 .insight-note,
 .insight-metric-label {
-  color: var(--text-muted) !important;
+  color: var(--muted) !important;
 }
 
 .dash-btn.primary,
 .insight-primary-action,
 .plan-action {
   background: var(--accent) !important;
-  color: var(--card-bg) !important;
+  color: var(--card) !important;
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
 }
 
@@ -1247,3 +1247,6 @@
 :root[data-theme="dark"] .dash-topbar {
   background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
 }
+
+.plan-toggle{border:1px solid var(--border);background:var(--card);width:30px;height:30px;border-radius:999px;font-weight:900;color:var(--muted);cursor:pointer}
+.plan-toggle.done{background:var(--accentSoft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--border));}

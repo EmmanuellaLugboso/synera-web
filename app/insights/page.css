@@ -1,108 +1,29 @@
-.ins-page {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-}
-
-.ins-shell {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 20px 18px 38px;
-}
-
-.ins-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.ins-back,
-.ins-ghost {
-  text-decoration: none;
-  font-weight: 900;
-  color: var(--text-primary);
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 10px 14px;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-}
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-
-.overview { margin-top: 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
-.ins-title { margin: 4px 0 6px; font-size: 42px; letter-spacing: -0.4px; }
-.ins-sub { margin: 0; color: var(--text-muted); font-weight: 800; font-size: 20px; }
-
-.score-pill {
-  min-width: 220px;
-  border: 1px solid var(--border);
-  background: var(--card-soft);
-  border-radius: 18px;
-  padding: 10px 12px;
-  display: grid;
-  gap: 6px;
-}
-
-.score-pill span,
-.unlock-title { color: var(--text-muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px; }
-.score-pill strong { font-size: 30px; line-height: 1; }
-.score-pill em { font-style: normal; font-weight: 900; color: var(--text-muted); font-size: 12px; }
-
-.unlock-mini { display: grid; gap: 6px; color: var(--text-muted); font-size: 12px; font-weight: 800; }
-.unlock-card { margin-top: 12px; border-color: var(--border); background: var(--card-soft); }
-.unlock-copy { margin-top: 4px; color: var(--text-primary); font-weight: 700; }
-.unlock-bar { margin-top: 10px; height: 8px; border-radius: 999px; background: var(--bg-secondary); overflow: hidden; }
-.unlock-fill { height: 100%; background: var(--accent); }
-.unlock-foot { margin-top: 8px; font-size: 12px; color: var(--text-muted); font-weight: 700; }
-
-.load-error {
-  margin-top: 12px;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
-  background: color-mix(in srgb, var(--accent) 14%, var(--card-bg));
-  color: var(--text-primary);
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 700;
-}
-
-.ins-layout { margin-top: 14px; display: grid; grid-template-columns: 1fr; gap: 14px; }
-.graph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.graph-card { border: 1px solid var(--border); border-radius: 14px; background: var(--card-bg); padding: 12px; }
-.graph-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-.graph-head span { font-size: 12px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; }
-.graph-head strong { font-size: 14px; }
-
-.line-chart { width: 100%; height: 118px; background: var(--card-soft); border-radius: 10px; }
-.axis-line { stroke: var(--border); stroke-width: 2; }
-.line-path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-
-.chart-wrap { position: relative; }
-.starter-overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
-  display: grid;
-  place-items: center;
-}
-.starter-baseline { position: absolute; left: 12px; right: 12px; bottom: 30px; height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--accent) 35%, transparent); }
-.starter-dot { position: absolute; width: 10px; height: 10px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 0 6px var(--accent-soft); left: calc(50% - 5px); bottom: 26px; }
-
-@media (max-width: 980px) {
-  .graph-grid { grid-template-columns: 1fr; }
-  .overview { flex-direction: column; }
-}
-
-.ins-top-actions { display:flex; gap:8px; align-items:center; }
-
+.ins-page{min-height:100vh;background:var(--bg);color:var(--text)}
+.ins-shell{max-width:1200px;margin:0 auto;padding:20px}
+.ins-top{display:flex;justify-content:space-between;align-items:center}
+.ins-top-actions{display:flex;gap:8px}
+.ins-back,.ins-ghost{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:10px 14px;text-decoration:none}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px}
+.overview{margin-top:14px;display:flex;justify-content:space-between;gap:12px}
+.ins-title{margin:0 0 4px}
+.ins-sub{margin:0;color:var(--muted)}
+.score-pill{min-width:220px;background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:10px;display:grid}
+.load-error{margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
+.baseline-card{margin-top:12px}
+.plan-progress-track{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;margin:8px 0}
+.plan-progress-fill{height:100%;background:var(--accent)}
+.pillars-wrap{margin-top:12px}
+.pillars-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.pillar-card{border:1px solid var(--border);background:var(--card2);border-radius:14px;padding:10px}
+.pillar-head{display:flex;justify-content:space-between;font-weight:800}
+.pillar-head em{color:var(--muted);font-style:normal}
+.pillar-trend{margin-top:8px;font-weight:700}
+.pillar-next{margin-top:4px;color:var(--muted);font-size:13px}
+.ins-layout{margin-top:12px;display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.graph-card{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}
+.line-chart{width:100%;height:90px}.line-chart path{fill:none;stroke:var(--accent);stroke-width:3}
+.coach-brain{display:grid;gap:10px}
+.coach-modal{position:fixed;inset:0;background:rgba(0,0,0,.3);display:grid;place-items:center}
+.coach-card{width:min(560px,92vw);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
+@media (max-width:900px){.pillars-grid{grid-template-columns:1fr 1fr}.ins-layout{grid-template-columns:1fr}}

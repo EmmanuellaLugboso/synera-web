@@ -110,7 +110,7 @@ function computeTrend(points) {
 
   if (slope > threshold) return { slope, label: "Improving" };
   if (slope < -threshold) return { slope, label: "Declining" };
-  return { slope, label: "Stable" };
+  return { slope, label: "Flat" };
 }
 
 function pillarStats(days, selector) {

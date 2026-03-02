@@ -119,7 +119,7 @@
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: var(--card-bg);
+  background: var(--card);
   box-shadow: var(--shadow);
   transition: transform 0.2s ease;
 }

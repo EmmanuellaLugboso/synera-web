@@ -1,69 +1,48 @@
-:root,
 :root[data-theme="light"] {
-  --bg-primary: #f6f8fc;
-  --bg-secondary: #edf2fa;
-  --card-bg: #ffffff;
-  --card-soft: #f7f9fd;
+  --bg: #f6f8fc;
+  --card: #ffffff;
+  --card2: #f5f8ff;
   --border: #dbe4f2;
-  --text-primary: #162033;
-  --text-muted: #61728d;
-  --accent: #d94c95;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
-  --shadow: 0 12px 30px color-mix(in srgb, var(--text-primary) 12%, transparent);
+  --text: #162033;
+  --muted: #61728d;
+  --accent: #d65a99;
+  --accentSoft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --shadow: 0 12px 30px color-mix(in srgb, var(--text) 12%, transparent);
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #0c1118;
-  --bg-secondary: #131b25;
-  --card-bg: #1a2431;
-  --card-soft: #202c3b;
-  --border: #2e3b4c;
-  --text-primary: #e7eefc;
-  --text-muted: #96a8c5;
-  --accent: #8ba8ff;
-  --accent-soft: color-mix(in srgb, var(--accent) 24%, transparent);
-  --shadow: 0 14px 30px color-mix(in srgb, #000000 48%, transparent);
+  --bg: #0d131b;
+  --card: #16212e;
+  --card2: #1c2a39;
+  --border: #2b3a4d;
+  --text: #e8eef8;
+  --muted: #9ab0cc;
+  --accent: #6f9bff;
+  --accentSoft: color-mix(in srgb, var(--accent) 24%, transparent);
+  --shadow: 0 14px 32px color-mix(in srgb, #000 46%, transparent);
 }
 
 :root[data-theme="blue"] {
-  --bg-primary: #f4f8ff;
-  --bg-secondary: #eaf1ff;
-  --card-bg: #ffffff;
-  --card-soft: #f4f8ff;
+  --bg: #f4f8ff;
+  --card: #ffffff;
+  --card2: #eef4ff;
   --border: #d5e1f6;
-  --text-primary: #15233a;
-  --text-muted: #617796;
+  --text: #15233a;
+  --muted: #617796;
   --accent: #3b76da;
-  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
-  --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
-}
-
-:root[data-theme="pink"] {
-  --bg-primary: #faf4f8;
-  --bg-secondary: #f5eaf2;
-  --card-bg: #ffffff;
-  --card-soft: #fbf2f8;
-  --border: #ead5e4;
-  --text-primary: #271c2b;
-  --text-muted: #77627b;
-  --accent: #cf4f92;
-  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accentSoft: color-mix(in srgb, var(--accent) 16%, transparent);
   --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 :root {
-  --bg: var(--bg-primary);
-  --card: var(--card-bg);
-  --cardSoft: var(--card-soft);
-  --text: var(--text-primary);
-  --muted: var(--text-muted);
-  --accentSoft: var(--accent-soft);
+  --radius-lg: 22px;
+  --radius-md: 16px;
 }
 
 html,
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg);
+  color: var(--text);
 }
 
 * {
@@ -81,8 +60,8 @@ input,
 select,
 textarea {
   width: 100%;
-  background: var(--card-bg);
-  color: var(--text-primary);
+  background: var(--card);
+  color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
 }
@@ -1430,7 +1409,7 @@ body {
   border-radius: var(--radius-lg) !important;
   box-shadow: var(--shadow) !important;
   border: 1px solid var(--border) !important;
-  background: var(--card-bg) !important;
+  background: var(--card) !important;
   padding: var(--space-card);
 }
 
@@ -1442,7 +1421,7 @@ body {
 .ms3-title,
 .life-title,
 .ins-title {
-  color: var(--text-primary) !important;
+  color: var(--text) !important;
   letter-spacing: -0.02em !important;
   font-weight: 900 !important;
 }
@@ -1454,7 +1433,7 @@ body {
 .ms3-sub,
 .life-sub,
 .ins-sub {
-  color: var(--text-muted) !important;
+  color: var(--muted) !important;
   font-weight: 700 !important;
 }
 
@@ -1483,7 +1462,7 @@ body {
 .life-additem,
 .pill-btn.primary {
   background: var(--accent) !important;
-  color: var(--card-bg) !important;
+  color: var(--card) !important;
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
 }
 
@@ -1494,6 +1473,6 @@ body {
 .ms3-chip,
 .life-pill,
 .pill-btn {
-  background: var(--card-soft) !important;
-  color: var(--text-primary) !important;
+  background: var(--card2) !important;
+  color: var(--text) !important;
 }

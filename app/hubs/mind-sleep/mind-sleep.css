@@ -7,8 +7,8 @@
 }
 .ms3-tab{
   flex: 1;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   padding: 12px 14px;
   border-radius: 999px;
   font-weight: 1000;
@@ -16,9 +16,9 @@
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
 .ms3-tab.active{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 
 .ms3-toprow{
@@ -40,8 +40,8 @@
   padding: 12px 14px;
   font-weight: 1100;
   cursor:pointer;
-  color:#fff;
-  background: linear-gradient(135deg, #FF8AC7, #FF4F9A);
+  color:var(--card);
+  background: linear-gradient(135deg, #FF8AC7, var(--accent));
   box-shadow: 0 12px 26px rgba(255, 79, 154, 0.20);
 }
 .ms3-primary:hover{ opacity: .95; }
@@ -50,11 +50,11 @@
   width:100%;
   margin-top: 12px;
   border-radius: 16px;
-  border: 1px solid #EDEDF0;
+  border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 900;
   outline:none;
-  background:#F8F8FA;
+  background:var(--card2);
 }
 
 .ms3-row{
@@ -65,8 +65,8 @@
 }
 
 .ms3-select{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
@@ -75,8 +75,8 @@
 
 .ms3-chip{
   background:#FFE3EF;
-  border: 1px solid #FFB7D4;
-  color:#FF4F9A;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  color:var(--accent);
   font-weight: 1000;
   border-radius: 999px;
   padding: 6px 10px;
@@ -84,7 +84,7 @@
 }
 
 .ms3-muted{
-  color:#777;
+  color:var(--muted);
   font-weight: 800;
   font-size: 12px;
 }
@@ -99,16 +99,16 @@
 .ms3-scorebtn{
   height: 40px;
   border-radius: 14px;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   font-weight: 1100;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.04);
 }
 .ms3-scorebtn.active{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 @media (max-width: 420px){
   .ms3-scoregrid{ grid-template-columns: repeat(6, 1fr); }
@@ -116,8 +116,8 @@
 
 /* Cards / list rows */
 .ms3-card{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 18px;
   padding: 14px;
   box-shadow: 0 10px 22px rgba(0,0,0,0.05);
@@ -130,8 +130,8 @@
   margin-top: 12px;
 }
 .ms3-item{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 16px;
   box-shadow: 0 10px 22px rgba(0,0,0,0.05);
   display:flex;
@@ -155,7 +155,7 @@
 .ms3-sub{
   margin-top: 6px;
   font-size: 12px;
-  color:#777;
+  color:var(--muted);
   font-weight: 800;
 }
 .ms3-preview{
@@ -174,20 +174,20 @@
   width: 40px;
   height: 40px;
   border-radius: 14px;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   cursor:pointer;
   font-weight: 1200;
 }
 .ms3-iconbtn:hover{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 .ms3-iconbtn.danger:hover{
   border-color:#FFD0E1;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  background:var(--card2);
+  color:var(--accent);
 }
 
 .ms3-badge{
@@ -195,8 +195,8 @@
   padding: 4px 8px;
   border-radius: 999px;
   background:#FFE3EF;
-  border: 1px solid #FFB7D4;
-  color:#FF4F9A;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  color:var(--accent);
   font-size: 11px;
   font-weight: 1000;
 }
@@ -212,11 +212,11 @@
 .ms3-taginput{
   flex: 1;
   border-radius: 16px;
-  border: 1px solid #EDEDF0;
+  border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 900;
   outline:none;
-  background:#F8F8FA;
+  background:var(--card2);
   min-width: 220px;
 }
 .ms3-tags{
@@ -226,17 +226,17 @@
   margin-top: 10px;
 }
 .ms3-tag{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 999px;
   padding: 8px 12px;
   font-weight: 1000;
   cursor:pointer;
 }
 .ms3-tag:hover{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 
 /* Modal */
@@ -253,7 +253,7 @@
 .ms3-modalCard{
   width: 100%;
   max-width: 740px;
-  background:#fff;
+  background:var(--card);
   border-radius: 22px;
   padding: 14px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.18);
@@ -274,21 +274,21 @@
   width:100%;
   margin-top: 10px;
   border-radius: 16px;
-  border: 1px solid #EDEDF0;
+  border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 1000;
   outline:none;
-  background:#F8F8FA;
+  background:var(--card2);
 }
 .ms3-textarea{
   width:100%;
   margin-top: 10px;
   border-radius: 16px;
-  border: 1px solid #EDEDF0;
+  border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 800;
   outline:none;
-  background:#F8F8FA;
+  background:var(--card2);
   min-height: 160px;
   resize: vertical;
 }
@@ -320,8 +320,8 @@
   width: 40px;
   height: 40px;
   border-radius: 14px;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   cursor:pointer;
   font-weight: 1100;
 }
@@ -338,20 +338,20 @@
   text-align:center;
   font-size: 11px;
   font-weight: 1000;
-  color:#777;
+  color:var(--muted);
   padding: 6px 0;
 }
 .ms3-calCell{
   position: relative;
   height: 52px;
   border-radius: 16px;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   cursor:pointer;
 }
 .ms3-calCell:hover{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
 }
 .ms3-calCell.empty{
   border:none;
@@ -359,8 +359,8 @@
   cursor:default;
 }
 .ms3-calCell.selected{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
 }
 .ms3-calNum{
   position:absolute;
@@ -380,7 +380,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background:#FF4F9A;
+  background:var(--accent);
   opacity: 0.22;
 }
 .ms3-dot.on{ opacity: 1; }
@@ -395,8 +395,8 @@
   margin-top: 10px;
 }
 .ms3-pillbtn{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 999px;
   padding: 10px 12px;
   font-weight: 1000;
@@ -404,22 +404,22 @@
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
 .ms3-pillbtn.active{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 .ms3-miniinput{
   width: 92px;
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
   outline:none;
 }
 .ms3-toggle{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   padding: 10px 12px;
   border-radius: 999px;
   font-weight: 1000;
@@ -427,9 +427,9 @@
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
 .ms3-toggle.on{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 
 /* Export */
@@ -440,8 +440,8 @@
   margin-top: 12px;
 }
 .ms3-exportBtn{
-  border: 1px solid #EDEDF0;
-  background:#fff;
+  border: 1px solid var(--border);
+  background:var(--card);
   padding: 10px 12px;
   border-radius: 14px;
   font-weight: 1000;
@@ -449,9 +449,9 @@
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
 .ms3-exportBtn:hover{
-  border-color:#FFB7D4;
-  background:#FFF6FA;
-  color:#FF4F9A;
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
 }
 
 

@@ -8,11 +8,11 @@
   --bg: var(--bg);
   --soft: #f8f8fa;
 
-  --pink-1: color-mix(in srgb, var(--accent) 8%, #fff 92%);
-  --pink-2: color-mix(in srgb, var(--accent) 14%, #fff 86%);
-  --pink-3: color-mix(in srgb, var(--accent) 35%, #fff 65%);
+  --pink-1: color-mix(in srgb, var(--accent) 8%, var(--card) 92%);
+  --pink-2: color-mix(in srgb, var(--accent) 14%, var(--card) 86%);
+  --pink-3: color-mix(in srgb, var(--accent) 35%, var(--card) 65%);
   --pink-4: var(--accent);
-  --pink-5: color-mix(in srgb, var(--accent) 70%, #fff 30%);
+  --pink-5: color-mix(in srgb, var(--accent) 70%, var(--card) 30%);
 
   --shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }
@@ -64,7 +64,7 @@
   text-decoration: none;
   font-weight: 900;
   color: var(--text);
-  background: #fff;
+  background: var(--card);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 999px;
   padding: 10px 14px;
@@ -139,7 +139,7 @@
 }
 
 .nutri-card-metric {
-  background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+  background: linear-gradient(180deg, var(--card)fff 0%, #fbfbfd 100%);
 }
 
 .nutri-actions-main {
@@ -223,7 +223,7 @@
 
 .nutri-card {
   border: 1px solid rgba(0, 0, 0, 0.05);
-  background: #fff;
+  background: var(--card);
   border-radius: 24px;
   padding: 16px;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
@@ -311,7 +311,7 @@
   padding: 11px 14px;
   font-weight: 1100;
   cursor: pointer;
-  color: #fff;
+  color: var(--card);
   background: linear-gradient(135deg, #ec76ad, #d85f97);
   transition:
     transform 0.18s ease,
@@ -324,7 +324,7 @@
 
 .nutri-ghost {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 14px;
   padding: 12px 14px;
   font-weight: 1000;
@@ -337,7 +337,7 @@
 
 .nutri-pillBtn {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 999px;
   padding: 10px 14px;
   font-weight: 1000;
@@ -358,7 +358,7 @@
 
 .nutri-select {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
@@ -368,7 +368,7 @@
 .nutri-miniInput {
   width: 110px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 14px;
   padding: 10px 12px;
   font-weight: 900;
@@ -436,7 +436,7 @@
 /* Sections */
 .nutri-section {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 18px;
   padding: 14px;
   box-shadow: var(--shadow);
@@ -564,7 +564,7 @@
 }
 .nutri-rowCard {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 16px;
   padding: 12px 12px;
   display: flex;
@@ -630,14 +630,14 @@
   width: 88px;
   border: none;
   background: #c1121f;
-  color: #fff;
+  color: var(--card);
   font-weight: 1100;
   cursor: pointer;
 }
 .nutri-swipeCard {
   will-change: transform;
   transition: transform 180ms ease;
-  background: #fff;
+  background: var(--card);
 }
 .nutri-swipeCard:active {
   transition: none;
@@ -657,7 +657,7 @@
 .nutri-modalCard {
   width: 100%;
   max-width: 980px;
-  background: #fff;
+  background: var(--card);
   border-radius: 22px;
   padding: 14px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
@@ -679,7 +679,7 @@
   height: 44px;
   border-radius: 14px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   font-weight: 1100;
   cursor: pointer;
 }
@@ -708,7 +708,7 @@
 
 .nutri-recipeCard {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 18px;
   padding: 12px;
   text-align: left;
@@ -788,7 +788,7 @@
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 12px;
-  background: #fff;
+  background: var(--card);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.05);
 }
 .nutri-blockTitle {
@@ -835,7 +835,7 @@
 .nutri-listRow {
   width: 100%;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card);
   border-radius: 18px;
   padding: 12px;
   display: flex;
