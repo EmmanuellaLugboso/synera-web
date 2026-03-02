@@ -1,15 +1,6 @@
-:root {
-  --pink-light: #ffe9f3;
-  --pink-main: #ff7eb6;
-  --pink-dark: #e6498f;
-  --text-dark: #383838;
-  --text-muted: #666;
-  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
-}
-
 .onboard-container {
   min-height: 100vh;
-  background: var(--pink-light);
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +8,7 @@
 }
 
 .onboard-card {
-  background: white;
+  background: var(--card-bg);
   width: 100%;
   max-width: 480px;
   padding: 40px;
@@ -29,7 +20,7 @@
 .onboard-title {
   font-size: 34px;
   font-weight: 700;
-  color: var(--pink-dark);
+  color: var(--text-primary);
   margin-bottom: 40px;      /* more space under question */
 }
 
@@ -47,8 +38,8 @@
   width: 100%;               /* full width button */
   max-width: 260px;          /* but not too wide */
   height: 60px;              /* taller button */
-  background: linear-gradient(135deg, var(--pink-main), var(--pink-dark));
-  color: white;
+  background: var(--accent);
+  color: var(--card-bg);
   font-size: 20px;           /* bigger text */
   font-weight: 700;          /* bold + clean */
   border-radius: 18px;       /* softer rounded edges */
@@ -60,12 +51,12 @@
   align-items: center;
   margin-left: auto;
   margin-right: auto;        /* centers button */
-  box-shadow: 0 6px 16px rgba(255, 105, 165, 0.35);
+  box-shadow: var(--shadow);
 }
 
 .onboard-button:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(255, 105, 165, 0.45);
+  box-shadow: var(--shadow);
 }
 
 .onboard-button:disabled {
@@ -80,11 +71,111 @@
   padding: 14px;
   font-size: 16px;
   border-radius: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   outline: none;
   margin-bottom: 18px;
 }
 
 .text-input:focus {
-  border-color: var(--pink-main);
+  border-color: var(--accent);
+}
+
+
+/* Theme alignment overrides */
+.onboard-container {
+  background:
+    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
+    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    var(--bg);
+  color: var(--text);
+}
+
+.onboard-card,
+.sex-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.onboard-title,
+.sex-title,
+.sex-kicker,
+.mcq-main,
+.day-main,
+.type-label,
+.time-label,
+.env-title,
+.nutri-title,
+.meal-label,
+.water-label,
+.supp-label {
+  color: var(--text) !important;
+}
+
+.onboard-subtitle,
+.sex-sub,
+.sub,
+.mcq-desc,
+.day-desc,
+.type-sub,
+.time-sub,
+.env-sub,
+.nutri-desc,
+.meal-desc,
+.water-desc,
+.supp-desc,
+.tiny-note,
+.small-note,
+.converted-text {
+  color: var(--muted) !important;
+}
+
+.onboard-button,
+.bigger-btn {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 72%, var(--card-bg)),
+    var(--accent)
+  ) !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.text-input,
+.dob-input,
+.other-input {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.choice-grid button,
+.pill-grid button,
+.sex-button,
+.days-list button,
+.type-grid button,
+.time-grid button,
+.env-grid button,
+.nutrition-list button,
+.meal-cards button,
+.water-cards button,
+.supp-grid button {
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.choice-grid button.selected,
+.pill-grid button.selected,
+.sex-button.active,
+.days-list button.selected,
+.type-grid button.selected,
+.time-grid button.selected,
+.env-grid button.selected,
+.nutrition-list button.selected,
+.meal-cards button.selected,
+.water-cards button.selected,
+.supp-grid button.selected {
+  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
 }
