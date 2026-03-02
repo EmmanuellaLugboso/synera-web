@@ -4,7 +4,11 @@ import Link from "next/link";
 import "../hub.css";
 import "./mind-sleep.css";
 import { useOnboarding } from "../../context/OnboardingContext";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { buildMindSleepDailyPayload } from "../../services/dailySync";
 
 /* ---------------- Utilities ---------------- */
 
@@ -151,7 +155,8 @@ function downloadFile(filename, mime, content) {
 /* ---------------- Page ---------------- */
 
 export default function Page() {
-  const { data, updateMany } = useOnboarding();
+  const router = useRouter();
+  const { data, updateMany, ready, user } = useOnboarding();
   const date = todayISO();
 
   const [tab, setTab] = useState("journal"); // journal | checkin | sleep | insights
@@ -174,6 +179,45 @@ export default function Page() {
     const uniq = Array.from(new Set(["Inbox", ...base.map((x) => String(x).trim()).filter(Boolean)]));
     return uniq;
   }, [data.journalFolders]);
+
+
+  useEffect(() => {
+    if (ready && !user) router.replace("/login");
+  }, [ready, user, router]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function syncDailyMindSleep() {
+      if (!ready || !user?.uid) return;
+      const payload = buildMindSleepDailyPayload({
+        date,
+        mindLogs,
+        sleepLogs,
+      });
+
+      try {
+        await setDoc(
+          doc(db, "users", user.uid, "daily", date),
+          {
+            ...payload,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      } catch {
+        if (!cancelled) {
+          // keep local experience smooth if offline
+        }
+      }
+    }
+
+    syncDailyMindSleep();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, user?.uid, date, mindLogs, sleepLogs]);
 
   /* ---------- Journal Lock (PIN) ---------- */
   const hasPin = !!data.journalPinHash;

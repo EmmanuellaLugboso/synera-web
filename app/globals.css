@@ -1,98 +1,135 @@
-:root {
-  --bg: #f6f6fb;
-  --card: rgba(255, 255, 255, 0.92);
-  --border: rgba(0, 0, 0, 0.08);
-  --text: #12121a;
-  --muted: #6b6b76;
-  --accent: #ff4f9a;
-  --accentSoft: rgba(255, 79, 154, 0.12);
-  --shadow: 0 14px 34px rgba(0, 0, 0, 0.06);
-}
-
+:root,
 :root[data-theme="light"] {
-  --bg: #f6f6fb;
-  --card: rgba(255, 255, 255, 0.92);
-  --border: rgba(0, 0, 0, 0.08);
-  --text: #12121a;
-  --muted: #6b6b76;
-  --accent: #ff4f9a;
-  --accentSoft: rgba(255, 79, 154, 0.12);
-  --shadow: 0 14px 34px rgba(0, 0, 0, 0.06);
+  --bg-primary: #f6f8fc;
+  --bg-secondary: #edf2fa;
+  --card-bg: #ffffff;
+  --card-soft: #f7f9fd;
+  --border: #dbe4f2;
+  --text-primary: #162033;
+  --text-muted: #61728d;
+  --accent: #d94c95;
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --shadow: 0 12px 30px color-mix(in srgb, var(--text-primary) 12%, transparent);
 }
 
 :root[data-theme="dark"] {
-  --bg: #101117;
-  --card: rgba(28, 29, 38, 0.92);
-  --border: rgba(255, 255, 255, 0.12);
-  --text: #f0f1f8;
-  --muted: #a5a8ba;
-  --accent: #7ca7ff;
-  --accentSoft: rgba(124, 167, 255, 0.2);
-  --shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
+  --bg-primary: #0c1118;
+  --bg-secondary: #131b25;
+  --card-bg: #1a2431;
+  --card-soft: #202c3b;
+  --border: #2e3b4c;
+  --text-primary: #e7eefc;
+  --text-muted: #96a8c5;
+  --accent: #8ba8ff;
+  --accent-soft: color-mix(in srgb, var(--accent) 24%, transparent);
+  --shadow: 0 14px 30px color-mix(in srgb, #000000 48%, transparent);
 }
 
 :root[data-theme="blue"] {
-  --bg: #f4f7fc;
-  --card: rgba(255, 255, 255, 0.94);
-  --border: rgba(48, 88, 157, 0.14);
-  --text: #141d2c;
-  --muted: #617086;
-  --accent: #4a84e8;
-  --accentSoft: rgba(74, 132, 232, 0.14);
-  --shadow: 0 12px 30px rgba(33, 61, 108, 0.1);
+  --bg-primary: #f4f8ff;
+  --bg-secondary: #eaf1ff;
+  --card-bg: #ffffff;
+  --card-soft: #f4f8ff;
+  --border: #d5e1f6;
+  --text-primary: #15233a;
+  --text-muted: #617796;
+  --accent: #3b76da;
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 :root[data-theme="pink"] {
-  --bg: #f9f6fb;
-  --card: rgba(255, 255, 255, 0.93);
-  --border: rgba(173, 78, 128, 0.14);
-  --text: #1a1a24;
-  --muted: #6f6879;
-  --accent: #e760a1;
-  --accentSoft: rgba(231, 96, 161, 0.14);
-  --shadow: 0 14px 32px rgba(153, 64, 112, 0.12);
+  --bg-primary: #faf4f8;
+  --bg-secondary: #f5eaf2;
+  --card-bg: #ffffff;
+  --card-soft: #fbf2f8;
+  --border: #ead5e4;
+  --text-primary: #271c2b;
+  --text-muted: #77627b;
+  --accent: #cf4f92;
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+:root {
+  --bg: var(--bg-primary);
+  --card: var(--card-bg);
+  --cardSoft: var(--card-soft);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --accentSoft: var(--accent-soft);
 }
 
 html,
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 /* FULL HOME PAGE STYLING */
 
 .home-bg {
   min-height: 100vh;
-  background: #ffe9f3;
+  background: var(--bg);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .home-card {
-  background: white;
+  background: var(--card);
   padding: 50px 60px;
   border-radius: 22px;
   text-align: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .home-title {
   font-size: 38px;
   font-weight: 700;
-  color: #ff4f9a;
+  color: var(--accent);
 }
 
 .home-subtitle {
   margin-top: 12px;
-  color: #555;
+  color: var(--muted);
   font-size: 18px;
 }
 
 .home-button {
   display: inline-block;
   margin-top: 28px;
-  background: linear-gradient(135deg, #ff8ac7, #ff4f9a);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card)), var(--accent));
   padding: 14px 30px;
   border-radius: 14px;
   font-weight: 600;
@@ -121,7 +158,7 @@ body {
 
 .back-btn {
   text-decoration: none;
-  color: #ff4f9a;
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -135,28 +172,28 @@ body {
   padding: 10px 18px;
   border-radius: 12px;
   border: none;
-  background: #ffe9f3;
+  background: var(--bg);
   cursor: pointer;
   font-weight: 600;
 }
 
 .tabs .active {
-  background: #ff4f9a;
+  background: var(--accent);
   color: white;
 }
 
 .card {
-  background: white;
+  background: var(--card);
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
   margin-bottom: 20px;
 }
 
 .exercise-block {
   margin-bottom: 16px;
   padding: 12px;
-  background: #fff7fb;
+  background: color-mix(in srgb, var(--card) 90%, var(--accentSoft));
   border-radius: 12px;
 }
 
@@ -170,14 +207,16 @@ input,
 select,
 textarea {
   width: 100%;
+  background: var(--card);
+  color: var(--text);
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #eee;
+  border: 1px solid var(--border);
   margin-bottom: 12px;
 }
 
 .small-btn {
-  background: #ffe9f3;
+  background: var(--bg);
   border: none;
   padding: 8px 12px;
   border-radius: 10px;
@@ -186,7 +225,7 @@ textarea {
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #ff8ac7, #ff4f9a);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card)), var(--accent));
   border: none;
   padding: 12px;
   border-radius: 12px;
@@ -196,7 +235,7 @@ textarea {
 }
 
 .danger-btn {
-  background: #ff4f9a;
+  background: var(--accent);
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -212,7 +251,7 @@ textarea {
   max-width: 980px;
   margin: 0 auto;
   padding: 18px 20px 40px;
-  color: #1c1c1e;
+  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -227,7 +266,7 @@ textarea {
 .fitness-back {
   text-decoration: none;
   font-weight: 800;
-  color: #ff4f9a;
+  color: var(--accent);
 }
 
 .fitness-titlewrap {
@@ -243,7 +282,7 @@ textarea {
 .fitness-subtitle {
   margin-top: 2px;
   font-size: 12px;
-  color: #777;
+  color: var(--muted);
 }
 
 .fitness-unit {
@@ -255,13 +294,13 @@ textarea {
 
 .fitness-unit-label {
   font-size: 12px;
-  color: #777;
+  color: var(--muted);
   font-weight: 700;
 }
 
 .fitness-chip {
   border: 1px solid #f2d4e3;
-  background: #fff;
+  background: var(--card);
   border-radius: 999px;
   padding: 7px 10px;
   font-weight: 900;
@@ -270,7 +309,7 @@ textarea {
 }
 
 .fitness-chip.active {
-  background: #ffe9f3;
+  background: var(--bg);
   border-color: #ffb5d1;
 }
 
@@ -283,7 +322,7 @@ textarea {
 
 .fitness-tab {
   border: 1px solid #f0f0f3;
-  background: #fff;
+  background: var(--card);
   border-radius: 999px;
   padding: 10px 14px;
   font-weight: 900;
@@ -292,14 +331,14 @@ textarea {
 }
 
 .fitness-tab.active {
-  background: linear-gradient(135deg, #ff8ac7, #ff4f9a);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card)), var(--accent));
   color: white;
   border: none;
 }
 
 .fitness-card,
 .fitness-excard {
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 16px;
@@ -334,7 +373,7 @@ textarea {
 
 .fitness-pill {
   border: 1px solid #f2d4e3;
-  background: #ffe9f3;
+  background: var(--bg);
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 12px;
@@ -348,7 +387,7 @@ textarea {
 }
 
 .fitness-muted {
-  color: #777;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 6px;
 }
@@ -373,8 +412,8 @@ textarea {
 
 .fitness-primary {
   border: none;
-  background: linear-gradient(135deg, #ff8ac7, #ff4f9a);
-  color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card)), var(--accent));
+  color: var(--card);
   padding: 11px 14px;
   border-radius: 14px;
   font-weight: 900;
@@ -383,7 +422,7 @@ textarea {
 
 .fitness-danger {
   border: none;
-  background: #ff4f9a;
+  background: var(--accent);
   color: white;
   padding: 9px 12px;
   border-radius: 12px;
@@ -427,7 +466,7 @@ textarea {
   padding: 10px 12px;
   font-size: 14px;
   outline: none;
-  background: #fff;
+  background: var(--card);
 }
 
 .fitness-textarea {
@@ -489,7 +528,7 @@ textarea {
   gap: 8px;
   font-size: 11px;
   font-weight: 900;
-  color: #777;
+  color: var(--muted);
   margin-bottom: 6px;
 }
 
@@ -512,13 +551,13 @@ textarea {
   height: 40px;
   border-radius: 12px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   font-weight: 900;
   cursor: pointer;
 }
 
 .fitness-done.on {
-  background: #ffe9f3;
+  background: var(--bg);
   border-color: #ffb5d1;
 }
 
@@ -594,7 +633,7 @@ textarea {
   max-width: 980px;
   margin: 0 auto;
   padding: 14px 18px 40px;
-  color: #1c1c1e;
+  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -609,7 +648,7 @@ textarea {
 .fit2-back {
   text-decoration: none;
   font-weight: 900;
-  color: #ff4f9a;
+  color: var(--accent);
 }
 
 .fit2-unit {
@@ -619,7 +658,7 @@ textarea {
 
 .fit2-unitbtn {
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   padding: 8px 10px;
   border-radius: 999px;
   font-weight: 900;
@@ -629,7 +668,7 @@ textarea {
 
 .fit2-unitbtn.active {
   border-color: #ffb5d1;
-  background: #ffe9f3;
+  background: var(--bg);
 }
 
 /* start screen */
@@ -638,7 +677,7 @@ textarea {
 }
 
 .fit2-kicker {
-  color: #ff4f9a;
+  color: var(--accent);
   font-weight: 900;
   font-size: 13px;
 }
@@ -663,7 +702,7 @@ textarea {
 .fit2-primarywide {
   width: 100%;
   border: none;
-  background: linear-gradient(135deg, #ff8ac7, #ff4f9a);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card)), var(--accent));
   color: white;
   padding: 14px 16px;
   border-radius: 14px;
@@ -686,7 +725,7 @@ textarea {
 
 .fit2-pillbtn {
   border: 1px solid #ffd0e3;
-  background: #ffe9f3;
+  background: var(--bg);
   color: #ff2f86;
   padding: 9px 12px;
   border-radius: 999px;
@@ -695,13 +734,13 @@ textarea {
 }
 
 .fit2-pillbtn.ghost {
-  background: #fff;
+  background: var(--card);
   border-color: #ededf0;
   color: #444;
 }
 
 .fit2-subtitle {
-  color: #666;
+  color: var(--muted);
   font-weight: 900;
   margin: 10px 0 12px;
 }
@@ -714,7 +753,7 @@ textarea {
 
 .fit2-templatecard {
   text-align: left;
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
@@ -728,7 +767,7 @@ textarea {
   margin-bottom: 6px;
 }
 .fit2-templatelist {
-  color: #666;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.35;
   min-height: 36px;
@@ -739,7 +778,7 @@ textarea {
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #777;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 900;
 }
@@ -756,7 +795,7 @@ textarea {
   background: #f8f8fa;
   border-radius: 16px;
   padding: 14px;
-  color: #777;
+  color: var(--muted);
   font-weight: 900;
 }
 
@@ -766,7 +805,7 @@ textarea {
   gap: 10px;
 }
 .fit2-recentitem {
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   border-radius: 16px;
   padding: 12px 14px;
@@ -779,7 +818,7 @@ textarea {
   font-weight: 950;
 }
 .fit2-recentsub {
-  color: #777;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 2px;
   font-weight: 900;
@@ -833,7 +872,7 @@ textarea {
   font-weight: 950;
   font-size: 18px;
   letter-spacing: 0.02em;
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   padding: 10px 12px;
   border-radius: 14px;
@@ -848,7 +887,7 @@ textarea {
 
 .fit2-sessioncard {
   margin-top: 14px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
@@ -891,7 +930,7 @@ textarea {
 .fit2-addex {
   width: 100%;
   border: none;
-  background: #ffe9f3;
+  background: var(--bg);
   color: #ff2f86;
   border-radius: 14px;
   padding: 14px 14px;
@@ -923,7 +962,7 @@ textarea {
   gap: 12px;
 }
 .fit2-excard {
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ededf0;
   border-radius: 18px;
   padding: 14px;
@@ -957,7 +996,7 @@ textarea {
 }
 
 .fit2-tag {
-  background: #fff;
+  background: var(--card);
   border: 1px solid #ffd0e3;
   color: #ff2f86;
   font-weight: 950;
@@ -972,7 +1011,7 @@ textarea {
 }
 .fit2-modebtn {
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   padding: 7px 10px;
   border-radius: 999px;
   font-weight: 950;
@@ -981,7 +1020,7 @@ textarea {
 }
 .fit2-modebtn.active {
   border-color: #ffb5d1;
-  background: #ffe9f3;
+  background: var(--bg);
   color: #ff2f86;
 }
 
@@ -990,7 +1029,7 @@ textarea {
   margin-top: 10px;
   border-radius: 14px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   padding: 10px 12px;
   outline: none;
   font-weight: 800;
@@ -1004,7 +1043,7 @@ textarea {
   gap: 8px;
   font-size: 11px;
   font-weight: 950;
-  color: #777;
+  color: var(--muted);
   margin: 12px 0 8px;
 }
 
@@ -1025,7 +1064,7 @@ textarea {
 .fit2-select {
   width: 100%;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   border-radius: 14px;
   padding: 10px 12px;
   outline: none;
@@ -1042,14 +1081,14 @@ textarea {
   height: 42px;
   border-radius: 14px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
   font-weight: 950;
   font-size: 16px;
 }
 
 .fit2-done.on {
-  background: #fff0f7;
+  background: var(--card)0f7;
   border-color: #ffb5d1;
 }
 
@@ -1084,7 +1123,7 @@ textarea {
 .fit2-modalcard {
   width: 100%;
   max-width: 720px;
-  background: #fff;
+  background: var(--card);
   border-radius: 22px;
   padding: 12px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
@@ -1127,7 +1166,7 @@ textarea {
   gap: 10px;
   padding: 12px 12px;
   border: none;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
   border-bottom: 1px solid #f1f1f4;
 }
@@ -1139,7 +1178,7 @@ textarea {
   font-weight: 950;
 }
 .fit2-listsub {
-  color: #777;
+  color: var(--muted);
   font-weight: 900;
   font-size: 12px;
   margin-top: 2px;
@@ -1150,7 +1189,7 @@ textarea {
   height: 34px;
   border-radius: 12px;
   border: 1px solid #ffd0e3;
-  background: #ffe9f3;
+  background: var(--bg);
   color: #ff2f86;
   display: grid;
   place-items: center;
@@ -1176,13 +1215,13 @@ textarea {
 .fit2-lastline {
   margin-top: 8px;
   font-size: 12px;
-  color: #777;
+  color: var(--muted);
   font-weight: 900;
 }
 
 .fit2-lastsimple strong,
 .fit2-bestsimple strong {
-  color: #1c1c1e;
+  color: var(--text);
 }
 
 .fit2-divider {
@@ -1194,7 +1233,7 @@ textarea {
 .fit2-historyline {
   margin-top: 6px;
   font-size: 12px;
-  color: #777;
+  color: var(--muted);
   font-weight: 900;
 }
 /* --- PR badge --- */
@@ -1205,7 +1244,7 @@ textarea {
   border-radius: 999px;
   background: #ffe3ef;
   border: 1px solid #ffb7d4;
-  color: #ff4f9a;
+  color: var(--accent);
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
@@ -1225,10 +1264,10 @@ textarea {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   font-weight: 800;
   font-size: 13px;
-  color: #1c1c1e;
+  color: var(--text);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   cursor: pointer;
 }
@@ -1244,8 +1283,8 @@ textarea {
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px dashed #ffb7d4;
-  background: #fff6fa;
-  color: #ff4f9a;
+  background: var(--card)6fa;
+  color: var(--accent);
   font-weight: 900;
   cursor: pointer;
 }
@@ -1269,14 +1308,14 @@ textarea {
   height: 36px;
   border-radius: 12px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   font-weight: 900;
   cursor: pointer;
 }
 
 .fit2-callabel {
   font-weight: 900;
-  color: #1c1c1e;
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -1291,7 +1330,7 @@ textarea {
   text-align: center;
   font-size: 11px;
   font-weight: 900;
-  color: #777;
+  color: var(--muted);
   padding: 6px 0;
 }
 
@@ -1300,7 +1339,7 @@ textarea {
   height: 44px;
   border-radius: 14px;
   border: 1px solid #ededf0;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
 }
 
@@ -1312,7 +1351,7 @@ textarea {
 
 .fit2-calcell.selected {
   border-color: #ffb7d4;
-  background: #fff6fa;
+  background: var(--card)6fa;
 }
 
 .fit2-calnum {
@@ -1321,7 +1360,7 @@ textarea {
   left: 12px;
   font-weight: 900;
   font-size: 13px;
-  color: #1c1c1e;
+  color: var(--text);
 }
 
 .fit2-caldot {
@@ -1331,7 +1370,7 @@ textarea {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ff4f9a;
+  background: var(--accent);
 }
 
 .fit2-calbelow {

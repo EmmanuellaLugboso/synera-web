@@ -2,7 +2,7 @@
 import "../../shared.css";
 import "./page.css";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useOnboarding } from "../../../context/OnboardingContext";
 
 
