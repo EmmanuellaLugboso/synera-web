@@ -904,3 +904,19 @@
   color: var(--text-primary) !important;
   border-color: var(--border) !important;
 }
+
+.nutri-rangeCard { margin-bottom: 12px; }
+.nutri-rangeRow { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.nutri-dateInput { width: 180px; }
+.nutri-syncBadge {
+  border: 1px solid var(--border);
+  background: var(--card-soft);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.nutri-syncBadge.syncing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.nutri-syncBadge.synced { color: var(--text-primary); }
+.nutri-syncBadge.error { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card-bg)); }

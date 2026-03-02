@@ -21,6 +21,21 @@ function todayISO() {
   return `${y}-${m}-${day}`;
 }
 
+function parseISODate(value) {
+  const [y, m, d] = String(value || "").split("-").map(Number);
+  if (!y || !m || !d) return new Date();
+  return new Date(y, m - 1, d);
+}
+
+function shiftISODate(baseISO, deltaDays) {
+  const d = parseISODate(baseISO);
+  d.setDate(d.getDate() + deltaDays);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 function uid() {
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
@@ -272,7 +287,16 @@ export default function Page() {
      ALL hooks must be here (no early return before hooks)
   ------------------------ */
   const [tab, setTab] = useState("tracker"); // tracker | recipes | supplements
-  const date = todayISO();
+  const [scope, setScope] = useState("day"); // day | week
+  const [selectedDate, setSelectedDate] = useState(todayISO());
+  const [syncStatus, setSyncStatus] = useState("idle"); // idle | syncing | synced | error
+  const [syncMessage, setSyncMessage] = useState("");
+  const date = selectedDate;
+
+
+  useEffect(() => {
+    if (ready && !user) router.push("/login");
+  }, [ready, user, router]);
 
 
   useEffect(() => {
@@ -347,10 +371,16 @@ export default function Page() {
   const [quickC, setQuickC] = useState("");
   const [quickF, setQuickF] = useState("");
 
+  const scopedDates = useMemo(() => {
+    if (scope !== "week") return [date];
+    return Array.from({ length: 7 }, (_, i) => shiftISODate(date, -i));
+  }, [scope, date]);
+
   const todaysLogs = useMemo(() => {
     const logs = Array.isArray(data?.foodLogs) ? data.foodLogs : [];
-    return logs.filter((x) => x?.date === date);
-  }, [data?.foodLogs, date]);
+    const target = new Set(scopedDates);
+    return logs.filter((x) => target.has(x?.date));
+  }, [data?.foodLogs, scopedDates]);
 
   const totals = useMemo(() => {
     const sum = { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 };
@@ -387,22 +417,30 @@ export default function Page() {
   useEffect(() => {
     async function syncDailyNutrition() {
       if (!ready || !user?.uid) return;
+      setSyncStatus("syncing");
+      setSyncMessage("");
       const ref = doc(db, "users", user.uid, "daily", date);
-      await setDoc(
-        ref,
-        {
-          date,
-          calories: totals.calories,
-          waterMl: Math.round((clampNumber(data?.waterLitres) || 0) * 1000),
-          macros: {
-            proteinG: totals.proteinG,
-            carbsG: totals.carbsG,
-            fatG: totals.fatG,
+      try {
+        await setDoc(
+          ref,
+          {
+            date,
+            calories: totals.calories,
+            waterMl: Math.round((clampNumber(data?.waterLitres) || 0) * 1000),
+            macros: {
+              proteinG: totals.proteinG,
+              carbsG: totals.carbsG,
+              fatG: totals.fatG,
+            },
+            updatedAt: serverTimestamp(),
           },
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true },
-      );
+          { merge: true },
+        );
+        setSyncStatus("synced");
+      } catch {
+        setSyncStatus("error");
+        setSyncMessage("Cloud sync failed. Changes are local for now.");
+      }
     }
 
     syncDailyNutrition();
@@ -958,6 +996,42 @@ export default function Page() {
             {/* ---------------- TRACKER ---------------- */}
             {tab === "tracker" && (
               <>
+                <div className="nutri-card nutri-rangeCard">
+                  <div className="nutri-cardTop">
+                    <div className="nutri-label">Scope</div>
+                    <div className={`nutri-syncBadge ${syncStatus}`}>
+                      {syncStatus === "syncing"
+                        ? "Syncing…"
+                        : syncStatus === "error"
+                          ? "Offline"
+                          : "Synced"}
+                    </div>
+                  </div>
+                  <div className="nutri-rangeRow">
+                    <button
+                      className={`nutri-tab ${scope === "day" ? "active" : ""}`}
+                      type="button"
+                      onClick={() => setScope("day")}
+                    >
+                      Day
+                    </button>
+                    <button
+                      className={`nutri-tab ${scope === "week" ? "active" : ""}`}
+                      type="button"
+                      onClick={() => setScope("week")}
+                    >
+                      Last 7 days
+                    </button>
+                    <input
+                      className="nutri-input nutri-dateInput"
+                      type="date"
+                      value={date}
+                      onChange={(e) => setSelectedDate(e.target.value || todayISO())}
+                    />
+                  </div>
+                  {syncMessage ? <div className="nutri-tiny nutri-over">{syncMessage}</div> : null}
+                </div>
+
                 <div className="nutri-grid2">
                   <div className="nutri-card nutri-card-metric">
                     <div className="nutri-cardTop">
