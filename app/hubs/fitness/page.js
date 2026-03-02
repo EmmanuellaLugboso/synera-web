@@ -3,6 +3,7 @@
 
 import "./fitness.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
@@ -37,6 +38,8 @@ const DEFAULT_TEMPLATES = [
     exercises: ["Hip Thrust", "RDL", "Cable Abduction", "Back Extension"],
   },
 ];
+
+const DEFAULT_TEMPLATE_IDS = new Set(DEFAULT_TEMPLATES.map((tpl) => tpl.id));
 
 const EXERCISE_LIBRARY = [
   { name: "Ab Wheel", category: "Core" },
@@ -94,13 +97,25 @@ function formatRelativeDate(iso) {
   return iso;
 }
 
+
+function nowEpochMs() {
+  return Date.now();
+}
+
+function nowPerfMs() {
+  if (typeof performance !== "undefined" && performance?.now) {
+    return performance.now();
+  }
+  return nowEpochMs();
+}
+
 function safeNum(v) {
   const n = Number(v);
   if (!Number.isFinite(n) || n < 0) return 0;
   return n;
 }
 
-function makeSet(mode = "reps") {
+function makeSet() {
   return {
     type: "Normal",
     done: false,
@@ -113,7 +128,7 @@ function makeSet(mode = "reps") {
 
 function makeExercise(name, category = "", modeOverride = null) {
   const mode = modeOverride || (isTimedCategory(category) ? "time" : "reps");
-  return { name, category, mode, note: "", sets: [makeSet(mode)] };
+  return { name, category, mode, note: "", sets: [makeSet()] };
 }
 
 /**
@@ -311,13 +326,21 @@ function bmiCategory(bmi) {
 ========================= */
 
 export default function FitnessHub() {
+  const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
   const d = data || {};
 
-  const templates = d.workoutTemplates?.length
-    ? d.workoutTemplates
-    : DEFAULT_TEMPLATES;
-  const workouts = Array.isArray(d.workouts) ? d.workouts : [];
+  const templates = useMemo(
+    () =>
+      d.workoutTemplates?.length
+        ? d.workoutTemplates.map((tpl) => ({ ...tpl }))
+        : DEFAULT_TEMPLATES,
+    [d.workoutTemplates],
+  );
+  const workouts = useMemo(
+    () => (Array.isArray(d.workouts) ? d.workouts.map((w) => ({ ...w })) : []),
+    [d.workouts],
+  );
   const unit = d.weightUnit || "kg";
 
   // screens: hub | start | session | history | detail | cardio | steps | body
@@ -356,9 +379,22 @@ export default function FitnessHub() {
   const [cardioKm, setCardioKm] = useState("");
   const [cardioNote, setCardioNote] = useState("");
 
+  // templates + sync status
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateExercisesInput, setTemplateExercisesInput] = useState("");
+  const [syncStatus, setSyncStatus] = useState("synced");
+
   const stepGoal = Number(d.stepGoal) || 8000;
-  const stepsLog = Array.isArray(d.stepsLog) ? d.stepsLog : [];
-  const cardioLogs = Array.isArray(d.cardioLogs) ? d.cardioLogs : [];
+  const stepsLog = useMemo(
+    () => (Array.isArray(d.stepsLog) ? d.stepsLog.map((x) => ({ ...x })) : []),
+    [d.stepsLog],
+  );
+  const cardioLogs = useMemo(
+    () =>
+      Array.isArray(d.cardioLogs) ? d.cardioLogs.map((x) => ({ ...x })) : [],
+    [d.cardioLogs],
+  );
 
   // maps
   const historyMap = useMemo(
@@ -394,12 +430,93 @@ export default function FitnessHub() {
     [stepsLog, stepGoal],
   );
 
-  // set stepsToday from log
-  useEffect(() => {
-    const iso = todayISO();
-    const found = stepsLog.find((x) => x.date === iso);
-    setStepsToday(found ? String(found.steps) : "");
-  }, [stepsLog]);
+  const weeklyStats = useMemo(() => {
+    const now = nowEpochMs();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const weekly = workouts.filter((w) => {
+      const t = Number(w?.createdAt || 0);
+      return t >= sevenDaysAgo;
+    });
+
+    let weeklySets = 0;
+    const activeDays = new Set();
+    weekly.forEach((w) => {
+      if (w?.date) activeDays.add(w.date);
+      (w?.exercises || []).forEach((ex) => {
+        weeklySets += ex?.sets?.length || 0;
+      });
+    });
+
+    return {
+      workouts: weekly.length,
+      sets: weeklySets,
+      consistency: Math.round((activeDays.size / 7) * 100),
+    };
+  }, [workouts]);
+
+  function getProgressionTip(exerciseName, mode) {
+    const info = historyMap.get((exerciseName || "").trim());
+    if (!info?.best) return "No history yet — aim for clean form and consistent effort.";
+
+    if (mode === "time") {
+      const sec = Number(info.best.timeSec || 0);
+      return sec
+        ? `Progression idea: target +${Math.max(10, Math.round(sec * 0.05))}s total time.`
+        : "Progression idea: add 5–10% time or distance this week.";
+    }
+
+    const bestW = Number(info.best.weight || 0);
+    const bestR = Number(info.best.reps || 0);
+    if (bestW > 0) {
+      const jump = unit === "lbs" ? 5 : 2.5;
+      return `Progression idea: try ${bestW + jump}${unit} for ${Math.max(1, bestR)} reps.`;
+    }
+    return `Progression idea: keep weight, add +1 rep to top set.`;
+  }
+
+  function openTemplateCreator() {
+    setTemplateName("");
+    setTemplateExercisesInput("");
+    setTemplateOpen(true);
+  }
+
+  function saveTemplate() {
+    const name = templateName.trim();
+    const exercises = templateExercisesInput
+      .split("\n")
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+    if (!name || exercises.length === 0) return;
+
+    const normalizedName = name.toLowerCase();
+    const existing = templates.some(
+      (tpl) => (tpl?.name || "").trim().toLowerCase() === normalizedName,
+    );
+    if (existing) return;
+
+    const next = [
+      ...(Array.isArray(d.workoutTemplates) ? d.workoutTemplates : []),
+      {
+        id:
+          typeof crypto !== "undefined" && crypto?.randomUUID
+            ? crypto.randomUUID()
+            : `tpl-${nowEpochMs()}`,
+        name,
+        exercises,
+      },
+    ];
+
+    updateMany({ workoutTemplates: next });
+    setTemplateOpen(false);
+  }
+
+  function removeTemplate(templateId) {
+    if (DEFAULT_TEMPLATE_IDS.has(templateId)) return;
+    const base = Array.isArray(d.workoutTemplates) ? d.workoutTemplates : [];
+    const next = base.filter((tpl) => tpl.id !== templateId);
+    updateMany({ workoutTemplates: next });
+  }
 
   // timer loop
   useEffect(() => {
@@ -407,7 +524,7 @@ export default function FitnessHub() {
 
     const tick = () => {
       if (startRef.current == null) return;
-      const nowP = performance.now();
+      const nowP = nowPerfMs();
       setElapsedMs(nowP - startRef.current);
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -424,14 +541,14 @@ export default function FitnessHub() {
 
   function startTimerFresh() {
     setElapsedMs(0);
-    startRef.current = performance.now();
+    startRef.current = nowPerfMs();
     setRunning(true);
   }
   function pauseTimer() {
     setRunning(false);
   }
   function resumeTimer() {
-    startRef.current = performance.now() - elapsedMs;
+    startRef.current = nowPerfMs() - elapsedMs;
     setRunning(true);
   }
   function resetTimer() {
@@ -493,13 +610,13 @@ export default function FitnessHub() {
       id:
         typeof crypto !== "undefined" && crypto?.randomUUID
           ? crypto.randomUUID()
-          : String(Date.now()),
+          : String(nowEpochMs()),
       title: sessionTitle.trim() || "Workout",
       date: sessionDate,
       durationSec: Math.floor(elapsedMs / 1000),
       unit,
       exercises: cleanedExercises,
-      createdAt: Date.now(),
+      createdAt: nowEpochMs(),
     };
 
     updateMany({ workouts: [...workouts, workout] });
@@ -555,7 +672,7 @@ export default function FitnessHub() {
     setSessionExercises((prev) => {
       const copy = [...prev];
       const ex = copy[exIndex];
-      copy[exIndex] = { ...ex, mode, sets: [makeSet(mode)] };
+      copy[exIndex] = { ...ex, mode, sets: [makeSet()] };
       return copy;
     });
   }
@@ -568,7 +685,7 @@ export default function FitnessHub() {
     setSessionExercises((prev) => {
       const copy = [...prev];
       const ex = copy[exIndex];
-      copy[exIndex] = { ...ex, sets: [...ex.sets, makeSet(ex.mode)] };
+      copy[exIndex] = { ...ex, sets: [...ex.sets, makeSet()] };
       return copy;
     });
   }
@@ -580,7 +697,7 @@ export default function FitnessHub() {
       const nextSets = ex.sets.filter((_, i) => i !== setIndex);
       copy[exIndex] = {
         ...ex,
-        sets: nextSets.length ? nextSets : [makeSet(ex.mode)],
+        sets: nextSets.length ? nextSets : [makeSet()],
       };
       return copy;
     });
@@ -684,6 +801,7 @@ export default function FitnessHub() {
     const iso = todayISO();
     const next = upsertStepsLog(stepsLog, iso, steps);
     updateMany({ stepsLog: next });
+    setStepsToday(String(steps));
   }
 
   /* ---------- Cardio save ---------- */
@@ -699,13 +817,13 @@ export default function FitnessHub() {
       id:
         typeof crypto !== "undefined" && crypto?.randomUUID
           ? crypto.randomUUID()
-          : String(Date.now()),
+          : String(nowEpochMs()),
       date,
       type: cardioType || "Run",
       durationMin,
       distanceKm,
       note: cardioNote || "",
-      createdAt: Date.now(),
+      createdAt: nowEpochMs(),
     };
 
     updateMany({ cardioLogs: [entry, ...cardioLogs] });
@@ -756,23 +874,39 @@ export default function FitnessHub() {
   }, [todaysCardio]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function syncDailyFitness() {
       if (!ready || !user?.uid) return;
+      setSyncStatus("syncing");
       const ref = doc(db, "users", user.uid, "daily", todayIso);
-      await setDoc(
-        ref,
-        {
-          date: todayIso,
-          steps: safeNum(todaysSteps),
-          workouts: todaysWorkouts.length,
-          cardioMinutes: totalCardioMinutesToday,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true },
-      );
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          await setDoc(
+            ref,
+            {
+              date: todayIso,
+              steps: safeNum(todaysSteps),
+              workouts: todaysWorkouts.length,
+              cardioMinutes: totalCardioMinutesToday,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          );
+          if (!cancelled) setSyncStatus("synced");
+          return;
+        } catch {
+          if (attempt === 2 && !cancelled) setSyncStatus("offline");
+          await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+        }
+      }
     }
 
     syncDailyFitness();
+    return () => {
+      cancelled = true;
+    };
   }, [
     ready,
     user?.uid,
@@ -785,6 +919,12 @@ export default function FitnessHub() {
   /* =========================
      RENDER
   ========================= */
+
+
+
+  useEffect(() => {
+    if (ready && !user) router.push("/login");
+  }, [ready, user, router]);
 
   if (!ready) {
     return (
@@ -807,10 +947,7 @@ export default function FitnessHub() {
             ← Back
           </Link>
         </div>
-        <div className="fit2-mutedbox">
-          You’re not logged in. Please log in to save workouts, steps, and
-          cardio.
-        </div>
+        <div className="fit2-mutedbox">Redirecting to login…</div>
       </div>
     );
   }
@@ -847,6 +984,9 @@ export default function FitnessHub() {
             <div className="fit2-kicker">Fitness Hub</div>
             <h1 className="fit2-h1">What are we doing today?</h1>
             <div className="fit2-muted">Pick one lane. No clutter.</div>
+            <div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>
+              Sync: {syncStatus}
+            </div>
           </div>
 
           {/* DAILY SUMMARY CARD */}
@@ -883,6 +1023,21 @@ export default function FitnessHub() {
               <div className="fit2-dailyItem">
                 <div className="fit2-dailyValue">{todaysCardio.length}</div>
                 <div className="fit2-dailyText">Cardio</div>
+              </div>
+            </div>
+
+            <div className="fit2-weeklyRow">
+              <div className="fit2-weeklyCard">
+                <div className="fit2-weeklyLabel">7d workouts</div>
+                <div className="fit2-weeklyValue">{weeklyStats.workouts}</div>
+              </div>
+              <div className="fit2-weeklyCard">
+                <div className="fit2-weeklyLabel">7d sets</div>
+                <div className="fit2-weeklyValue">{weeklyStats.sets}</div>
+              </div>
+              <div className="fit2-weeklyCard">
+                <div className="fit2-weeklyLabel">Consistency</div>
+                <div className="fit2-weeklyValue">{weeklyStats.consistency}%</div>
               </div>
             </div>
 
@@ -1032,7 +1187,7 @@ export default function FitnessHub() {
                 <button
                   className="fit2-pillbtn"
                   type="button"
-                  onClick={() => alert("Template creation next ✅")}
+                  onClick={openTemplateCreator}
                 >
                   + Template
                 </button>
@@ -1051,7 +1206,21 @@ export default function FitnessHub() {
                   onClick={() => startFromTemplate(tpl)}
                   type="button"
                 >
-                  <div className="fit2-templatetitle">{tpl.name}</div>
+                  <div className="fit2-templatetop">
+                    <div className="fit2-templatetitle">{tpl.name}</div>
+                    {!DEFAULT_TEMPLATE_IDS.has(tpl.id) ? (
+                      <button
+                        type="button"
+                        className="fit2-templateDelete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeTemplate(tpl.id);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    ) : null}
+                  </div>
                   <div className="fit2-templatelist">
                     {tpl.exercises.slice(0, 3).join(", ")}
                     {tpl.exercises.length > 3 ? ", …" : ""}
@@ -1279,6 +1448,9 @@ export default function FitnessHub() {
                             {renderBestInfo(ex.name)}
                           </>
                         ) : null}
+                      </div>
+                      <div className="fit2-progressionTip">
+                        {getProgressionTip(ex.name, ex.mode)}
                       </div>
                     </div>
 
@@ -1732,7 +1904,7 @@ export default function FitnessHub() {
                 className="fit2-input"
                 type="number"
                 placeholder="Steps today"
-                value={stepsToday}
+                value={stepsToday === "" ? String(todaysSteps || "") : stepsToday}
                 onChange={(e) => setStepsToday(e.target.value)}
               />
             </div>
@@ -1774,6 +1946,44 @@ export default function FitnessHub() {
                   ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {templateOpen && (
+        <div className="fit2-modal">
+          <div className="fit2-modalcard fit2-templateModal">
+            <div className="fit2-modaltop">
+              <button
+                className="fit2-ghosticon"
+                onClick={() => setTemplateOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+              <div className="fit2-modaltitle">Create Template</div>
+              <button className="fit2-pillbtn" onClick={saveTemplate} type="button">
+                Save
+              </button>
+            </div>
+
+            <input
+              className="fit2-search"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Template name"
+            />
+
+            <textarea
+              className="fit2-note"
+              value={templateExercisesInput}
+              onChange={(e) => setTemplateExercisesInput(e.target.value)}
+              placeholder="One exercise per line (e.g. Squat)"
+            />
+
+            <div className="fit2-small">
+              Tip: add 3-8 exercises. You can start from this template immediately.
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import "./login.css";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +10,8 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../firebase/config";
+import { getUserProfile } from "../services/userService";
+import { getPostAuthRoute } from "../lib/authRouting";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,14 +26,20 @@ export default function LoginPage() {
     return email.trim().length > 3 && password.length >= 6 && !loading;
   }, [email, password, loading]);
 
+
+  async function routeAfterAuth(uid) {
+    const profile = uid ? await getUserProfile(uid) : null;
+    router.push(getPostAuthRoute(profile));
+  }
+
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      router.push("/dashboard");
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+      await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
       console.log(err);
       setError(err?.message || "Login failed.");
@@ -45,8 +54,8 @@ export default function LoginPage() {
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push("/dashboard");
+      const cred = await signInWithPopup(auth, provider);
+      await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
       console.log(err);
       setError(err?.message || "Google sign-in failed.");
@@ -133,7 +142,7 @@ export default function LoginPage() {
             type="button"
           >
             <span className="auth-googleIcon" aria-hidden="true">
-              <img src="/google.svg" alt="" />
+              <Image src="/google.svg" alt="" width={18} height={18} />
             </span>
             Continue with Google
           </button>

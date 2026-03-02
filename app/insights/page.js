@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
 import {
-  collection,
-  documentId,
-  getDocs,
-  limit,
-  orderBy,
-  query,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import {
   buildCoachSummary,
@@ -56,20 +53,33 @@ function Sparkline({ series }) {
   );
 }
 
+function getLastNDatesISO(n = 30) {
+  const today = new Date();
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (n - 1 - i));
+    return d.toISOString().split("T")[0];
+  });
+}
+
 async function fetchLastNDaysDaily(uid, n = 30) {
   if (!uid) return [];
-  const ref = collection(db, "users", uid, "daily");
-  const q = query(ref, orderBy(documentId(), "desc"), limit(n));
-  const snap = await getDocs(q);
-
-  const docs = [];
-  snap.forEach((docSnap) =>
-    docs.push({ dateISO: docSnap.id, ...(docSnap.data() || {}) }),
+  const dates = getLastNDatesISO(n);
+  const docs = await Promise.all(
+    dates.map(async (dateISO) => {
+      const dayRef = doc(db, "users", uid, "daily", dateISO);
+      const snap = await getDoc(dayRef);
+      return {
+        dateISO,
+        ...(snap.exists() ? snap.data() || {} : {}),
+      };
+    }),
   );
   return docs;
 }
 
 export default function InsightsPage() {
+  const router = useRouter();
   const { data, user: authUser, ready } = useOnboarding();
 
   const [loading, setLoading] = useState(true);
@@ -87,9 +97,30 @@ export default function InsightsPage() {
   const [coachTyping, setCoachTyping] = useState(false);
   const [coachError, setCoachError] = useState("");
 
+  async function refreshInsights() {
+    if (!authUser?.uid) return;
+    setLoading(true);
+    setLoadError("");
+    try {
+      const fetched = await fetchLastNDaysDaily(authUser.uid, 30);
+      setDays30(normalizeDailyTimeline(fetched, 30));
+    } catch {
+      setLoadError("Couldn’t load insights. Please refresh.");
+      setDays30(normalizeDailyTimeline([], 30));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (ready && !authUser) router.replace("/login");
+  }, [ready, authUser, router]);
+
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
   const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
+  const proteinGoal =
+    clampNumber(data?.macroGoals?.proteinG) || clampNumber(data?.proteinGoalG) || 120;
 
   useEffect(() => {
     let cancelled = false;
@@ -97,10 +128,7 @@ export default function InsightsPage() {
     async function loadTimeline() {
       if (!ready) return;
       if (!authUser?.uid) {
-        if (!cancelled) {
-          setDays30(normalizeDailyTimeline([], 30));
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
         return;
       }
 
@@ -109,9 +137,9 @@ export default function InsightsPage() {
       try {
         const fetched = await fetchLastNDaysDaily(authUser.uid, 30);
         if (!cancelled) setDays30(normalizeDailyTimeline(fetched, 30));
-      } catch (e) {
+      } catch {
         if (!cancelled) {
-          setLoadError(e?.message || "Could not load analytics right now.");
+          setLoadError("Couldn’t load insights. Please refresh.");
           setDays30(normalizeDailyTimeline([], 30));
         }
       } finally {
@@ -135,7 +163,7 @@ export default function InsightsPage() {
       calorieGoal,
       stepGoal,
       waterGoal,
-      proteinGoal: clampNumber(data?.proteinGoalG) || 120,
+      proteinGoal,
     });
 
     const weeklyScore = Math.round(
@@ -190,7 +218,7 @@ export default function InsightsPage() {
             )
           : null,
     };
-  }, [days30, calorieGoal, stepGoal, waterGoal, data?.proteinGoalG]);
+  }, [days30, calorieGoal, stepGoal, waterGoal, proteinGoal]);
 
   async function sendCoachMessage() {
     const message = coachInput.trim();
@@ -314,13 +342,18 @@ export default function InsightsPage() {
           <Link href="/dashboard" className="ins-back">
             ← Dashboard
           </Link>
-          <button
-            className="ins-ghost"
-            type="button"
-            onClick={() => setCoachOpen(true)}
-          >
-            AI Coach
-          </button>
+          <div className="ins-top-actions">
+            <button className="ins-ghost" type="button" onClick={refreshInsights}>
+              Refresh
+            </button>
+            <button
+              className="ins-ghost"
+              type="button"
+              onClick={() => setCoachOpen(true)}
+            >
+              AI Coach
+            </button>
+          </div>
         </header>
 
         <section className="card overview">
