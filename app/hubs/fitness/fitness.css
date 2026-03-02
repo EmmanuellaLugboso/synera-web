@@ -949,3 +949,140 @@ body {
   font-weight: 900;
   outline: none;
 }
+
+
+.fit2-syncStatus {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-sync-syncing {
+  color: color-mix(in srgb, #f59e0b 75%, var(--text));
+}
+
+.fit2-sync-synced {
+  color: color-mix(in srgb, #10b981 70%, var(--text));
+}
+
+.fit2-sync-offline {
+  color: color-mix(in srgb, #ef4444 80%, var(--text));
+}
+
+.fit2-weeklyRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.fit2-weeklyCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  padding: 10px;
+}
+
+.fit2-weeklyLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-weeklyValue {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 1000;
+}
+
+.fit2-templatetop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fit2-templateDelete {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fit2-progressionTip {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.fit2-templateModal {
+  width: min(640px, 100%);
+}
+
+@media (max-width: 720px) {
+  .fit2-weeklyRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Theme consistency overrides */
+.fit2-page {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary);
+}
+
+.fit2-page .fit2-topbar,
+.fit2-page .fit2-hubhome,
+.fit2-page .fit2-section,
+.fit2-page .fit2-sessioncard,
+.fit2-page .fit2-simpleCard,
+.fit2-page .fit2-templatecard,
+.fit2-page .fit2-weeklyCard,
+.fit2-page .fit2-dailyCard,
+.fit2-page .fit2-modalcard,
+.fit2-page .fit2-mutedbox,
+.fit2-page .fit2-excard {
+  background: var(--card-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+.fit2-page .fit2-muted,
+.fit2-page .fit2-meta,
+.fit2-page .fit2-subtitle,
+.fit2-page .fit2-listsub,
+.fit2-page .fit2-note,
+.fit2-page .fit2-weeklyLabel,
+.fit2-page .fit2-dailyLabel {
+  color: var(--text-muted) !important;
+}
+
+.fit2-page .fit2-pillbtn,
+.fit2-page .fit2-input,
+.fit2-page .fit2-select,
+.fit2-page .fit2-setinput,
+.fit2-page .fit2-titleinput,
+.fit2-page .fit2-search,
+.fit2-page .fit2-metainput,
+.fit2-page .fit2-mode,
+.fit2-page .fit2-calbtn,
+.fit2-page .fit2-ghosticon {
+  background: var(--card-soft) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+.fit2-page .primary-btn,
+.fit2-page .fit2-primarywide,
+.fit2-page .fit2-finish,
+.fit2-page .fit2-start {
+  background: var(--accent) !important;
+  color: var(--card-bg) !important;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+}

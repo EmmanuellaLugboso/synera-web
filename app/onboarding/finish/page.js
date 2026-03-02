@@ -1,52 +1,61 @@
 "use client";
 
 import { useOnboarding } from "../../context/OnboardingContext";
-import { auth, db } from "../../firebase/config";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getUserProfile } from "../../services/userService";
 
 export default function FinishPage() {
-  const { data } = useOnboarding();
+  const { data, user, ready } = useOnboarding();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkAccess() {
+      if (!ready) return;
+      if (!user?.uid) {
+        router.replace("/login");
+        return;
+      }
+
+      const profile = await getUserProfile(user.uid);
+      if (!cancelled && profile?.onboardingComplete) {
+        router.replace("/dashboard");
+      }
+    }
+
+    checkAccess();
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, user?.uid, router]);
 
   async function saveOnboarding() {
+    if (loading) return;
+    setError("");
     setLoading(true);
 
-    const user = auth.currentUser;
-
-    if (!user) {
-      console.error("No authenticated user.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const userRef = doc(db, "users", user.uid);
+      if (!user?.uid) {
+        router.replace("/login");
+        return;
+      }
 
-      // Clean undefined values
-      const clean = JSON.parse(JSON.stringify(data || {}));
-
-      await setDoc(
-        userRef,
-        {
-          email: user.email || "",
-          onboardingComplete: true,
-          updatedAt: serverTimestamp(),
-          createdAt: serverTimestamp(), // will only set once if not existing
-          data: clean, // ✅ single source of truth
-        },
-        { merge: true }
-      );
-
-      router.push("/dashboard");
+      await saveOnboardingData(data);
+      router.replace("/dashboard");
     } catch (err) {
       console.error("Error saving onboarding:", err);
+      setError("Could not finish onboarding. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
+
+  if (!ready) return <div className="onboard-container">Loading…</div>;
 
   return (
     <div className="onboard-container">
@@ -60,6 +69,7 @@ export default function FinishPage() {
         >
           {loading ? "Saving..." : "Finish"}
         </button>
+        {error ? <p className="onboard-subtitle">{error}</p> : null}
       </div>
     </div>
   );

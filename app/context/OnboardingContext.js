@@ -9,13 +9,9 @@ import {
   useState,
 } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { auth, db } from "../firebase/config";
+import { serverTimestamp } from "firebase/firestore";
+import { auth } from "../firebase/config";
+import { getUserProfile, mergeUserProfile, sanitizeForFirestore } from "../services/userService";
 
 const OnboardingContext = createContext({
   data: {},
@@ -40,6 +36,7 @@ const DEFAULT_DATA = {
 
   // FITNESS (from onboarding)
   activity: "",
+  experience: "",
   focus: [],
 
   // GOALS / NUTRITION (from onboarding)
@@ -102,31 +99,63 @@ function safeObject(x) {
   return x && typeof x === "object" && !Array.isArray(x) ? x : null;
 }
 
-function mergeData(base, incoming) {
+
+function parseLitres(value) {
+  if (value == null) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, value);
+  const raw = String(value).trim().toLowerCase();
+  if (!raw) return null;
+  const num = Number(raw.replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(num)) return null;
+  return Math.max(0, num);
+}
+
+function normalizeOnboardingData(input) {
+  const obj = safeObject(input);
+  if (!obj) return {};
+
+  const next = { ...obj };
+
+  const macroGoals = safeObject(next.macroGoals) || {};
+  const legacyProtein = Number(next.proteinGoalG);
+  if (!Number.isFinite(Number(macroGoals.proteinG)) && Number.isFinite(legacyProtein) && legacyProtein > 0) {
+    next.macroGoals = { ...macroGoals, proteinG: legacyProtein };
+  }
+
+  const goalLitres = parseLitres(next.waterGoalLitres);
+  const legacyGoal = parseLitres(next.waterGoal);
+  if (goalLitres == null && legacyGoal != null) next.waterGoalLitres = legacyGoal;
+
+  const litres = parseLitres(next.waterLitres);
+  const intakeLitres = parseLitres(next.waterIntake);
+  if (litres == null && intakeLitres != null) next.waterLitres = intakeLitres;
+
+  return next;
+}
+function mergeOnboardingData(base, incoming) {
   const obj = safeObject(incoming);
   if (!obj) return base;
   return { ...base, ...obj };
 }
 
 export function OnboardingProvider({ children }) {
-  const [data, setData] = useState(DEFAULT_DATA);
+  const [data, setData] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_DATA;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return DEFAULT_DATA;
+      const parsed = JSON.parse(saved);
+      return mergeOnboardingData(DEFAULT_DATA, normalizeOnboardingData(parsed));
+    } catch {
+      return DEFAULT_DATA;
+    }
+  });
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
   const hasLoadedRemote = useRef(false);
   const saveTimer = useRef(null);
   const lastSavedJSON = useRef("");
-
-  // ---- LocalStorage load (fast startup / offline)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setData((prev) => mergeData(DEFAULT_DATA, mergeData(prev, parsed)));
-      }
-    } catch (e) {}
-  }, []);
 
   // ---- Auth listener + Firestore load
   useEffect(() => {
@@ -141,35 +170,38 @@ export function OnboardingProvider({ children }) {
       }
 
       try {
-        const ref = doc(db, "users", u.uid);
-        const snap = await getDoc(ref);
+        const remoteDoc = (await getUserProfile(u.uid)) || {};
+        const isNestedDataDoc = safeObject(remoteDoc.data) !== null;
+        const remoteData = normalizeOnboardingData(
+          safeObject(remoteDoc.data) || safeObject(remoteDoc) || {},
+        );
 
-        if (snap.exists()) {
-          const remoteDoc = snap.data() || {};
-          const remoteData = remoteDoc.data || {};
-
+        if (Object.keys(remoteDoc).length > 0) {
           // Merge: defaults -> current local -> remote data
-          setData((prev) =>
-            mergeData(DEFAULT_DATA, mergeData(prev, remoteData))
+            setData((prev) =>
+            mergeOnboardingData(DEFAULT_DATA, mergeOnboardingData(prev, remoteData))
           );
+
+          if (!isNestedDataDoc) {
+            await mergeUserProfile(u.uid, {
+              updatedAt: serverTimestamp(),
+              data: sanitizeForFirestore(remoteData),
+            });
+          }
         } else {
           // First-time user: create clean doc
-          await setDoc(
-            ref,
-            {
-              email: u.email || "",
-              onboardingComplete: false,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-              data: JSON.parse(JSON.stringify(DEFAULT_DATA)),
-            },
-            { merge: true }
-          );
+          await mergeUserProfile(u.uid, {
+            email: u.email || "",
+            onboardingComplete: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            data: sanitizeForFirestore(DEFAULT_DATA),
+          });
 
           setData(DEFAULT_DATA);
         }
-      } catch (e) {
-        console.log("Firestore load failed:", e);
+      } catch (error) {
+        console.log("Firestore load failed:", error);
         // Keep local data if Firestore fails
       }
 
@@ -184,7 +216,7 @@ export function OnboardingProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {}
+    } catch {}
   }, [data]);
 
   // ---- Debounced Firestore autosave (ONLY writes to doc.data)
@@ -199,24 +231,17 @@ export function OnboardingProvider({ children }) {
 
     saveTimer.current = setTimeout(async () => {
       try {
-        const ref = doc(db, "users", user.uid);
+        const payload = sanitizeForFirestore(normalizeOnboardingData(data));
 
-        // Remove undefined safely
-        const payload = JSON.parse(JSON.stringify(data));
-
-        await setDoc(
-          ref,
-          {
-            email: user.email || "",
-            updatedAt: serverTimestamp(),
-            data: payload,
-          },
-          { merge: true }
-        );
+        await mergeUserProfile(user.uid, {
+          email: user.email || "",
+          updatedAt: serverTimestamp(),
+          data: payload,
+        });
 
         lastSavedJSON.current = json;
-      } catch (e) {
-        console.log("Firestore save failed:", e);
+      } catch (error) {
+        console.log("Firestore save failed:", error);
       }
     }, 450);
 

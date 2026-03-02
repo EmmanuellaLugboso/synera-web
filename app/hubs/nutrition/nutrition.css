@@ -854,3 +854,69 @@
   justify-content: center;
   font-weight: 1200;
 }
+
+/* Theme consistency overrides */
+.nutri-page {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary);
+}
+
+.nutri-page .nutri-topbar,
+.nutri-page .nutri-hero,
+.nutri-page .nutri-card,
+.nutri-page .nutri-rowCard,
+.nutri-page .nutri-mutedBox,
+.nutri-page .nutri-recipeCard,
+.nutri-page .nutri-modalCard,
+.nutri-page .nutri-section,
+.nutri-page .nutri-swipeCard {
+  background: var(--card-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+.nutri-page .nutri-muted,
+.nutri-page .nutri-sub,
+.nutri-page .nutri-rowSub,
+.nutri-page .nutri-sectionSub,
+.nutri-page .nutri-fieldLabel {
+  color: var(--text-muted) !important;
+}
+
+.nutri-page .nutri-primary,
+.nutri-page .nutri-primary-main,
+.nutri-page .nutri-stickyBtn {
+  background: var(--accent) !important;
+  color: var(--card-bg) !important;
+}
+
+.nutri-page .nutri-pillBtn,
+.nutri-page .nutri-ghost,
+.nutri-page .nutri-iconBtn,
+.nutri-page .nutri-chip,
+.nutri-page .nutri-tabs button,
+.nutri-page .nutri-select,
+.nutri-page .nutri-input,
+.nutri-page .nutri-search,
+.nutri-page .nutri-miniInput {
+  background: var(--card-soft) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+.nutri-rangeCard { margin-bottom: 12px; }
+.nutri-rangeRow { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.nutri-dateInput { width: 180px; }
+.nutri-syncBadge {
+  border: 1px solid var(--border);
+  background: var(--card-soft);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.nutri-syncBadge.syncing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.nutri-syncBadge.synced { color: var(--text-primary); }
+.nutri-syncBadge.error { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card-bg)); }

@@ -1,7 +1,8 @@
 "use client";
 
-import { auth, db } from "../firebase/config";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth } from "../firebase/config";
+import { serverTimestamp } from "firebase/firestore";
+import { mergeUserProfile, sanitizeForFirestore } from "../services/userService";
 
 export async function saveOnboardingData(data) {
   try {
@@ -12,13 +13,10 @@ export async function saveOnboardingData(data) {
       return;
     }
 
-    const userRef = doc(db, "users", user.uid);
+    const clean = sanitizeForFirestore(data);
 
-    // Firestore doesn't allow undefined values
-    const clean = JSON.parse(JSON.stringify(data || {}));
-
-    await setDoc(
-      userRef,
+    await mergeUserProfile(
+      user.uid,
       {
         email: user.email || "",
         onboardingComplete: true,
@@ -29,8 +27,7 @@ export async function saveOnboardingData(data) {
           ...clean,
           completedAt: new Date().toISOString(),
         },
-      },
-      { merge: true }
+      }
     );
 
     console.log("✅ Onboarding saved successfully");
