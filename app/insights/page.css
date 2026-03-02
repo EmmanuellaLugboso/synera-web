@@ -103,3 +103,6 @@
   .graph-grid { grid-template-columns: 1fr; }
   .overview { flex-direction: column; }
 }
+
+.ins-top-actions { display:flex; gap:8px; align-items:center; }
+
