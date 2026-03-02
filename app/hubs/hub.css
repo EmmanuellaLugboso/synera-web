@@ -24,6 +24,16 @@
   margin-bottom: 18px;
 }
 
+/* Remove floating back-button strip while keeping right-side actions */
+.hub-page .back-link {
+  display: none;
+}
+
+.hub-page .hub-topbar {
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
 .back-link{
   text-decoration:none;
   font-weight: 900;
