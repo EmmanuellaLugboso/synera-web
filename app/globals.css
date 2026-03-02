@@ -1390,3 +1390,110 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
+
+/* =========================
+   Cross-page UI consistency layer
+   ========================= */
+:root {
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --space-page: 18px;
+  --space-card: 16px;
+}
+
+/* shared shells */
+.dash-shell,
+.ins-shell,
+.fit2-page,
+.nutri-page,
+.hub-page {
+  padding-left: var(--space-page) !important;
+  padding-right: var(--space-page) !important;
+}
+
+/* shared section/card surfaces */
+.card,
+.nutri-card,
+.nutri-section,
+.nutri-modalCard,
+.fit2-section,
+.fit2-sessioncard,
+.fit2-simpleCard,
+.fit2-modalcard,
+.hub-section,
+.hub-section-white,
+.ms3-card,
+.life-goalcard,
+.life-habitcard,
+.life-scorecard,
+.graph-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card-bg) !important;
+  padding: var(--space-card);
+}
+
+/* shared titles/subtitles */
+.card-title,
+.hub-title,
+.nutri-title,
+.fit2-h1,
+.ms3-title,
+.life-title,
+.ins-title {
+  color: var(--text-primary) !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 900 !important;
+}
+
+.card-sub,
+.hub-sub,
+.nutri-sub,
+.fit2-subtitle,
+.ms3-sub,
+.life-sub,
+.ins-sub {
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+}
+
+/* shared controls */
+.dash-btn,
+.primary-btn,
+.nutri-primary,
+.fit2-primarywide,
+.ms3-primary,
+.life-additem,
+.ins-ghost,
+.pill-btn,
+.nutri-pillBtn,
+.fit2-pillbtn,
+.ms3-chip,
+.life-pill {
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dash-btn.primary,
+.primary-btn,
+.nutri-primary,
+.fit2-primarywide,
+.ms3-primary,
+.life-additem,
+.pill-btn.primary {
+  background: var(--accent) !important;
+  color: var(--card-bg) !important;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
+}
+
+.dash-btn,
+.ins-ghost,
+.nutri-pillBtn,
+.fit2-pillbtn,
+.ms3-chip,
+.life-pill,
+.pill-btn {
+  background: var(--card-soft) !important;
+  color: var(--text-primary) !important;
+}
