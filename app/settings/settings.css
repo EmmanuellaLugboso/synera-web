@@ -17,9 +17,9 @@
 }
 
 .settings-logout {
-  border: 1px solid color-mix(in srgb, #d93f6b 35%, var(--border));
-  color: #d93f6b;
-  background: color-mix(in srgb, #d93f6b 8%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
   border-radius: 12px;
   padding: 8px 12px;
   font-weight: 900;
@@ -27,7 +27,7 @@
 }
 
 .settings-logout:hover {
-  background: color-mix(in srgb, #d93f6b 16%, var(--card));
+  background: color-mix(in srgb, var(--accent) 20%, var(--card));
 }
 
 .settings-back {
@@ -119,8 +119,8 @@
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
   transition: transform 0.2s ease;
 }
 

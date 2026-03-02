@@ -1831,3 +1831,80 @@
   border-color: var(--border) !important;
   color: var(--text) !important;
 }
+
+/* Global theme normalization overrides */
+.hub-page {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.hub-page .hub-topbar,
+.hub-page .hub-hero,
+.hub-page .hub-section,
+.hub-page .hub-section-white,
+.hub-page .stat-card,
+.hub-page .fit2-mutedbox,
+.hub-page .ms3-card,
+.hub-page .life-goalcard,
+.hub-page .life-habitcard,
+.hub-page .life-scorecard,
+.hub-page .life-focus,
+.hub-page .life-main,
+.hub-page .life-list,
+.hub-page .ms3-modalCard {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.hub-page .back-link,
+.hub-page .ghost-btn,
+.hub-page .mini-btn,
+.hub-page .life-pill,
+.hub-page .ms3-chip,
+.hub-page .ms3-tag,
+.hub-page .fit2-pillbtn,
+.hub-page .ms3-calBtn,
+.hub-page .ms3-iconbtn,
+.hub-page .life-routinebtn {
+  background: var(--card-soft);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.hub-page .primary-btn,
+.hub-page .life-additem,
+.hub-page .ms3-primary {
+  background: var(--accent);
+  color: var(--card-bg);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.hub-page .hub-sub,
+.hub-page .hub-section-sub,
+.hub-page .stat-sub,
+.hub-page .life-sub,
+.hub-page .ms3-sub,
+.hub-page .life-tabmeta,
+.hub-page .hub-badge-label,
+.hub-page .ms3-muted,
+.hub-page .empty,
+.hub-page .form-label {
+  color: var(--text-muted);
+}
+
+.hub-page input,
+.hub-page select,
+.hub-page textarea,
+.hub-page .form-input,
+.hub-page .ms3-input,
+.hub-page .ms3-select,
+.hub-page .ms3-textarea,
+.hub-page .life-iteminput,
+.hub-page .life-focusinput,
+.hub-page .life-select {
+  background: var(--card-soft);
+  color: var(--text-primary);
+  border-color: var(--border);
+}

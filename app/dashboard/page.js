@@ -21,9 +21,6 @@ import {
 /* ------------------------
    helpers
 ------------------------ */
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
 function clampNumber(value) {
   const n = Number(value);
   if (Number.isNaN(n) || n < 0) return 0;
@@ -44,14 +41,6 @@ function formatTimeShort(d) {
   if (!(d instanceof Date)) return "";
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  if (hour < 21) return "Good evening";
-  return "Good night";
-}
-
 /* ------------------------
    Simple inline SVG icons
 ------------------------ */
@@ -142,10 +131,9 @@ export default function Dashboard() {
   const router = useRouter();
   const { data, ready, user: authUser } = useOnboarding();
 
-  const date = todayISO();
-  const greeting = getGreeting();
-  const username = data?.name?.trim() || "Friend";
-  const email = authUser?.email || "";
+  const [mounted, setMounted] = useState(false);
+  const [clientDate, setClientDate] = useState("");
+  const [clientGreeting, setClientGreeting] = useState("Hello");
 
   const [profileDoc, setProfileDoc] = useState(null);
 
@@ -166,6 +154,22 @@ export default function Dashboard() {
   const [coachError, setCoachError] = useState("");
 
   useEffect(() => {
+    setMounted(true);
+    const now = new Date();
+    setClientDate(now.toISOString().split("T")[0]);
+    const hour = now.getHours();
+    if (hour < 12) setClientGreeting("Good morning");
+    else if (hour < 17) setClientGreeting("Good afternoon");
+    else if (hour < 21) setClientGreeting("Good evening");
+    else setClientGreeting("Good night");
+  }, []);
+
+  const date = clientDate;
+  const username = mounted ? data?.name?.trim() || "Friend" : "Friend";
+  const email = mounted ? authUser?.email || "" : "";
+  const greeting = mounted ? clientGreeting : "Hello";
+
+  useEffect(() => {
     if (ready && !authUser) router.push("/login");
   }, [ready, authUser, router]);
 
@@ -181,7 +185,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function ensureDailyDoc() {
-      if (!ready || !authUser) return;
+      if (!ready || !authUser || !date) return;
 
       setDailyLoading(true);
 
@@ -283,7 +287,7 @@ export default function Dashboard() {
   }, [ready, authUser, date]);
 
   async function addWater(ml) {
-    if (!authUser) return;
+    if (!authUser || !date) return;
     const ref = doc(db, "users", authUser.uid, "daily", date);
 
     await updateDoc(ref, {
@@ -298,7 +302,7 @@ export default function Dashboard() {
   }
 
   async function togglePlanItem(itemId) {
-    if (!authUser) return;
+    if (!authUser || !date) return;
 
     const current = Array.isArray(daily?.plan) ? daily.plan : [];
     const next = current.map((p) =>
@@ -326,6 +330,7 @@ export default function Dashboard() {
 
   const todaysFoodLogs = useMemo(() => {
     const logs = Array.isArray(data?.foodLogs) ? data.foodLogs : [];
+    if (!date) return [];
     return logs.filter((x) => x?.date === date);
   }, [data?.foodLogs, date]);
 
@@ -349,6 +354,7 @@ export default function Dashboard() {
     if (fromDaily) return fromDaily;
 
     const log = Array.isArray(data?.stepsLog) ? data.stepsLog : [];
+    if (!date) return 0;
     const found = log.find((x) => x?.date === date);
     return clampNumber(found?.steps);
   }, [daily?.steps, data?.stepsLog, date]);
@@ -366,7 +372,7 @@ export default function Dashboard() {
 
   const loadInsights = useCallback(
     async (forceRefresh = false) => {
-      if (!ready || !authUser) return;
+      if (!ready || !authUser || !date) return;
 
       setInsightLoading(true);
       setInsightError("");
@@ -515,7 +521,7 @@ export default function Dashboard() {
     }
   }
   const displayName = profileDoc?.name?.trim() || username;
-  const profilePhotoURL = profileDoc?.photoURL || data?.photoURL || "";
+  const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
   const coachQuickPrompts = [
     "Give me a 3-hour execution plan",

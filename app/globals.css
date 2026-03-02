@@ -1,56 +1,60 @@
-
 :root,
 :root[data-theme="light"] {
-  --bg-primary: #f5f7fb;
-  --bg-secondary: #eef2f8;
+  --bg-primary: #f6f8fc;
+  --bg-secondary: #edf2fa;
   --card-bg: #ffffff;
-  --border: #dde3ee;
-  --text-primary: #141a24;
-  --text-muted: #5f6b7d;
-  --accent: #e760a1;
+  --card-soft: #f7f9fd;
+  --border: #dbe4f2;
+  --text-primary: #162033;
+  --text-muted: #61728d;
+  --accent: #d94c95;
   --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
-  --shadow: 0 12px 30px color-mix(in srgb, var(--text-primary) 10%, transparent);
+  --shadow: 0 12px 30px color-mix(in srgb, var(--text-primary) 12%, transparent);
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #0f131a;
-  --bg-secondary: #151b24;
-  --card-bg: #1b2430;
-  --border: #2c3746;
-  --text-primary: #edf3ff;
-  --text-muted: #97a7bf;
-  --accent: #7ea2ff;
+  --bg-primary: #0c1118;
+  --bg-secondary: #131b25;
+  --card-bg: #1a2431;
+  --card-soft: #202c3b;
+  --border: #2e3b4c;
+  --text-primary: #e7eefc;
+  --text-muted: #96a8c5;
+  --accent: #8ba8ff;
   --accent-soft: color-mix(in srgb, var(--accent) 24%, transparent);
-  --shadow: 0 12px 30px color-mix(in srgb, #000 45%, transparent);
+  --shadow: 0 14px 30px color-mix(in srgb, #000000 48%, transparent);
 }
 
 :root[data-theme="blue"] {
-  --bg-primary: #f3f7ff;
+  --bg-primary: #f4f8ff;
   --bg-secondary: #eaf1ff;
   --card-bg: #ffffff;
-  --border: #d6e1f5;
-  --text-primary: #132033;
-  --text-muted: #5e718e;
-  --accent: #3f7de0;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --card-soft: #f4f8ff;
+  --border: #d5e1f6;
+  --text-primary: #15233a;
+  --text-muted: #617796;
+  --accent: #3b76da;
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
   --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 :root[data-theme="pink"] {
-  --bg-primary: #f9f3f8;
-  --bg-secondary: #f5e9f1;
+  --bg-primary: #faf4f8;
+  --bg-secondary: #f5eaf2;
   --card-bg: #ffffff;
-  --border: #ead4e1;
-  --text-primary: #231926;
-  --text-muted: #6f5c70;
+  --card-soft: #fbf2f8;
+  --border: #ead5e4;
+  --text-primary: #271c2b;
+  --text-muted: #77627b;
   --accent: #cf4f92;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
   --shadow: 0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 :root {
   --bg: var(--bg-primary);
   --card: var(--card-bg);
+  --cardSoft: var(--card-soft);
   --text: var(--text-primary);
   --muted: var(--text-muted);
   --accentSoft: var(--accent-soft);
@@ -58,8 +62,38 @@
 
 html,
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 /* FULL HOME PAGE STYLING */

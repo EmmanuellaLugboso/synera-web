@@ -1140,7 +1140,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 800;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .coach-planList {
@@ -1159,7 +1159,7 @@
   margin-top: 8px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .coach-quickRow {
@@ -1171,8 +1171,8 @@
 .coach-quickBtn {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--card);
-  color: var(--text);
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
@@ -1182,4 +1182,68 @@
 .coach-quickBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Theme consistency overrides */
+.dash-page {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dash-topbar {
+  background: color-mix(in srgb, var(--bg-secondary) 88%, transparent);
+  border-bottom-color: var(--border);
+}
+
+.card,
+.profile,
+.hub-card,
+.insights,
+.coach-card,
+.metric,
+.plan,
+.water,
+.quick,
+.facts {
+  background: var(--card-bg) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow);
+  color: var(--text-primary);
+}
+
+.hub-card,
+.insight-metric,
+.mini-kpi,
+.profile-field {
+  background: var(--card-soft) !important;
+}
+
+.hub-card.white {
+  background: var(--card-bg) !important;
+}
+
+.hub-desc,
+.profile-email,
+.profile-field-label,
+.card-sub,
+.insight-text,
+.insight-note,
+.insight-metric-label {
+  color: var(--text-muted) !important;
+}
+
+.dash-btn.primary,
+.insight-primary-action,
+.plan-action {
+  background: var(--accent) !important;
+  color: var(--card-bg) !important;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+}
+
+:root[data-theme="dark"] .dash-page {
+  background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .dash-topbar {
+  background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
 }
