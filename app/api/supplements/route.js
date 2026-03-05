@@ -1,8 +1,9 @@
-// app/api/supplements/route.js
-import { NextResponse } from "next/server";
 import { SUPPLEMENTS } from "@/app/data/supplements";
+import { getRequestContext, jsonError, jsonSuccess } from "../_utils";
 
 export async function GET(req) {
+  const { requestId } = getRequestContext();
+
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim().toLowerCase();
@@ -16,14 +17,15 @@ export async function GET(req) {
       });
     }
 
-    // Sort A–Z by name
     results = results.slice().sort((a, b) => a.name.localeCompare(b.name));
 
-    return NextResponse.json({ results }, { status: 200 });
+    return jsonSuccess({ results }, { requestId });
   } catch {
-    return NextResponse.json(
-      { error: "Server error in /api/supplements" },
-      { status: 500 }
-    );
+    return jsonError({
+      code: "INTERNAL_ERROR",
+      message: "Server error in /api/supplements",
+      status: 500,
+      requestId,
+    });
   }
 }

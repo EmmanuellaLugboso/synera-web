@@ -1,33 +1,48 @@
-// app/api/recipes/search/route.js
-import { NextResponse } from "next/server";
+import {
+  fetchWithTimeout,
+  getRequestContext,
+  jsonError,
+  jsonSuccess,
+  mapUpstreamError,
+  safeJson,
+} from "../../_utils";
 
 export async function GET(req) {
+  const { requestId } = getRequestContext();
+
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim();
 
-    if (!q) return NextResponse.json({ results: [] });
+    if (!q) return jsonSuccess({ results: [] }, { requestId });
 
     const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`;
-    const res = await fetch(url, { cache: "no-store" });
-    const data = await res.json();
+    const res = await fetchWithTimeout(url, { cache: "no-store" }, 9000, 1);
 
+    if (!res.ok) {
+      const body = await res.text();
+      const upstream = mapUpstreamError(res, body);
+      return jsonError({ ...upstream, status: 502, requestId });
+    }
+
+    const data = await safeJson(res);
     const meals = Array.isArray(data?.meals) ? data.meals : [];
 
-    // ✅ Normalize to { id, title, image }
     const results = meals.map((m) => ({
-      id: String(m.idMeal),                 // ✅ always exists
+      id: String(m.idMeal),
       title: m.strMeal || "Recipe",
       image: m.strMealThumb || null,
       category: m.strCategory || null,
       area: m.strArea || null,
     }));
 
-    return NextResponse.json({ results });
-  } catch (err) {
-    return NextResponse.json(
-      { error: err?.message || "Server error in recipe search route" },
-      { status: 500 }
-    );
+    return jsonSuccess({ results }, { requestId });
+  } catch {
+    return jsonError({
+      code: "INTERNAL_ERROR",
+      message: "Server error in recipe search route",
+      status: 500,
+      requestId,
+    });
   }
 }

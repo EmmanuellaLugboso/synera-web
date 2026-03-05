@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
 import { useRouter } from "next/navigation";
 
 import { db, auth } from "../firebase/config";
@@ -130,6 +132,7 @@ function HubIcon({ name }) {
 export default function Dashboard() {
   const router = useRouter();
   const { data, ready, user: authUser } = useOnboarding();
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
 
   const [mounted, setMounted] = useState(false);
   const [clientDate, setClientDate] = useState("");
@@ -171,21 +174,26 @@ export default function Dashboard() {
   const greeting = canShowIdentity ? clientGreeting : "Hello";
 
   useEffect(() => {
+    if (isE2EMode) return;
     if (ready && !authUser) router.push("/login");
-  }, [ready, authUser, router]);
+  }, [ready, authUser, router, isE2EMode]);
 
   useEffect(() => {
     async function loadProfileDoc() {
-      if (!ready || !authUser?.uid) return;
+      if (isE2EMode || !ready || !authUser?.uid) return;
       const ref = doc(db, "users", authUser.uid);
       const snap = await getDoc(ref);
       if (snap.exists()) setProfileDoc(snap.data());
     }
     loadProfileDoc();
-  }, [ready, authUser?.uid]);
+  }, [ready, authUser?.uid, isE2EMode]);
 
   useEffect(() => {
     async function ensureDailyDoc() {
+      if (isE2EMode) {
+        setDailyLoading(false);
+        return;
+      }
       if (!ready || !authUser || !date) return;
 
       setDailyLoading(true);
@@ -285,7 +293,7 @@ export default function Dashboard() {
     }
 
     ensureDailyDoc();
-  }, [ready, authUser, date]);
+  }, [ready, authUser, date, isE2EMode]);
 
   async function addWater(ml) {
     if (!authUser || !date) return;
@@ -322,8 +330,9 @@ export default function Dashboard() {
       await signOut(auth);
       router.push("/login");
     } catch (e) {
-      console.log("LOGOUT ERROR:", e);
-      alert(e?.message || "Logout failed.");
+      const normalized = normalizeError(e, "Could not log out right now.");
+      logError("auth.logout.failed", e, { screen: "dashboard" });
+      setInsightError(normalized.message);
     }
   }
 
@@ -373,6 +382,10 @@ export default function Dashboard() {
 
   const loadInsights = useCallback(
     async (forceRefresh = false) => {
+      if (isE2EMode) {
+        setDailyLoading(false);
+        return;
+      }
       if (!ready || !authUser || !date) return;
 
       setInsightLoading(true);
@@ -437,6 +450,7 @@ export default function Dashboard() {
       caloriesToday,
       calorieGoal,
       date,
+      isE2EMode,
     ],
   );
 
@@ -576,7 +590,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dash-page">
+    <div className="dash-page" data-testid="dashboard-page">
       {/* Top bar */}
       <div className="dash-topbar">
         <div className="dash-topbar-inner">
@@ -730,7 +744,7 @@ export default function Dashboard() {
             </div>
 
             <div className="hero-note">
-              Quick actions are placeholders — we’ll wire to logs next.
+              Quick add is live — hydration updates your daily log instantly.
             </div>
           </section>
 
