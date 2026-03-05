@@ -3,13 +3,15 @@
 import { auth } from "../firebase/config";
 import { serverTimestamp } from "firebase/firestore";
 import { mergeUserProfile, sanitizeForFirestore } from "../services/userService";
+import { normalizeError } from "../lib/errors";
+import { logError, logEvent } from "../lib/logging";
 
 export async function saveOnboardingData(data) {
   try {
     const user = auth.currentUser;
 
     if (!user) {
-      console.error("❌ No authenticated user found.");
+      logEvent("warn", "onboarding.save.no_user", {});
       return;
     }
 
@@ -30,8 +32,10 @@ export async function saveOnboardingData(data) {
       }
     );
 
-    console.log("✅ Onboarding saved successfully");
+    logEvent("info", "onboarding.save.success", { uid: user.uid });
   } catch (error) {
-    console.error("🔥 Error saving onboarding:", error);
+    const normalized = normalizeError(error, "Could not persist onboarding data.");
+    logError("onboarding.save.failed", error, {});
+    throw new Error(normalized.message);
   }
 }

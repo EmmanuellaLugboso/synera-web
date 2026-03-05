@@ -1,46 +1,52 @@
-import { NextResponse } from "next/server";
+import {
+  fetchWithTimeout,
+  getRequestContext,
+  jsonConfigMissing,
+  jsonError,
+  jsonSuccess,
+  mapUpstreamError,
+  safeJson,
+} from "../../_utils";
 
 export async function GET(req) {
+  const { requestId } = getRequestContext();
+
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim();
 
     if (!q) {
-      return NextResponse.json({ results: [] });
+      return jsonSuccess({ results: [] }, { requestId });
     }
 
     const key = process.env.USDA_API_KEY;
-
-    if (!key) {
-      return NextResponse.json(
-        { error: "Missing USDA_API_KEY in .env.local" },
-        { status: 500 }
-      );
-    }
+    if (!key) return jsonConfigMissing(requestId, "USDA_API_KEY");
 
     const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${key}`;
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: q,
-        pageSize: 12,
-        dataType: ["Foundation", "SR Legacy", "Branded"],
-      }),
-      cache: "no-store",
-    });
+    const res = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: q,
+          pageSize: 12,
+          dataType: ["Foundation", "SR Legacy", "Branded"],
+        }),
+        cache: "no-store",
+      },
+      10000,
+      1,
+    );
 
     if (!res.ok) {
       const text = await res.text();
-      return NextResponse.json(
-        { error: `USDA request failed: ${text}` },
-        { status: res.status }
-      );
+      const upstream = mapUpstreamError(res, text);
+      return jsonError({ ...upstream, status: 502, requestId });
     }
 
-    const json = await res.json();
-
+    const json = await safeJson(res);
     const foods = Array.isArray(json?.foods) ? json.foods : [];
 
     const results = foods.map((f) => ({
@@ -56,11 +62,13 @@ export async function GET(req) {
         : [],
     }));
 
-    return NextResponse.json({ results });
+    return jsonSuccess({ results }, { requestId });
   } catch {
-    return NextResponse.json(
-      { error: "Server error in /api/food/search" },
-      { status: 500 }
-    );
+    return jsonError({
+      code: "INTERNAL_ERROR",
+      message: "Server error in /api/food/search",
+      status: 500,
+      requestId,
+    });
   }
 }
