@@ -3,6 +3,8 @@
 import "./login.css";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
 import { useRouter } from "next/navigation";
 import {
   signInWithEmailAndPassword,
@@ -12,6 +14,7 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import InlineAlert from "../components/InlineAlert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,8 +44,9 @@ export default function LoginPage() {
       const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
       await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Login failed.");
+      const normalized = normalizeError(err, "Login failed.");
+      logError("auth.login.failed", err, { provider: "password" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
@@ -57,15 +61,16 @@ export default function LoginPage() {
       const cred = await signInWithPopup(auth, provider);
       await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Google sign-in failed.");
+      const normalized = normalizeError(err, "Google sign-in failed.");
+      logError("auth.login.failed", err, { provider: "google" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page" data-testid="login-page">
       {/* soft blobs like the landing */}
       <div className="auth-blob b1" />
       <div className="auth-blob b2" />
@@ -124,7 +129,7 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {error ? <div className="auth-alert">{error}</div> : null}
+            {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
             <button className="auth-primary" disabled={!canSubmit} type="submit">
               {loading ? "Signing in..." : "Sign In"}

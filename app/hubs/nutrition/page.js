@@ -660,10 +660,11 @@ export default function Page() {
         );
 
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Recipe search failed");
+        if (!res.ok) throw new Error(json?.error?.message || json?.error || "Recipe search failed");
 
-        const normalized = Array.isArray(json?.results)
-          ? json.results.map(normalizeRecipeCard).filter(Boolean)
+        const recipeResults = json?.data?.results || json?.results;
+        const normalized = Array.isArray(recipeResults)
+          ? recipeResults.map(normalizeRecipeCard).filter(Boolean)
           : [];
 
         setRecipeResults(normalized);
@@ -705,8 +706,8 @@ export default function Page() {
       });
       const json = await res.json();
       if (!res.ok)
-        throw new Error(json?.error || "Failed to load recipe details");
-      setSelectedRecipe(json?.recipe || null);
+        throw new Error(json?.error?.message || json?.error || "Failed to load recipe details");
+      setSelectedRecipe(json?.data?.recipe || json?.recipe || null);
     } catch (e) {
       setRecipeDetailErr(e?.message || "Failed to load recipe details");
       setSelectedRecipe(null);
@@ -814,8 +815,9 @@ export default function Page() {
         );
 
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Supp request failed");
-        setSuppResults(Array.isArray(json?.results) ? json.results : []);
+        if (!res.ok) throw new Error(json?.error?.message || json?.error || "Supp request failed");
+        const suppResults = json?.data?.results || json?.results;
+        setSuppResults(Array.isArray(suppResults) ? suppResults : []);
       } catch (e) {
         setSuppErr(
           e?.message ||

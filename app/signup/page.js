@@ -3,6 +3,8 @@
 import "./signup.css";
 import Image from "next/image";
 import { useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
 import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
@@ -13,8 +15,10 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import InlineAlert from "../components/InlineAlert";
 
 export default function SignupPage() {
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -38,8 +42,9 @@ export default function SignupPage() {
       await createUserWithEmailAndPassword(auth, email.trim(), password);
       router.push("/onboarding/name");
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Sign up failed.");
+      const normalized = normalizeError(err, "Sign up failed.");
+      logError("auth.signup.failed", err, { provider: "password" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
@@ -68,15 +73,16 @@ export default function SignupPage() {
       const profile = await getUserProfile(uid);
       router.push(getPostAuthRoute(profile));
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Google sign-up failed.");
+      const normalized = normalizeError(err, "Google sign-up failed.");
+      logError("auth.signup.failed", err, { provider: "google" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="signup-wrapper">
+    <div className="signup-wrapper" data-testid="signup-page">
       <div className="signup-card">
         <h1 className="signup-title">Create your account</h1>
         <p className="signup-subtitle">Start your wellness journey</p>
@@ -109,7 +115,7 @@ export default function SignupPage() {
             required
           />
 
-          {error && <p className="signup-error">{error}</p>}
+          {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
           <button className="signup-btn" disabled={loading} type="submit">
             {loading ? "Creating account..." : "Sign Up"}
@@ -124,6 +130,18 @@ export default function SignupPage() {
           <Image src="/google.svg" className="google-icon" alt="Google" width={18} height={18} />
           Continue with Google
         </button>
+
+
+        {isE2EMode ? (
+          <button
+            type="button"
+            className="google-btn"
+            data-testid="e2e-open-onboarding"
+            onClick={() => router.push("/onboarding/finish")}
+          >
+            Continue in test mode
+          </button>
+        ) : null}
 
         <p className="login-text">
           Already have an account?{" "}

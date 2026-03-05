@@ -25,7 +25,7 @@ export default function HubsIndexPage() {
   }
 
   return (
-    <div className="hub-page">
+    <div className="hub-page" data-testid="hubs-page">
       <div className="hub-topbar">
         <Link href="/dashboard" className="back-link">← Back</Link>
         {user ? <button type="button" className="ghost-btn" onClick={handleLogout}>Logout</button> : null}
