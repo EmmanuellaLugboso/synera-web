@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { getUserProfile } from "../../services/userService";
 import { normalizeError } from "../../lib/errors";
 import { logError } from "../../lib/logging";
+import InlineAlert from "../../components/InlineAlert";
+import StateMessage from "../../components/StateMessage";
 
 export default function FinishPage() {
   const { data, user, ready } = useOnboarding();
@@ -60,7 +62,7 @@ export default function FinishPage() {
     }
   }
 
-  if (!ready) return <div className="onboard-container" data-testid="onboarding-finish-page">Loading…</div>;
+  if (!ready) return <div className="onboard-container" data-testid="onboarding-finish-page"><StateMessage>Loading…</StateMessage></div>;
 
   return (
     <div className="onboard-container" data-testid="onboarding-finish-page">
@@ -75,7 +77,7 @@ export default function FinishPage() {
         >
           {loading ? "Saving..." : "Finish"}
         </button>
-        {error ? <p className="onboard-subtitle">{error}</p> : null}
+        {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
       </div>
     </div>
   );

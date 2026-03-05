@@ -14,6 +14,7 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import InlineAlert from "../components/InlineAlert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -128,7 +129,7 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {error ? <div className="auth-alert">{error}</div> : null}
+            {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
             <button className="auth-primary" disabled={!canSubmit} type="submit">
               {loading ? "Signing in..." : "Sign In"}

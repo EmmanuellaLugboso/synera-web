@@ -15,6 +15,7 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import InlineAlert from "../components/InlineAlert";
 
 export default function SignupPage() {
   const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
@@ -114,7 +115,7 @@ export default function SignupPage() {
             required
           />
 
-          {error && <p className="signup-error">{error}</p>}
+          {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
           <button className="signup-btn" disabled={loading} type="submit">
             {loading ? "Creating account..." : "Sign Up"}

@@ -5,6 +5,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/config";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
+import InlineAlert from "../components/InlineAlert";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -22,7 +25,9 @@ export default function ForgotPasswordPage() {
       await sendPasswordResetEmail(auth, email.trim());
       setMessage("Reset link sent. Check your inbox.");
     } catch (err) {
-      setError(err?.message || "Could not send reset email.");
+      const normalized = normalizeError(err, "Could not send reset email.");
+      logError("auth.password_reset.failed", err, { screen: "forgot-password" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
@@ -51,8 +56,8 @@ export default function ForgotPasswordPage() {
               />
             </label>
 
-            {error ? <div className="auth-alert">{error}</div> : null}
-            {message ? <div className="auth-alert" style={{ background: "#eefcf5", color: "#0f5132" }}>{message}</div> : null}
+            {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
+            {message ? <InlineAlert type="success">{message}</InlineAlert> : null}
 
             <button className="auth-primary" disabled={loading || !email.trim()} type="submit">
               {loading ? "Sending..." : "Send reset link"}

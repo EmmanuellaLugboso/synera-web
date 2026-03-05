@@ -1476,3 +1476,44 @@ body {
   background: var(--card2) !important;
   color: var(--text) !important;
 }
+
+
+.inline-alert {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.inline-alert--error {
+  background: color-mix(in srgb, #ef4444 10%, var(--card));
+  border-color: color-mix(in srgb, #ef4444 28%, transparent);
+  color: color-mix(in srgb, #7f1d1d 80%, var(--text));
+}
+
+.inline-alert--success {
+  background: color-mix(in srgb, #10b981 12%, var(--card));
+  border-color: color-mix(in srgb, #10b981 28%, transparent);
+  color: color-mix(in srgb, #064e3b 80%, var(--text));
+}
+
+.state-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  padding: 10px 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.state-message-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent);
+}
