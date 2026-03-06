@@ -15,12 +15,14 @@ export default function FinishPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
 
   useEffect(() => {
     let cancelled = false;
 
     async function checkAccess() {
       if (!ready) return;
+      if (isE2EMode) return;
       if (!user?.uid) {
         router.replace("/login");
         return;
@@ -36,7 +38,7 @@ export default function FinishPage() {
     return () => {
       cancelled = true;
     };
-  }, [ready, user?.uid, router]);
+  }, [ready, user?.uid, router, isE2EMode]);
 
   async function saveOnboarding() {
     if (loading) return;
@@ -44,12 +46,12 @@ export default function FinishPage() {
     setLoading(true);
 
     try {
-      if (!user?.uid) {
+      if (!isE2EMode && !user?.uid) {
         router.replace("/login");
         return;
       }
 
-      await saveOnboardingData(data);
+      if (!isE2EMode) await saveOnboardingData(data);
       router.replace("/dashboard");
     } catch (err) {
       const normalized = normalizeError(err, "Could not finish onboarding. Please try again.");

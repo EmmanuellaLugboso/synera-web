@@ -10,7 +10,8 @@ import PageState from "../components/ui/PageState";
 export default function OnboardingLayout({ children }) {
   const router = useRouter();
   const { ready, user } = useOnboarding();
-  const [checking, setChecking] = useState(true);
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
+  const [checking, setChecking] = useState(() => !isE2EMode);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +39,7 @@ export default function OnboardingLayout({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [ready, user?.uid, router]);
+  }, [ready, user?.uid, router, isE2EMode]);
 
   if (checking) {
     return <div className="onboard-container"><PageState type="loading" message="Checking your onboarding status…" /></div>;

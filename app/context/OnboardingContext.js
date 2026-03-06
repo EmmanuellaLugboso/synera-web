@@ -140,6 +140,7 @@ function mergeOnboardingData(base, incoming) {
 }
 
 export function OnboardingProvider({ children }) {
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
   const [data, setData] = useState(() => {
     if (typeof window === "undefined") return DEFAULT_DATA;
     try {
@@ -151,8 +152,8 @@ export function OnboardingProvider({ children }) {
       return DEFAULT_DATA;
     }
   });
-  const [user, setUser] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState(() => (isE2EMode ? { uid: "e2e-user", email: "e2e@local.test" } : null));
+  const [ready, setReady] = useState(() => isE2EMode);
 
   const hasLoadedRemote = useRef(false);
   const saveTimer = useRef(null);
@@ -160,6 +161,8 @@ export function OnboardingProvider({ children }) {
 
   // ---- Auth listener + Firestore load
   useEffect(() => {
+    if (isE2EMode) return () => {};
+
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u || null);
       hasLoadedRemote.current = false;
@@ -211,7 +214,7 @@ export function OnboardingProvider({ children }) {
     });
 
     return () => unsub();
-  }, []);
+  }, [isE2EMode]);
 
   // ---- Always mirror to localStorage
   useEffect(() => {
@@ -222,7 +225,7 @@ export function OnboardingProvider({ children }) {
 
   // ---- Debounced Firestore autosave (ONLY writes to doc.data)
   useEffect(() => {
-    if (!user) return;
+    if (!user || (isE2EMode && user?.uid === "e2e-user")) return;
     if (!hasLoadedRemote.current) return;
 
     const json = JSON.stringify(data);
@@ -249,7 +252,7 @@ export function OnboardingProvider({ children }) {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [data, user]);
+  }, [data, user, isE2EMode]);
 
   function updateField(key, value) {
     setData((prev) => ({ ...prev, [key]: value }));
