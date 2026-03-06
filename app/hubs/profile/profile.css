@@ -1,8 +1,8 @@
 /* FULL WIDTH LAYOUT */
 .pro-page{
   width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   min-height: 100vh;
   padding: 18px 18px 64px;
   background:
