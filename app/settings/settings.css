@@ -1,9 +1,12 @@
 .settings-page {
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(900px 520px at 14% 4%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 64%),
+    var(--bg);
   color: var(--text);
-  padding: 20px;
+  padding: var(--s-5);
 }
+
 .settings-shell {
   max-width: 860px;
   margin: 0 auto;
@@ -20,65 +23,80 @@
   border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, var(--card));
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-weight: 900;
+  border-radius: var(--r-md);
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  font-weight: var(--fw-bold);
   cursor: pointer;
 }
 
-.settings-logout:hover {
-  background: color-mix(in srgb, var(--accent) 20%, var(--card));
-}
+.settings-logout:hover { background: color-mix(in srgb, var(--accent) 20%, var(--card)); }
 
 .settings-back {
   text-decoration: none;
   color: var(--text);
-  font-weight: 900;
+  font-weight: var(--fw-bold);
+  border-radius: var(--r-pill);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  background: var(--card);
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  display: inline-flex;
+  align-items: center;
 }
+
 .settings-card {
-  margin-top: 12px;
+  margin-top: var(--s-4);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 18px;
-  box-shadow: var(--shadow);
+  border-radius: var(--r-xl);
+  padding: clamp(18px, 2.8vw, 24px);
+  box-shadow: var(--shadow-md);
 }
+
 .settings-card h1 {
   margin: 0;
+  font-size: clamp(28px, 4vw, 34px);
+  letter-spacing: -0.02em;
 }
+
 .settings-card p {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: var(--fw-semibold);
 }
+
 .settings-field {
-  margin-top: 14px;
+  margin-top: var(--s-5);
   display: grid;
-  gap: 6px;
-  font-weight: 900;
+  gap: 8px;
+  font-weight: var(--fw-bold);
   color: var(--muted);
 }
+
 .settings-field select {
-  width: 280px;
+  width: 320px;
   max-width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: var(--card);
   color: var(--text);
-  padding: 10px 12px;
-  font-weight: 900;
+  min-height: 46px;
+  padding: 0 var(--s-3);
+  font-weight: var(--fw-semibold);
 }
+
 .settings-note {
-  margin-top: 12px;
+  margin-top: var(--s-3);
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
 }
 
 .settings-toggleRow {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 14px;
+  margin-top: var(--s-4);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--card) 88%, transparent);
   display: flex;
@@ -87,21 +105,19 @@
   gap: 12px;
 }
 
-.settings-toggleTitle {
-  font-weight: 900;
-}
+.settings-toggleTitle { font-weight: var(--fw-bold); }
 
 .settings-toggleSub {
   margin-top: 4px;
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
 }
 
 .settings-switch {
   width: 56px;
   height: 32px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   border: 1px solid var(--border);
   background: var(--accentSoft);
   padding: 3px;
@@ -111,22 +127,22 @@
   transition: background 0.2s ease;
 }
 
-.settings-switch.on {
-  background: var(--accent);
-}
+.settings-switch.on { background: var(--accent); }
 
 .settings-switch-knob {
   width: 24px;
   height: 24px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--card);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease;
 }
 
-.settings-switch.on .settings-switch-knob {
-  transform: translateX(24px);
+.settings-switch.on .settings-switch-knob { transform: translateX(24px); }
+
+.ui-min-tap { min-height: 44px; }
+
+@media (max-width: 640px) {
+  .settings-page { padding: var(--s-4); }
+  .settings-top { flex-wrap: wrap; }
 }
-
-
-.ui-min-tap{min-height:44px;}

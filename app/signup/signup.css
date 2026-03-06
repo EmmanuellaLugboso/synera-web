@@ -3,50 +3,64 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px;
-  background: var(--bg);
+  padding: var(--s-4);
+  background:
+    radial-gradient(900px 520px at 14% 6%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 62%),
+    radial-gradient(860px 520px at 90% 14%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    var(--bg);
   color: var(--text-primary);
 }
 
 .signup-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: var(--shadow);
+  border-radius: var(--r-xl);
+  padding: clamp(20px, 2.5vw, 28px);
+  box-shadow: var(--shadow-md);
 }
 
-.signup-title { margin: 0; }
-.signup-subtitle { color: var(--text-muted); }
+.signup-title { margin: 0; font-size: clamp(28px, 4vw, 34px); letter-spacing: -0.02em; }
+.signup-subtitle { color: var(--text-muted); margin-top: 8px; }
 
-.signup-form { display: grid; gap: 10px; }
+.signup-form { display: grid; gap: var(--s-3); margin-top: var(--s-4); }
 .signup-input {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: var(--card-bg);
   color: var(--text-primary);
-  padding: 10px 12px;
+  min-height: 48px;
+  padding: 0 var(--s-3);
 }
 .signup-input:focus {
   outline: none;
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: var(--focus-ring);
 }
 
-.signup-error { color: var(--accent); margin: 0; }
+.signup-error {
+  color: color-mix(in srgb, var(--danger) 74%, var(--text));
+  margin: 0;
+  font-weight: var(--fw-semibold);
+}
 
 .signup-btn {
   border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
-  background: var(--accent);
-  color: var(--card-bg);
-  border-radius: 12px;
-  padding: 10px;
-  font-weight: 900;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
+  color: var(--color-accent-contrast);
+  border-radius: var(--r-md);
+  min-height: 48px;
+  padding: 0 var(--s-3);
+  font-weight: var(--fw-bold);
 }
 
-.divider { margin: 16px 0; text-align: center; color: var(--text-muted); border-top: 1px solid var(--border); }
+.divider {
+  margin: var(--s-5) 0;
+  text-align: center;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
 .divider span { position: relative; top: -10px; background: var(--card-bg); padding: 0 8px; }
 
 .google-btn {
@@ -54,17 +68,17 @@
   border: 1px solid var(--border);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: var(--r-md);
+  min-height: 48px;
+  padding: 0 var(--s-3);
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  font-weight: 800;
+  font-weight: var(--fw-bold);
 }
 
-.login-text { margin-top: 12px; color: var(--text-muted); text-align: center; }
-.login-link { color: var(--accent); font-weight: 800; cursor: pointer; }
+.login-text { margin-top: var(--s-4); color: var(--text-muted); text-align: center; }
+.login-link { color: var(--accent); font-weight: var(--fw-bold); cursor: pointer; }
 
-
-.ui-min-tap{min-height:44px;}
+.ui-min-tap { min-height: 44px; }

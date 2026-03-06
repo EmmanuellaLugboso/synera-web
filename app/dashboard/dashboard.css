@@ -1273,3 +1273,42 @@
     min-height: 44px;
   }
 }
+
+/* === Premium polish overrides === */
+.dash-page {
+  background:
+    radial-gradient(940px 540px at 10% 4%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 62%),
+    var(--bg);
+}
+
+.dash-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(16px, 2.4vw, 24px);
+}
+
+.dash-topbar,
+.dash-topbar-inner {
+  gap: var(--s-3);
+}
+
+.dash-btn,
+.plan-quick-btn,
+.coach-quickBtn {
+  min-height: 44px;
+  border-radius: var(--r-pill);
+}
+
+.hub-grid {
+  gap: var(--s-3);
+}
+
+.coach-card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.coach-input {
+  min-height: 44px;
+  border-radius: var(--r-md);
+}
