@@ -98,13 +98,13 @@
   --fs-2xs: 0.6875rem;
   --fs-xs: 0.75rem;
   --fs-sm: 0.875rem;
-  --fs-base: 1rem;
-  --fs-lg: 1.125rem;
-  --fs-xl: 1.375rem;
-  --fs-2xl: 1.75rem;
+  --fs-base: 0.875rem;
+  --fs-lg: 1rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 2rem;
 
-  --fw-regular: 500;
-  --fw-semibold: 600;
+  --fw-regular: 400;
+  --fw-semibold: 500;
   --fw-bold: 700;
   --fw-extrabold: 900;
   --lh: 1.45;
@@ -1726,3 +1726,31 @@ body {
 
 
 .ui-min-tap { min-height: 44px; }
+
+
+.page-title { font-size: 32px; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; }
+.section-title { font-size: 20px; font-weight: 600; line-height: 1.2; }
+.card-title { font-size: 16px; font-weight: 600; }
+.body-text { font-size: 14px; font-weight: 400; }
+.label-text { font-size: 12px; font-weight: 500; }
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  border-radius: var(--r-pill);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.back-button:hover {
+  background: var(--color-hover);
+  border-color: var(--color-border-strong);
+}

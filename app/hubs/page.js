@@ -6,6 +6,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { useOnboarding } from "../context/OnboardingContext";
 import "./hub.css";
+import BackButton from "../components/BackButton";
 
 const HUBS = [
   { href: "/hubs/fitness", title: "Fitness", sub: "Strength, cardio, steps, body metrics" },
@@ -27,7 +28,7 @@ export default function HubsIndexPage() {
   return (
     <div className="hub-page" data-testid="hubs-page">
       <div className="hub-topbar">
-        <Link href="/dashboard" className="back-link">← Back</Link>
+        <BackButton href="/dashboard" label="Dashboard" className="back-link" />
         {user ? <button type="button" className="ghost-btn" onClick={handleLogout}>Logout</button> : null}
       </div>
       <div className="hub-hero">

@@ -148,3 +148,53 @@
   .graph-grid { grid-template-columns: 1fr; }
   .pillars-grid { grid-template-columns: 1fr; }
 }
+
+
+.insights-dual {
+  margin-top: var(--s-3);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+
+.insights-item {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card2);
+  padding: var(--s-3);
+}
+
+.graph-card.detailed { min-height: 220px; }
+.graph-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.graph-head em { font-size: var(--fs-xs); color: var(--muted); font-style: normal; }
+
+.bar-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+  min-height: 170px;
+}
+
+.bar-col { display: grid; gap: 6px; justify-items: center; }
+.bar-value { font-size: var(--fs-xs); color: var(--muted); }
+.bar-track {
+  width: 100%;
+  height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  display: flex;
+  align-items: end;
+  padding: 4px;
+}
+.bar-fill {
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
+}
+.bar-label { font-size: var(--fs-xs); color: var(--muted); }
+
+@media (max-width: 980px) {
+  .insights-dual { grid-template-columns: 1fr; }
+}

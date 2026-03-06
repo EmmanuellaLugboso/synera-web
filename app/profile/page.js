@@ -1,12 +1,12 @@
 "use client";
 
 import "./profile.css";
-import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 import PageState from "../components/ui/PageState";
+import BackButton from "../components/BackButton";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -206,9 +206,7 @@ export default function ProfilePage() {
     <div className="profile-page">
       <div className="profile-shell">
         <header className="profile-top">
-          <Link href="/dashboard" className="profile-back">
-            ← Dashboard
-          </Link>
+          <BackButton href="/dashboard" label="Dashboard" className="profile-back" />
         </header>
 
         <section className="profile-card">

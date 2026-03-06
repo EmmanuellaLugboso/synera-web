@@ -1,7 +1,6 @@
 "use client";
 
 import "./settings.css";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -17,6 +16,7 @@ import {
   isValidTheme,
 } from "../lib/theme";
 import PageState from "../components/ui/PageState";
+import BackButton from "../components/BackButton";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -78,9 +78,7 @@ export default function SettingsPage() {
     <div className="settings-page">
       <div className="settings-shell">
         <header className="settings-top">
-          <Link href="/dashboard" className="settings-back">
-            ← Dashboard
-          </Link>
+          <BackButton href="/dashboard" label="Dashboard" className="settings-back" />
           <button type="button" className="settings-logout" onClick={handleLogout}>
             Log out
           </button>
