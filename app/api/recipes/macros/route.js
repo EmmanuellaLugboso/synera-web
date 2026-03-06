@@ -1,4 +1,12 @@
-import { NextResponse } from "next/server";
+import {
+  fetchWithTimeout,
+  getRequestContext,
+  jsonConfigMissing,
+  jsonError,
+  jsonSuccess,
+  mapUpstreamError,
+  safeJson,
+} from "../../_utils";
 
 const USDA_KEY = process.env.USDA_API_KEY;
 
@@ -8,9 +16,8 @@ function clamp(n) {
 }
 
 function extractIngredients(meal) {
-  // MealDB stores strIngredient1..20 and strMeasure1..20
   const items = [];
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 1; i <= 20; i += 1) {
     const ing = (meal[`strIngredient${i}`] || "").trim();
     const meas = (meal[`strMeasure${i}`] || "").trim();
     if (ing) items.push({ ingredient: ing, measure: meas });
@@ -20,13 +27,14 @@ function extractIngredients(meal) {
 
 async function usdaSearchTop(query) {
   const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(query)}&pageSize=1`;
-  const res = await fetch(url, { cache: "no-store" });
-  const json = await res.json();
-  return json.foods?.[0] || null;
+  const res = await fetchWithTimeout(url, { cache: "no-store" }, 9000, 1);
+
+  if (!res.ok) return null;
+  const json = await safeJson(res);
+  return json?.foods?.[0] || null;
 }
 
 function pickMacros(food) {
-  // nutrients vary by item; we try best-effort
   const nutrients = food?.foodNutrients || [];
   const get = (name) => {
     const hit = nutrients.find((n) => (n.nutrientName || "").toLowerCase().includes(name));
@@ -41,28 +49,40 @@ function pickMacros(food) {
 }
 
 export async function GET(req) {
+  const { requestId } = getRequestContext();
   const { searchParams } = new URL(req.url);
   const id = (searchParams.get("id") || "").trim();
   const servings = clamp(searchParams.get("servings")) || 2;
 
-  if (!id) return NextResponse.json({ error: "Missing recipe id" }, { status: 400 });
-  if (!USDA_KEY) return NextResponse.json({ error: "Missing USDA_API_KEY" }, { status: 500 });
+  if (!id) {
+    return jsonError({ code: "BAD_REQUEST", message: "Missing recipe id", status: 400, requestId });
+  }
 
-  // 1) get meal
-  const mealRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(id)}`, { cache: "no-store" });
-  const mealJson = await mealRes.json();
-  const meal = mealJson.meals?.[0];
-  if (!meal) return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
+  if (!USDA_KEY) return jsonConfigMissing(requestId, "USDA_API_KEY");
 
-  // 2) ingredients list
+  const mealRes = await fetchWithTimeout(
+    `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(id)}`,
+    { cache: "no-store" },
+    9000,
+    1,
+  );
+
+  if (!mealRes.ok) {
+    const body = await mealRes.text();
+    const upstream = mapUpstreamError(mealRes, body);
+    return jsonError({ ...upstream, status: 502, requestId });
+  }
+
+  const mealJson = await safeJson(mealRes);
+  const meal = mealJson?.meals?.[0];
+  if (!meal) {
+    return jsonError({ code: "NOT_FOUND", message: "Recipe not found", status: 404, requestId });
+  }
+
   const ingredients = extractIngredients(meal);
-
-  // 3) estimate macros by searching each ingredient in USDA
   let totals = { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 };
 
-  // best-effort: treat each ingredient as 1 “unit” (not perfect, but okay for MVP)
-  // later you’ll parse measures into grams.
-  for (const item of ingredients.slice(0, 12)) { // cap for speed
+  for (const item of ingredients.slice(0, 12)) {
     const top = await usdaSearchTop(item.ingredient);
     const m = pickMacros(top);
     totals.calories += m.calories;
@@ -71,14 +91,7 @@ export async function GET(req) {
     totals.fatG += m.fatG;
   }
 
-  const perServing = {
-    calories: Math.round(totals.calories / servings),
-    proteinG: Math.round(totals.proteinG / servings),
-    carbsG: Math.round(totals.carbsG / servings),
-    fatG: Math.round(totals.fatG / servings),
-  };
-
-  return NextResponse.json({
+  const data = {
     id,
     label: meal.strMeal,
     servingsDefault: servings,
@@ -88,7 +101,14 @@ export async function GET(req) {
       carbsG: Math.round(totals.carbsG),
       fatG: Math.round(totals.fatG),
     },
-    perServing,
+    perServing: {
+      calories: Math.round(totals.calories / servings),
+      proteinG: Math.round(totals.proteinG / servings),
+      carbsG: Math.round(totals.carbsG / servings),
+      fatG: Math.round(totals.fatG / servings),
+    },
     ingredients,
-  });
+  };
+
+  return jsonSuccess(data, { requestId });
 }

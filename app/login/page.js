@@ -3,6 +3,8 @@
 import "./login.css";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
 import { useRouter } from "next/navigation";
 import {
   signInWithEmailAndPassword,
@@ -12,6 +14,9 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import InlineAlert from "../components/ui/InlineAlert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,8 +46,9 @@ export default function LoginPage() {
       const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
       await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Login failed.");
+      const normalized = normalizeError(err, "Login failed.");
+      logError("auth.login.failed", err, { provider: "password" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
@@ -57,15 +63,16 @@ export default function LoginPage() {
       const cred = await signInWithPopup(auth, provider);
       await routeAfterAuth(cred?.user?.uid);
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Google sign-in failed.");
+      const normalized = normalizeError(err, "Google sign-in failed.");
+      logError("auth.login.failed", err, { provider: "google" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page" data-testid="login-page">
       {/* soft blobs like the landing */}
       <div className="auth-blob b1" />
       <div className="auth-blob b2" />
@@ -88,31 +95,27 @@ export default function LoginPage() {
           </div>
 
           <form className="auth-form" onSubmit={handleLogin}>
-            <label className="auth-label">
-              Email
-              <input
-                type="email"
-                className="auth-input"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
-            </label>
+            <Input
+              id="login-email"
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
 
-            <label className="auth-label">
-              Password
-              <input
-                type="password"
-                className="auth-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </label>
+            <Input
+              id="login-password"
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
 
             <div className="auth-row">
               <button
@@ -124,11 +127,11 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {error ? <div className="auth-alert">{error}</div> : null}
+            {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
-            <button className="auth-primary" disabled={!canSubmit} type="submit">
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
+            <Button className="auth-primary" disabled={!canSubmit} type="submit">
+              {loading ? "Signing in..." : "Sign in"}
+            </Button>
           </form>
 
           <div className="auth-divider">

@@ -1,49 +1,58 @@
-// app/api/recipes/[id]/route.js
-import { NextResponse } from "next/server";
+import {
+  fetchWithTimeout,
+  getRequestContext,
+  jsonError,
+  jsonSuccess,
+  mapUpstreamError,
+  safeJson,
+} from "../../_utils";
 
 export async function GET(req, ctx) {
+  const { requestId } = getRequestContext();
+
   try {
-    // ✅ 1) Unwrap params (Next 15+ can make params async)
     let id = "";
     try {
       const params = (await ctx?.params) || {};
       id = String(params?.id || "").trim();
     } catch {
-      // ignore and fallback to URL parsing below
+      // no-op
     }
 
-    // ✅ 2) Fallback: parse from the URL path (covers edge cases)
     if (!id) {
       const pathname = req?.nextUrl?.pathname || new URL(req.url).pathname;
-      // pathname looks like: /api/recipes/52777
       id = String(pathname.split("/").pop() || "").trim();
     }
 
     if (!id) {
-      return NextResponse.json({ error: "Missing recipe id" }, { status: 400 });
+      return jsonError({
+        code: "BAD_REQUEST",
+        message: "Missing recipe id",
+        status: 400,
+        requestId,
+      });
     }
 
-    const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(
-      id
-    )}`;
-
-    const res = await fetch(url, { cache: "no-store" });
+    const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(id)}`;
+    const res = await fetchWithTimeout(url, { cache: "no-store" }, 9000, 1);
 
     if (!res.ok) {
-      return NextResponse.json(
-        { error: `Upstream error (${res.status})` },
-        { status: 502 }
-      );
+      const body = await res.text();
+      const upstream = mapUpstreamError(res, body);
+      return jsonError({ ...upstream, status: 502, requestId });
     }
 
-    const data = await res.json();
-
+    const data = await safeJson(res);
     const meal = Array.isArray(data?.meals) ? data.meals[0] : null;
     if (!meal) {
-      return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
+      return jsonError({
+        code: "NOT_FOUND",
+        message: "Recipe not found",
+        status: 404,
+        requestId,
+      });
     }
 
-    // ✅ Normalize
     const recipe = {
       id: String(meal.idMeal),
       title: meal.strMeal || "Recipe",
@@ -51,14 +60,16 @@ export async function GET(req, ctx) {
       category: meal.strCategory || null,
       area: meal.strArea || null,
       instructions: meal.strInstructions || "",
-      ...meal, // keep raw fields for ingredient extraction
+      ...meal,
     };
 
-    return NextResponse.json({ recipe });
-  } catch (err) {
-    return NextResponse.json(
-      { error: err?.message || "Server error in recipe detail route" },
-      { status: 500 }
-    );
+    return jsonSuccess({ recipe }, { requestId });
+  } catch {
+    return jsonError({
+      code: "INTERNAL_ERROR",
+      message: "Server error in recipe detail route",
+      status: 500,
+      requestId,
+    });
   }
 }

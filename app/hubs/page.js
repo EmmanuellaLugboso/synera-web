@@ -25,14 +25,14 @@ export default function HubsIndexPage() {
   }
 
   return (
-    <div className="hub-page">
+    <div className="hub-page" data-testid="hubs-page">
       <div className="hub-topbar">
         <Link href="/dashboard" className="back-link">← Back</Link>
         {user ? <button type="button" className="ghost-btn" onClick={handleLogout}>Logout</button> : null}
       </div>
       <div className="hub-hero">
         <div>
-          <h1 className="hub-title">Hubs <span className="hub-emoji">🌸</span></h1>
+          <h1 className="hub-title">All Hubs <span className="hub-emoji">🌸</span></h1>
           <p className="hub-sub">Choose your lane and keep momentum.</p>
         </div>
       </div>
