@@ -112,7 +112,7 @@ export default function InsightsPage() {
           <Link href="/dashboard" className="ins-back">← Dashboard</Link>
           <div className="ins-top-actions">
             <button className="ins-ghost" type="button" onClick={refresh}>Refresh</button>
-            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>AI Coach</button>
+            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>Synera Assistant</button>
           </div>
         </header>
 
@@ -170,7 +170,7 @@ export default function InsightsPage() {
           </section>
         </div>
 
-        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">AI Coach</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}</div></div></div> : null}
+        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">Synera Assistant</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask Synera Assistant in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
       </div>
     </div>
   );
