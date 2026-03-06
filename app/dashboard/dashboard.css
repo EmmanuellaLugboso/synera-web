@@ -1,21 +1,11 @@
-/* ===== Synera Premium (dialed down pink, bolder type, no card-top line) ===== */
+/* ===== Synera Premium Dashboard ===== */
+/* Theme variables are defined in globals.css with data-theme attribute */
+/* This file applies dashboard-specific token extensions only */
 
 :root {
-  --bg: var(--bg-primary);
-
-  --card: var(--card);
+  /* Local dashboard extensions (computed from global theme tokens) */
   --cardSoft: color-mix(in srgb, var(--card) 86%, transparent);
-
-  --border: var(--border);
-  --text: var(--text);
-  --muted: var(--muted);
-
-  /* softer pink */
-  --pink: var(--accent);
-  --pinkSoft: var(--accent-soft);
   --pinkSoft2: color-mix(in srgb, var(--accent) 8%, transparent);
-
-  --shadow: var(--shadow);
   --shadowSoft: 0 14px 34px color-mix(in srgb, var(--text) 6%, transparent);
 }
 
@@ -32,7 +22,7 @@
       rgba(255, 79, 154, 0.045),
       transparent 60%
     ),
-    var(--bg-primary);
+    var(--bg);
   color: var(--text);
   font-family:
     ui-sans-serif,
@@ -154,6 +144,9 @@
 }
 
 .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
   border-radius: 999px;
@@ -162,9 +155,19 @@
   box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
   cursor: pointer;
   font-weight: 900;
+  text-decoration: none;
+  line-height: 1;
+  appearance: none;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .icon-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
+}
+.icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .dash-btn {
@@ -395,6 +398,9 @@
 
 .mini-user-gear,
 .mini-user-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
   border-radius: 999px;
@@ -403,6 +409,11 @@
   cursor: pointer;
   box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
   font-weight: 1000;
+  text-decoration: none;
+  line-height: 1;
+  appearance: none;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .mini-user-logout {
@@ -410,6 +421,11 @@
 }
 .mini-user-logout:hover {
   transform: translateY(-1px);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
+}
+.mini-user-gear:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
 }
 
 /* kpis */
@@ -873,36 +889,45 @@
 }
 
 .plan-action {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
-  background: color-mix(in srgb, var(--card) 94%, transparent);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
+    border-color 0.18s ease,
     opacity 0.18s ease;
   cursor: pointer;
 }
 
 .plan-action:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 6%, transparent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--accent);
+  background: var(--card);
 }
 
 .plan-action.is-done {
-  opacity: 0.62;
+  opacity: 0.68;
+  border-color: var(--border);
+}
+
+.plan-action.is-done .plan-action-text {
+  text-decoration: line-through;
+  color: var(--muted);
 }
 
 .plan-action-text {
   font-size: 14px;
-  font-weight: 950;
-  color: #2f2f39;
-  letter-spacing: -0.1px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  line-height: 1.4;
 }
 
 .plan-status {
@@ -914,48 +939,66 @@
   border-radius: 999px;
   padding: 0 10px;
   font-size: 11px;
-  font-weight: 1100;
-  letter-spacing: 0.1px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .plan-status.done {
   color: var(--muted);
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+  background: var(--card2);
+  border: 1px solid var(--border);
+}
+
+.plan-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  margin-left: 6px;
 }
 
 .plan-status.next {
-  color: #a42362;
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: white;
+  background: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .plan-status.later {
   color: var(--muted);
-  background: color-mix(in srgb, var(--text) 6%, transparent);
+  background: var(--card2);
+  border: 1px solid var(--border);
 }
 
 .plan-quick-btn {
-  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
-  background: rgba(255, 255, 255, 0.95);
-  color: #4a4a56;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
   height: 28px;
   border-radius: 999px;
   padding: 0 12px;
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .plan-quick-btn:hover {
-  border-color: color-mix(in srgb, var(--accent) 36%, transparent);
-  color: #96295b;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
 }
 
 .plan-action-dot {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 12%, transparent);
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 /* ===== Footnote ===== */
@@ -1184,69 +1227,7 @@
   cursor: not-allowed;
 }
 
-/* Theme consistency overrides */
-.dash-page {
-  background: var(--bg-primary);
-  color: var(--text);
-}
 
-.dash-topbar {
-  background: color-mix(in srgb, var(--bg-secondary) 88%, transparent);
-  border-bottom-color: var(--border);
-}
-
-.card,
-.profile,
-.hub-card,
-.insights,
-.coach-card,
-.metric,
-.plan,
-.water,
-.quick,
-.facts {
-  background: var(--card) !important;
-  border-color: var(--border) !important;
-  box-shadow: var(--shadow);
-  color: var(--text);
-}
-
-.hub-card,
-.insight-metric,
-.mini-kpi,
-.profile-field {
-  background: var(--card2) !important;
-}
-
-.hub-card.white {
-  background: var(--card) !important;
-}
-
-.hub-desc,
-.profile-email,
-.profile-field-label,
-.card-sub,
-.insight-text,
-.insight-note,
-.insight-metric-label {
-  color: var(--muted) !important;
-}
-
-.dash-btn.primary,
-.insight-primary-action,
-.plan-action {
-  background: var(--accent) !important;
-  color: var(--card) !important;
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
-}
-
-:root[data-theme="dark"] .dash-page {
-  background: var(--bg-primary) !important;
-}
-
-:root[data-theme="dark"] .dash-topbar {
-  background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
-}
 
 .plan-toggle{border:1px solid var(--border);background:var(--card);width:30px;height:30px;border-radius:999px;font-weight:900;color:var(--muted);cursor:pointer}
 .plan-toggle.done{background:var(--accentSoft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--border));}

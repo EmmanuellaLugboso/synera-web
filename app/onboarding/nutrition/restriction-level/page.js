@@ -1,6 +1,5 @@
 "use client";
-import "../../shared.css";
-import "./page.css";
+import "../../shared.css"; /* styling now comes from shared.css */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../../../context/OnboardingContext";

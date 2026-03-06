@@ -1,17 +1,4 @@
-/* app/hubs/fitness/fitness.css */
-:root {
-  --bg: var(--bg);
-  --card: var(--card);
-  --border: var(--border);
-  --text: var(--text);
-  --muted: var(--muted);
-  --shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
-  --shadow2: 0 10px 22px rgba(0, 0, 0, 0.05);
-  --radius: 22px;
-
-  --pink1: color-mix(in srgb, var(--accent) 72%, var(--card) 28%);
-  --pink2: var(--accent);
-}
+/* app/hubs/fitness/fitness.css - uses unified design tokens from globals.css */
 
 * {
   box-sizing: border-box;
@@ -111,9 +98,9 @@ body {
   color: var(--muted);
 }
 .fit2-h1 {
-  margin: 6px 0 6px;
-  font-size: 28px;
-  font-weight: 1000;
+  margin: 6px 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: -0.02em;
 }
 .fit2-muted {
@@ -131,11 +118,10 @@ body {
 .fit2-dailyCard {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  margin: 10px 0 14px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+  margin: var(--space-sm) 0 var(--space-lg);
 }
 
 .fit2-dailyHeader {
@@ -159,13 +145,13 @@ body {
 }
 
 .fit2-dailyBadge {
-  font-size: 12px;
-  font-weight: 1000;
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: var(--card);
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
-  box-shadow: 0 10px 22px rgba(255, 79, 154, 0.25);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-extrabold);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
 }
 
 .fit2-dailyGrid {
@@ -186,17 +172,17 @@ body {
     rgba(248, 248, 252, 0.86)
   );
   border: 1px solid rgba(17, 18, 25, 0.08);
-  border-radius: 16px;
-  padding: 12px 10px;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-xs);
   text-align: center;
-  box-shadow: var(--shadow2);
+  box-shadow: var(--shadow-soft);
   transition:
     transform 140ms ease,
     box-shadow 140ms ease;
 }
 .fit2-dailyValue {
   font-size: 22px;
-  font-weight: 1000;
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: -0.01em;
 }
 .fit2-dailyText {
@@ -220,12 +206,12 @@ body {
 }
 
 .fit2-featureSection {
-  margin-top: 8px;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.46);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  margin-top: var(--space-xs);
+  padding: var(--space-sm);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
 }
 
 .fit2-featureTitle {
@@ -256,15 +242,13 @@ body {
 }
 
 .fit2-tile {
-  border: none;
   cursor: pointer;
   text-align: left;
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 15px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-card);
   transition:
     transform 150ms ease,
     box-shadow 150ms ease,
@@ -272,8 +256,8 @@ body {
 }
 .fit2-tile:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
-  border-color: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border);
 }
 .fit2-tileTop {
   display: flex;
@@ -322,14 +306,13 @@ body {
 }
 
 .fit2-mutedbox {
-  margin-top: 14px;
-  background: rgba(255, 255, 255, 0.7);
+  margin-top: var(--space-lg);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow2);
-  backdrop-filter: blur(12px);
-  font-weight: 800;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
+  font-weight: var(--font-weight-bold);
   color: var(--muted);
 }
 
@@ -337,15 +320,18 @@ body {
 .fit2-primarywide {
   border: none;
   cursor: pointer;
-  border-radius: 18px;
-  height: 42px;
-  padding: 0 16px;
-  font-weight: 1100;
-  color: var(--card);
-  background: linear-gradient(135deg, #ea5c9f, #d84f92);
-  box-shadow:
-    0 10px 22px rgba(221, 82, 145, 0.24),
-    0 0 0 1px rgba(255, 255, 255, 0.26) inset;
+  border-radius: var(--radius-lg);
+  height: 44px;
+  padding: 0 var(--space-lg);
+  font-weight: var(--font-weight-extrabold);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
+}
+.fit2-primarywide:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 .fit2-pillbtn {
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -403,10 +389,9 @@ body {
 .fit2-simpleCard {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
 }
 
 .fit2-recentlist {
@@ -418,12 +403,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.75);
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow2);
+  box-shadow: var(--shadow-soft);
 }
 .fit2-recenttitle {
   font-weight: 1100;
@@ -435,12 +420,12 @@ body {
   color: var(--muted);
 }
 .fit2-recentpill {
-  font-size: 12px;
-  font-weight: 1100;
-  padding: 7px 10px;
-  border-radius: 999px;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-extrabold);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--card2);
 }
 
 /* Calendar */
@@ -457,11 +442,11 @@ body {
 }
 .fit2-calbtn {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  padding: 8px 10px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
   cursor: pointer;
-  font-weight: 1000;
+  font-weight: var(--font-weight-extrabold);
 }
 .fit2-callabel {
   font-size: 13px;
@@ -483,9 +468,9 @@ body {
 }
 .fit2-calcell {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.65);
-  border-radius: 14px;
-  padding: 10px 0;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -498,8 +483,8 @@ body {
   cursor: default;
 }
 .fit2-calcell.selected {
-  background: rgba(255, 79, 154, 0.08);
-  border-color: rgba(255, 79, 154, 0.25);
+  background: var(--accentSoft);
+  border-color: var(--accent);
 }
 .fit2-calnum {
   font-weight: 1000;
@@ -510,8 +495,8 @@ body {
   bottom: 6px;
   width: 6px;
   height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
+  border-radius: var(--radius-pill);
+  background: var(--accent);
 }
 
 /* Session UI */
@@ -530,10 +515,9 @@ body {
   flex: 1;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 10px 12px;
-  box-shadow: var(--shadow2);
-  backdrop-filter: blur(14px);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  box-shadow: var(--shadow-soft);
 }
 .fit2-timervalue {
   font-size: 18px;
@@ -558,19 +542,18 @@ body {
 .fit2-sessioncard {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
 }
 
 .fit2-titleinput {
   width: 100%;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  padding: 12px 12px;
-  font-weight: 1000;
+  background: var(--card2);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  font-weight: var(--font-weight-bold);
   font-size: 14px;
   outline: none;
 }
@@ -585,32 +568,38 @@ body {
 }
 .fit2-metainput {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 14px;
-  padding: 10px 12px;
-  font-weight: 900;
+  background: var(--card2);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
+  font-weight: var(--font-weight-bold);
 }
 
 .fit2-addex {
-  margin-top: 12px;
+  margin-top: var(--space-sm);
   width: 100%;
   border: none;
   cursor: pointer;
-  border-radius: 16px;
-  padding: 12px 14px;
-  font-weight: 1100;
-  color: var(--card);
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: var(--font-weight-extrabold);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
+}
+.fit2-addex:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 
 .fit2-cancel {
-  margin-top: 10px;
+  margin-top: var(--space-sm);
   width: 100%;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 16px;
-  padding: 12px 14px;
-  font-weight: 1000;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -624,10 +613,9 @@ body {
 .fit2-excard {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
 }
 .fit2-exhead {
   display: flex;
@@ -639,9 +627,9 @@ body {
   width: 100%;
   border: none;
   outline: none;
-  font-weight: 1100;
+  font-weight: var(--font-weight-extrabold);
   font-size: 15px;
-  padding: 10px 0;
+  padding: var(--space-xs) 0;
   background: transparent;
 }
 .fit2-lastline {
@@ -656,14 +644,14 @@ body {
 }
 
 .fit2-pr {
-  margin-left: 8px;
-  font-size: 11px;
-  font-weight: 1100;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(255, 79, 154, 0.14);
-  border: 1px solid rgba(255, 79, 154, 0.25);
-  color: #c01558;
+  margin-left: var(--space-xs);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-extrabold);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--accentSoft);
+  border: 1px solid var(--accent);
+  color: var(--accent);
 }
 
 .fit2-exmeta {
@@ -674,28 +662,28 @@ body {
   margin-top: 10px;
 }
 .fit2-tag {
-  font-size: 11px;
-  font-weight: 1100;
-  padding: 6px 10px;
-  border-radius: 999px;
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-extrabold);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--card2);
   color: var(--muted);
 }
 .fit2-mode {
   display: flex;
-  gap: 8px;
-  border-radius: 999px;
-  padding: 4px;
+  gap: var(--space-xs);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--card2);
 }
 .fit2-modebtn {
   border: none;
   cursor: pointer;
-  padding: 8px 10px;
-  border-radius: 999px;
-  font-weight: 1000;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  font-weight: var(--font-weight-bold);
   color: var(--muted);
   background: transparent;
 }
@@ -707,12 +695,12 @@ body {
 
 .fit2-note {
   width: 100%;
-  margin-top: 10px;
+  margin-top: var(--space-sm);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  padding: 10px 12px;
-  font-weight: 800;
+  background: var(--card2);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  font-weight: var(--font-weight-bold);
   outline: none;
   min-height: 56px;
   resize: vertical;
@@ -746,31 +734,34 @@ body {
 .fit2-setinput {
   width: 100%;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 14px;
-  padding: 10px 10px;
-  font-weight: 900;
+  background: var(--card2);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
+  font-weight: var(--font-weight-bold);
   outline: none;
 }
 .fit2-done {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 14px;
-  padding: 10px 0;
-  font-weight: 1100;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) 0;
+  font-weight: var(--font-weight-extrabold);
   cursor: pointer;
+  transition: all 150ms ease;
 }
 .fit2-done.on {
-  background: rgba(255, 79, 154, 0.16);
-  border-color: rgba(255, 79, 154, 0.26);
+  background: var(--accentSoft);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .fit2-minus {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 14px;
-  padding: 10px 0;
-  font-weight: 1100;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) 0;
+  font-weight: var(--font-weight-extrabold);
   cursor: pointer;
+  transition: all 150ms ease;
 }
 .fit2-exfooter {
   margin-top: 12px;
@@ -797,11 +788,16 @@ body {
   text-align: left;
   border: none;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow2);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
+}
+.fit2-templatecard:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 .fit2-templatetitle {
   font-weight: 1100;
@@ -824,8 +820,8 @@ body {
 .fit2-dot {
   width: 6px;
   height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
+  border-radius: var(--radius-pill);
+  background: var(--accent);
 }
 
 /* Modal */
@@ -844,11 +840,11 @@ body {
   width: min(860px, 100%);
   max-height: 85vh;
   overflow: auto;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
 }
 .fit2-modaltop {
   display: flex;
@@ -862,24 +858,30 @@ body {
 }
 .fit2-search {
   width: 100%;
-  margin-top: 8px;
+  margin-top: var(--space-xs);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
-  padding: 12px 12px;
-  font-weight: 900;
+  background: var(--card2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  font-weight: var(--font-weight-bold);
   outline: none;
 }
 .fit2-addcustom {
-  margin-top: 10px;
+  margin-top: var(--space-sm);
   width: 100%;
   border: none;
   cursor: pointer;
-  border-radius: 16px;
-  padding: 12px 14px;
-  font-weight: 1100;
-  color: var(--card);
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: var(--font-weight-extrabold);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
+}
+.fit2-addcustom:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 .fit2-list {
   margin-top: 12px;
@@ -897,14 +899,19 @@ body {
   border: none;
   cursor: pointer;
   text-align: left;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 14px;
-  box-shadow: var(--shadow2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-xs);
+  transition: all 150ms ease;
+}
+.fit2-listrow:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 .fit2-listname {
   font-weight: 1100;
@@ -924,29 +931,30 @@ body {
 .fit2-qmark {
   width: 36px;
   height: 36px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.7);
-  font-weight: 1100;
+  background: var(--card);
+  font-weight: var(--font-weight-extrabold);
 }
 .fit2-uselast {
   width: 120px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 20px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  font-weight: 1100;
+  font-weight: var(--font-weight-extrabold);
+  padding: var(--space-xs) var(--space-sm);
 }
 .fit2-input {
   width: 100%;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  padding: 12px 12px;
-  font-weight: 900;
+  background: var(--card2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  font-weight: var(--font-weight-bold);
   outline: none;
 }
 
@@ -979,9 +987,9 @@ body {
 
 .fit2-weeklyCard {
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--card2);
+  padding: var(--space-xs);
 }
 
 .fit2-weeklyLabel {
@@ -1032,7 +1040,7 @@ body {
 
 /* Theme consistency overrides */
 .fit2-page {
-  background: var(--bg-primary) !important;
+  background: var(--bg) !important;
   color: var(--text-primary);
 }
 
@@ -1050,7 +1058,7 @@ body {
   background: var(--card-bg) !important;
   border-color: var(--border) !important;
   color: var(--text-primary);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft) !important;
 }
 
 .fit2-page .fit2-muted,

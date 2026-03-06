@@ -1844,8 +1844,8 @@
 
 /* Global theme normalization overrides */
 .hub-page {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg);
+  color: var(--text);
 }
 
 .hub-page .hub-topbar,
@@ -1864,7 +1864,7 @@
   background: var(--card-bg);
   color: var(--text-primary);
   border-color: var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .hub-page .hub-hero {

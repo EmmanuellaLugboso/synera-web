@@ -62,8 +62,14 @@ export default function InsightsPage() {
     setError("");
     try {
       setDays(await fetchDaily(user.uid));
-    } catch {
-      setError("Couldn’t load insights. Please refresh.");
+    } catch (e) {
+      // ✅ Catch Firestore index errors and show friendly message
+      const errorMsg = e?.message || "";
+      if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
+        setError("Insights are still syncing. Please try again in a moment.");
+      } else {
+        setError("Couldn't load insights. Please refresh.");
+      }
       setDays(normalizeDailyTimeline([], 30));
     } finally {
       setLoading(false);

@@ -1,15 +1,13 @@
 :root{
-  --bg: #f6f6fb;
-  --card: #ffffff;
-  --border: rgba(0,0,0,0.06);
-  --text: #0f1222;
-  --muted: rgba(15,18,34,0.55);
-  --shadow: 0 12px 28px rgba(0,0,0,0.06);
-  --radius: 22px;
-
-  --pink1: #ff8ac7;
-  --pink2: #ff4f9a;
+  --bg: var(--bg);
+  --card: var(--card);
+  --border: var(--border);
+  --text: var(--text);
+  --muted: var(--muted);
+  --accent: var(--accent);
 }
+
+/* Profile page uses unified design tokens from globals.css */
 
 /* FULL WIDTH LAYOUT */
 .pro-page{
@@ -46,28 +44,28 @@
 }
 
 .pro-edit{
-  border: 1px solid rgba(255,79,154,0.2);
-  background: white;
-  border-radius: 999px;
-  padding: 12px 20px;
-  font-weight: 800;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: var(--radius-pill);
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: var(--font-weight-bold);
   cursor:pointer;
-  transition: 0.2s ease;
+  transition: all 150ms ease;
 }
 
 .pro-edit:hover{
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
-  color:white;
-  border-color: transparent;
-  box-shadow: 0 12px 24px rgba(255,79,154,0.25);
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-soft);
 }
 
 /* PROFILE CARD */
 .pro-card{
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   padding: 30px;
   margin-bottom: 40px;
 }
@@ -129,8 +127,8 @@
 .pro-wide{
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   padding: 24px;
 }
 
@@ -213,19 +211,31 @@
 
 .pro-btn.primary{
   border: none;
-  color:#fff;
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
-  box-shadow: 0 18px 35px rgba(255,79,154,0.25);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
+}
+.pro-btn.primary:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 
 .pro-photoBtn{
   margin-top: 10px;
-  border: 1px solid rgba(255,79,154,0.2);
-  background: #fff;
-  border-radius: 999px;
-  padding: 10px 14px;
-  font-weight: 800;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
+  font-weight: var(--font-weight-bold);
   cursor:pointer;
+  transition: all 150ms ease;
+}
+
+.pro-photoBtn:hover {
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 .pro-photoBtn:disabled{

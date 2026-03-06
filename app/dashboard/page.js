@@ -194,14 +194,16 @@ export default function Dashboard() {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        const starterPlan = [
-          { id: "water500", text: "Drink 500ml water now.", done: false },
+        // starter plan items should include a category for UI tagging
+      const starterPlan = [
+          { id: "water500", text: "Drink 500ml water now.", done: false, category: "Fuel" },
           {
             id: "logmeal1",
             text: "Log your first meal (anything counts).",
             done: false,
+            category: "Fuel",
           },
-          { id: "walk10", text: "10-min walk = easy step bump.", done: false },
+          { id: "walk10", text: "10-min walk = easy step bump.", done: false, category: "Move" },
         ];
 
         await setDoc(ref, {
@@ -367,7 +369,19 @@ export default function Dashboard() {
   const waterLitres = waterMl / 1000;
   const waterPct = pct(waterLitres, waterGoal);
 
-  const planItems = Array.isArray(daily?.plan) ? daily.plan : [];
+  const rawPlanItems = Array.isArray(daily?.plan) ? daily.plan : [];
+  // derive a category tag if missing (fallback based on id heuristics)
+  const planItems = rawPlanItems.map((p) => {
+    if (p.category) return p;
+    const id = String(p.id || "").toLowerCase();
+    let cat = "";
+    if (id.includes("water") || id.includes("meal") || id.includes("calorie")) cat = "Fuel";
+    else if (id.includes("step") || id.includes("walk") || id.includes("run") || id.includes("workout")) cat = "Move";
+    else if (id.includes("bed") || id.includes("sleep") || id.includes("rest")) cat = "Recover";
+    else if (id.includes("mood") || id.includes("stress")) cat = "Mood";
+    else if (id.includes("habit")) cat = "Habits";
+    return { ...p, category: cat };
+  });
   const completedPlanCount = planItems.filter((item) => item?.done).length;
   const nextPlanId = planItems.find((item) => !item?.done)?.id || null;
 
@@ -399,8 +413,14 @@ export default function Dashboard() {
         });
 
         const payload = await res.json();
-        if (!res.ok)
-          throw new Error(payload?.error || "Failed to load insights");
+        if (!res.ok) {
+          const errorMsg = payload?.error || "Failed to load insights";
+          // ✅ Catch Firestore index errors and show friendly message
+          if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
+            throw new Error("Insights are still syncing. Try again shortly.");
+          }
+          throw new Error(errorMsg);
+        }
 
         const nextInsight = payload?.insight;
         if (!nextInsight) throw new Error("Insight payload missing");
@@ -1030,6 +1050,9 @@ export default function Dashboard() {
                     <span className={`plan-status ${statusTone}`}>
                       {status}
                     </span>
+                    {p.category ? (
+                      <span className="plan-tag">{p.category}</span>
+                    ) : null}
                     <span className="plan-action-text">{p.text}</span>
                     <button
                       className={`plan-toggle ${p.done ? "done" : ""}`}

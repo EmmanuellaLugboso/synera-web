@@ -1,34 +1,6 @@
-.nutrition-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.nutrition-card {
-  width: 100%;
-  background: white;
-  border: 3px solid #ffc7dd;
-  border-radius: 20px;
-  padding: 18px 22px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-.nutrition-card:hover {
-  border-color: #ff7eb6;
-  background: #ffe6f3;
-}
-
-.nutrition-card.selected {
-  background: #ff8ac4;
-  border-color: #e6498f;
-  color: white;
-}
+/* most of the visual styling for the list/card has been moved to
+   shared.css.  Keep only the additional helper rules not covered
+   centrally. */
 
 .nutri-icon {
   font-size: 30px;
@@ -52,6 +24,11 @@
 .nutrition-card.selected .nutri-desc {
   color: #fff;
 }
+
+.other-input {
+  margin-top: 18px;
+}
+
 
 .other-input {
   margin-top: 18px;
