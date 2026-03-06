@@ -143,32 +143,6 @@
   gap: 10px;
 }
 
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 86%, transparent);
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
-  cursor: pointer;
-  font-weight: 900;
-  text-decoration: none;
-  line-height: 1;
-  appearance: none;
-  padding: 0;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-.icon-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
-}
-.icon-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
-}
 
 .dash-btn {
   appearance: none;
@@ -409,32 +383,7 @@
 }
 
 .mini-user-gear,
-.mini-user-logout {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  cursor: pointer;
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 5%, transparent);
-  font-weight: 1000;
-  text-decoration: none;
-  line-height: 1;
-  appearance: none;
-  padding: 0;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
 
-.mini-user-logout {
-  background: color-mix(in srgb, var(--text) 5%, transparent);
-}
-.mini-user-logout:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
-}
 .mini-user-gear:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px color-mix(in srgb, var(--text) 8%, transparent);
