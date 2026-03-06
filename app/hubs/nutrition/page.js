@@ -367,6 +367,14 @@ export default function Page() {
   const [quickP, setQuickP] = useState("");
   const [quickC, setQuickC] = useState("");
   const [quickF, setQuickF] = useState("");
+  const [foodSearchQ, setFoodSearchQ] = useState("");
+  const [foodSearchLoading, setFoodSearchLoading] = useState(false);
+  const [foodSearchError, setFoodSearchError] = useState("");
+  const [foodSearchResults, setFoodSearchResults] = useState([]);
+  const [foodSearchSource, setFoodSearchSource] = useState("");
+  const [syraMealText, setSyraMealText] = useState("");
+  const [syraMealLoading, setSyraMealLoading] = useState(false);
+  const [syraMealNote, setSyraMealNote] = useState("");
 
   const scopedDates = useMemo(() => {
     if (scope !== "week") return [date];
@@ -451,6 +459,70 @@ export default function Page() {
     totals.fatG,
     data?.waterLitres,
   ]);
+
+  async function searchFoodDatabase() {
+    const q = foodSearchQ.trim();
+    if (!q) {
+      setFoodSearchResults([]);
+      setFoodSearchError("");
+      return;
+    }
+
+    setFoodSearchLoading(true);
+    setFoodSearchError("");
+    try {
+      const res = await fetch(`/api/food/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error?.message || json?.error || "Food search failed");
+      const results = Array.isArray(json?.results) ? json.results : [];
+      setFoodSearchResults(results);
+      setFoodSearchSource(String(json?.source || ""));
+      if (!results.length) setFoodSearchError("No foods found for this search.");
+    } catch (e) {
+      setFoodSearchError(e?.message || "Food search failed");
+      setFoodSearchResults([]);
+    } finally {
+      setFoodSearchLoading(false);
+    }
+  }
+
+  function applyFoodResult(result) {
+    if (!result) return;
+    setQuickName(result.description || result.brandName || "Food");
+    setQuickServings("1");
+    setQuickCals(String(Math.round(clampNumber(result.calories))));
+    setQuickP(String(Math.round(clampNumber(result.protein))));
+    setQuickC(String(Math.round(clampNumber(result.carbs))));
+    setQuickF(String(Math.round(clampNumber(result.fat))));
+  }
+
+
+  async function estimateMealWithSyra() {
+    const message = syraMealText.trim();
+    if (!message) return;
+    setSyraMealLoading(true);
+    setSyraMealNote("");
+    try {
+      const res = await fetch("/api/syra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, mode: "meal" }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || "Could not estimate meal.");
+      setQuickName((json?.matchedFoods || ["Meal"]).join(", "));
+      setQuickServings("1");
+      setQuickCals(String(Math.round(clampNumber(json?.totals?.calories))));
+      setQuickP(String(Math.round(clampNumber(json?.totals?.protein))));
+      setQuickC(String(Math.round(clampNumber(json?.totals?.carbs))));
+      setQuickF(String(Math.round(clampNumber(json?.totals?.fat))));
+      setSyraMealNote(json?.note || "Approximate estimate.");
+    } catch (err) {
+      setSyraMealNote(err?.message || "Could not estimate meal.");
+    } finally {
+      setSyraMealLoading(false);
+    }
+  }
 
   function addQuickFoodManual() {
     const name = quickName.trim();
@@ -904,9 +976,9 @@ export default function Page() {
   return (
     <HubShell
       className="nutri-page"
-      title="Nutrition Hub"
+      title="Nutrition"
       emoji="🥗"
-      subtitle="Track food, hydration, recipes, and supplements."
+      subtitle="Fuel your body with intention."
       rightMeta={(
         <div className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}>
           <div className="nutri-badgeLabel">Hydration</div>
@@ -1015,6 +1087,7 @@ export default function Page() {
                   {syncMessage ? <div className="nutri-tiny nutri-over">{syncMessage}</div> : null}
                 </div>
 
+                <div className="nutri-layoutLabel section-title">Daily Snapshot</div>
                 <div className="nutri-grid2">
                   <div className="nutri-card nutri-card-metric">
                     <div className="nutri-cardTop">
@@ -1058,6 +1131,7 @@ export default function Page() {
                   </div>
                 </div>
 
+                <div className="nutri-layoutLabel section-title">Primary Action</div>
                 <div className="nutri-actions nutri-actions-main">
                   <button
                     className="nutri-primary nutri-primary-main"
@@ -1366,7 +1440,7 @@ export default function Page() {
                 <Modal
                   open={logFoodOpen}
                   onClose={() => setLogFoodOpen(false)}
-                  title="Log Food (Manual)"
+                  title="Log Food"
                 >
                   <div className="nutri-row">
                     <select
@@ -1379,6 +1453,64 @@ export default function Page() {
                       <option value="dinner">Dinner</option>
                       <option value="snack">Snack</option>
                     </select>
+                  </div>
+
+                  <div className="nutri-card" style={{ marginTop: 12 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Food database search</div>
+                      <div className="nutri-chip">USDA / OFF</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={foodSearchQ}
+                        onChange={(e) => setFoodSearchQ(e.target.value)}
+                        placeholder="Search foods (e.g. banana, oats, chicken breast)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={searchFoodDatabase}>
+                        Search
+                      </button>
+                    </div>
+                    {foodSearchLoading ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Searching…</div> : null}
+                    {foodSearchError ? <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>{foodSearchError}</div> : null}
+                    {foodSearchSource ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Data source: {foodSearchSource === "usda" ? "USDA FoodData Central" : "OpenFoodFacts fallback"}</div> : null}
+                    {foodSearchResults.length ? (
+                      <div className="nutri-list" style={{ marginTop: 10, maxHeight: 200, overflow: 'auto' }}>
+                        {foodSearchResults.slice(0, 8).map((r) => (
+                          <button
+                            key={r.id}
+                            type="button"
+                            className="nutri-listRow"
+                            onClick={() => applyFoodResult(r)}
+                          >
+                            <div>
+                              <div className="nutri-rowName">{r.description}</div>
+                              <div className="nutri-rowSub">{Math.round(clampNumber(r.calories))} kcal • P {Math.round(clampNumber(r.protein))}g • C {Math.round(clampNumber(r.carbs))}g • F {Math.round(clampNumber(r.fat))}g</div>
+                            </div>
+                            <div className="nutri-plus">Use</div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="nutri-card" style={{ marginTop: 10 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Quick log with SYRA</div>
+                      <div className="nutri-chip">Approximate</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={syraMealText}
+                        onChange={(e) => setSyraMealText(e.target.value)}
+                        placeholder="Describe meal (e.g. toast eggs and tea)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={estimateMealWithSyra}>
+                        {syraMealLoading ? "Estimating…" : "Describe meal"}
+                      </button>
+                    </div>
+                    {syraMealNote ? <div className="nutri-tiny" style={{ marginTop: 8 }}>{syraMealNote}</div> : null}
                   </div>
 
                   <div className="nutri-grid2" style={{ marginTop: 12 }}>
@@ -1746,6 +1878,25 @@ export default function Page() {
                         {selectedSuppInfo.category}
                       </div>
                     ) : null}
+                  </div>
+
+                  <div className="nutri-card" style={{ marginTop: 10 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Quick log with SYRA</div>
+                      <div className="nutri-chip">Approximate</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={syraMealText}
+                        onChange={(e) => setSyraMealText(e.target.value)}
+                        placeholder="Describe meal (e.g. toast eggs and tea)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={estimateMealWithSyra}>
+                        {syraMealLoading ? "Estimating…" : "Describe meal"}
+                      </button>
+                    </div>
+                    {syraMealNote ? <div className="nutri-tiny" style={{ marginTop: 8 }}>{syraMealNote}</div> : null}
                   </div>
 
                   <div className="nutri-grid2" style={{ marginTop: 12 }}>

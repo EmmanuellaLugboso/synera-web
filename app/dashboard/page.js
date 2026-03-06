@@ -5,13 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { normalizeError } from "../lib/errors";
-import { logError } from "../lib/logging";
 import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
-import { db, auth } from "../firebase/config";
-import { signOut } from "firebase/auth";
+import { db } from "../firebase/config";
 import {
   doc,
   getDoc,
@@ -151,7 +148,13 @@ export default function Dashboard() {
   const [insightUpdatedAt, setInsightUpdatedAt] = useState(null);
   const [coachOpen, setCoachOpen] = useState(false);
   const [coachMessages, setCoachMessages] = useState([
-    { role: "assistant", text: "Hey — I can build a real action plan. Tell me your goal or what feels stuck today.", focus: "daily execution", plan: ["Hydrate", "Move", "Execute one key habit"] },
+    {
+      role: "assistant",
+      text: "Hey — I’m your SYRA. I can help with tasks, habits, goals, planning, and progress.",
+      focus: "daily alignment",
+      plan: ["Check open tasks", "Close one quick win", "Plan your next check-in"],
+      keyMessages: ["Ask: What should I focus on today?", "Ask: Where am I falling behind this week?"],
+    },
   ]);
   const [coachInput, setCoachInput] = useState("");
   const [coachTyping, setCoachTyping] = useState(false);
@@ -328,17 +331,6 @@ export default function Dashboard() {
   }
 
 
-  async function handleLogout() {
-    try {
-      await signOut(auth);
-      router.push("/login");
-    } catch (e) {
-      const normalized = normalizeError(e, "Could not log out right now.");
-      logError("auth.logout.failed", e, { screen: "dashboard" });
-      setInsightError(normalized.message);
-    }
-  }
-
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
 
   const todaysFoodLogs = useMemo(() => {
@@ -508,7 +500,7 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/coach", {
+      const res = await fetch("/api/syra", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -531,27 +523,40 @@ export default function Dashboard() {
                     100,
                 )
               : 0,
+            openTasks: planItems.filter((item) => !item.done).length,
+            totalTasks: planItems.length,
           },
         }),
       });
 
       const payload = await res.json();
       if (!res.ok)
-        throw new Error(payload?.error || "Could not get coach response.");
+        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: payload?.reply || "One small action now. You’ve got this.",
-          focus: payload?.focus || "",
-          plan: Array.isArray(payload?.plan) ? payload.plan : [],
+          text: payload?.reply || payload?.headline || "One small action now. You’ve got this.",
+          focus: payload?.focus || payload?.kind || "",
+          plan: Array.isArray(payload?.plan)
+            ? payload.plan
+            : Array.isArray(payload?.actions)
+              ? payload.actions
+              : Array.isArray(payload?.nextSteps)
+                ? payload.nextSteps
+                : [],
           checkInMin: payload?.checkInMin || null,
-          nextPrompt: payload?.nextPrompt || "",
+          nextPrompt: payload?.nextPrompt || payload?.prompt || "",
+          keyMessages: Array.isArray(payload?.keyMessages)
+            ? payload.keyMessages
+            : payload?.summary
+              ? [payload.summary]
+              : [],
         },
       ]);
     } catch (e) {
-      setCoachError(e?.message || "Coach is unavailable right now.");
+      setCoachError(e?.message || "SYRA is unavailable right now.");
     } finally {
       setCoachTyping(false);
     }
@@ -560,10 +565,12 @@ export default function Dashboard() {
   const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
   const coachQuickPrompts = [
-    "Give me a 3-hour execution plan",
-    "I feel tired. Reset me",
-    "Plan my next workout",
-    "Help me hit calories tonight",
+    "Describe meal: protein yogurt and banana",
+    "Improve my task: need shopping help and maybe pharmacy too",
+    "I feel overwhelmed",
+    "Reset my day",
+    "Reset my week",
+    "What should I focus on today?",
   ];
 
   function setCoachPrompt(prompt) {
@@ -638,22 +645,15 @@ export default function Dashboard() {
           </div>
 
           <div className="dash-topbar-right">
-            <button className="icon-btn" type="button" aria-label="Timer">
-              ⏱
-            </button>
-            <button className="icon-btn" type="button" aria-label="Alerts">
-              🔔
-            </button>
-            <Link className="icon-btn" href="/settings" aria-label="Settings">
-              ⚙️
+            <Link className="dash-btn" href="/settings" aria-label="Settings">
+              Settings
             </Link>
-
             <button
               className="dash-btn"
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              AI Coach
+              SYRA
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
               Log food
@@ -699,7 +699,6 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* ✅ Controls: settings + logout */}
                 <div className="mini-user-actions">
                   <Link
                     className="mini-user-gear"
@@ -708,15 +707,6 @@ export default function Dashboard() {
                   >
                     ⚙️
                   </Link>
-                  <button
-                    className="mini-user-logout"
-                    type="button"
-                    onClick={handleLogout}
-                    aria-label="Log out"
-                    title="Log out"
-                  >
-                    ⎋
-                  </button>
                 </div>
               </div>
             </div>
@@ -1091,7 +1081,7 @@ export default function Dashboard() {
           <div className="coach-modal" onClick={() => setCoachOpen(false)}>
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
-                <div className="coach-title">AI Coach</div>
+                <div className="coach-title">SYRA</div>
                 <button
                   className="pill-btn"
                   type="button"
@@ -1123,6 +1113,13 @@ export default function Dashboard() {
                     ) : null}
                     {msg.role === "assistant" && msg.nextPrompt ? (
                       <div className="coach-meta">{msg.nextPrompt}</div>
+                    ) : null}
+                    {msg.role === "assistant" && Array.isArray(msg.keyMessages) && msg.keyMessages.length ? (
+                      <ul className="coach-planList">
+                        {msg.keyMessages.map((m, idx) => (
+                          <li key={`${i}-k-${idx}`}>{m}</li>
+                        ))}
+                      </ul>
                     ) : null}
                   </div>
                 ))}

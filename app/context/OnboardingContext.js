@@ -272,6 +272,39 @@ export function OnboardingProvider({ children }) {
     lastSavedJSON.current = "";
   }
 
+
+  // ---- Best-effort flush on tab hide / unload to reduce data-loss on fast logout or close
+  useEffect(() => {
+    if (!user || (isE2EMode && user?.uid === "e2e-user")) return;
+
+    const flushNow = async () => {
+      try {
+        await mergeUserProfile(user.uid, {
+          email: user.email || "",
+          updatedAt: serverTimestamp(),
+          data: sanitizeForFirestore(normalizeOnboardingData(data)),
+        });
+      } catch {
+        // silent best-effort flush
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flushNow();
+    };
+
+    const onBeforeUnload = () => {
+      flushNow();
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+  }, [data, user, isE2EMode]);
+
   const value = useMemo(
     () => ({ data, user, ready, updateField, updateAll, updateMany, resetAll }),
     [data, user, ready]

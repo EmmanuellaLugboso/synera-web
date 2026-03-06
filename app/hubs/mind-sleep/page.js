@@ -724,9 +724,9 @@ export default function Page() {
 
   return (
     <HubShell
-      title="Mind & Sleep"
+      title="Wellness"
       emoji="🫧"
-      subtitle="Journal + check-ins + sleep + patterns. Clean. Adult. Useful."
+      subtitle="Recover better. Stay emotionally aligned."
       rightMeta={(
         <>
           <div className="hub-badge-label">Today</div>

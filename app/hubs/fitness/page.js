@@ -874,6 +874,27 @@ export default function FitnessHub() {
     );
   }, [todaysCardio]);
 
+
+  const recentStepLogs = useMemo(() => {
+    return stepsLog
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 7);
+  }, [stepsLog]);
+
+  const weeklyStepsAvg = useMemo(() => {
+    if (!recentStepLogs.length) return 0;
+    const total = recentStepLogs.reduce((sum, row) => sum + safeNum(row?.steps), 0);
+    return Math.round(total / recentStepLogs.length);
+  }, [recentStepLogs]);
+
+  const weeklyCardioMinutes = useMemo(() => {
+    return cardioLogs
+      .slice(0, 7)
+      .reduce((sum, row) => sum + safeNum(row?.durationMin), 0);
+  }, [cardioLogs]);
+
+
   useEffect(() => {
     let cancelled = false;
 
@@ -931,8 +952,8 @@ export default function FitnessHub() {
     return (
       <HubShell
         className="fit2-page"
-        title="Fitness Hub"
-        subtitle="Strength, cardio, steps, and body metrics in one place."
+        title="Fitness"
+        subtitle="Train smarter. Track progress."
         emoji="🏋🏽"
       >
         <PageState type="loading" message="Loading your fitness hub…" />
@@ -944,8 +965,8 @@ export default function FitnessHub() {
     return (
       <HubShell
         className="fit2-page"
-        title="Fitness Hub"
-        subtitle="Strength, cardio, steps, and body metrics in one place."
+        title="Fitness"
+        subtitle="Train smarter. Track progress."
         emoji="🏋🏽"
       >
         <PageState type="loading" message="Redirecting to login…" />
@@ -956,31 +977,24 @@ export default function FitnessHub() {
   return (
     <HubShell
       className="fit2-page"
-      title="Fitness Hub"
-      subtitle="Pick one lane. No clutter."
+      title="Fitness"
+      subtitle="Train smarter. Track progress."
       rightMeta={<div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>Sync: {syncStatus}</div>}
-      topActions={
-        <div className="fit2-unit">
-          <button
-            className={`fit2-unitbtn ${unit === "kg" ? "active" : ""}`}
-            onClick={() => setUnit("kg")}
-            type="button"
-          >
-            kg
-          </button>
-          <button
-            className={`fit2-unitbtn ${unit === "lbs" ? "active" : ""}`}
-            onClick={() => setUnit("lbs")}
-            type="button"
-          >
-            lbs
-          </button>
-        </div>
-      }
     >
       {/* ========== HUB TILES ========== */}
       {screen === "hub" && (
         <div className="fit2-hubhome">
+          <div className="fit2-unitPanel">
+            <div>
+              <div className="fit2-unitLabel">Strength unit</div>
+              <div className="fit2-unitHint">Use the same unit across workout logging and body stats.</div>
+            </div>
+            <div className="fit2-unit">
+              <button className={`fit2-unitbtn ${unit === "kg" ? "active" : ""}`} onClick={() => setUnit("kg")} type="button">kg</button>
+              <button className={`fit2-unitbtn ${unit === "lbs" ? "active" : ""}`} onClick={() => setUnit("lbs")} type="button">lbs</button>
+            </div>
+          </div>
+
           {/* DAILY SUMMARY CARD */}
           <div className="fit2-dailyCard">
             <div className="fit2-dailyHeader">
@@ -1055,6 +1069,27 @@ export default function FitnessHub() {
               </div>
             </div>
           </div>
+
+          <section className="fit2-advancedGrid">
+            <article className="fit2-simpleCard fit2-advancedCard">
+              <div className="fit2-sectiontitle">Steps Intelligence</div>
+              <div className="fit2-advancedValue">{todaysSteps.toLocaleString()}</div>
+              <div className="fit2-recentsub">Today • {Math.round((todaysSteps / stepGoal) * 100) || 0}% of goal</div>
+              <div className="fit2-recentsub">7-day avg: {weeklyStepsAvg.toLocaleString()} steps • Streak: {streak} day(s)</div>
+            </article>
+            <article className="fit2-simpleCard fit2-advancedCard">
+              <div className="fit2-sectiontitle">Cardio Readiness</div>
+              <div className="fit2-advancedValue">{totalCardioMinutesToday} min</div>
+              <div className="fit2-recentsub">Today across {todaysCardio.length} session(s)</div>
+              <div className="fit2-recentsub">Last 7 logs total: {weeklyCardioMinutes} min</div>
+            </article>
+            <article className="fit2-simpleCard fit2-advancedCard">
+              <div className="fit2-sectiontitle">Body Snapshot</div>
+              <div className="fit2-advancedValue">{bmi ? bmi.toFixed(1) : "--"}</div>
+              <div className="fit2-recentsub">BMI • {bmiCategory(bmi)}</div>
+              <div className="fit2-recentsub">Height {heightCm || "--"} cm • Weight {d.weight || "--"} {unit}</div>
+            </article>
+          </section>
 
           <section className="fit2-featureSection">
             <div className="fit2-featureTitle">Training lanes</div>
