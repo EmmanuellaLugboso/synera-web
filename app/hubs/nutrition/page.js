@@ -470,7 +470,11 @@ export default function Page() {
       const res = await fetch(`/api/food/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error?.message || json?.error || "Food search failed");
-      const results = Array.isArray(json?.results) ? json.results : [];
+      const results = Array.isArray(json?.data?.results)
+        ? json.data.results
+        : Array.isArray(json?.results)
+          ? json.results
+          : [];
       setFoodSearchResults(results);
       if (!results.length) setFoodSearchError("No foods found for this search.");
     } catch (e) {
