@@ -8,6 +8,7 @@ import {
   collection,
   doc,
   documentId,
+  getDoc,
   getDocs,
   increment,
   limit,
@@ -474,23 +475,23 @@ export default function InsightsPage() {
     const dateISO = todayISO();
     const ref = doc(db, "users", authUser.uid, "daily", dateISO);
 
-    await setDoc(
-      ref,
-      {
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      await setDoc(ref, {
         date: dateISO,
         calories: 0,
         steps: 0,
-        waterMl: 0,
+        waterMl: 500,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-
-    await updateDoc(ref, {
-      waterMl: increment(500),
-      updatedAt: serverTimestamp(),
-    });
+      });
+    } else {
+      await updateDoc(ref, {
+        waterMl: increment(500),
+        updatedAt: serverTimestamp(),
+      });
+    }
 
     const fetched = await fetchLastNDaysDaily(authUser.uid, 30);
     setDays30(normalizeDailyTimeline(fetched, 30));
