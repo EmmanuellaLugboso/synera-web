@@ -16,6 +16,7 @@ import {
   THEME_OPTIONS,
   isValidTheme,
 } from "../lib/theme";
+import PageState from "../components/ui/PageState";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (!user) return <div className="settings-page">Redirecting to login…</div>;
+  if (!user) return <div className="settings-page"><PageState type="loading" message="Redirecting to login…" /></div>;
 
   return (
     <div className="settings-page">

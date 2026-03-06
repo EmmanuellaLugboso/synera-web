@@ -16,41 +16,24 @@
 * {
   box-sizing: border-box;
 }
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
+.fit2-page {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 18px 18px 64px;
   color: var(--text);
-  background:
-    radial-gradient(
-      900px 600px at 10% 0%,
-      rgba(255, 79, 154, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 600px at 90% 10%,
-      rgba(255, 79, 154, 0.045),
-      transparent 55%
-    ),
-    var(--bg);
   font-family:
+    "Inter",
+    "SF Pro Text",
+    "SF Pro Display",
     ui-sans-serif,
     system-ui,
     -apple-system,
     Segoe UI,
     Roboto,
-    Arial,
-    "Apple Color Emoji",
-    "Segoe UI Emoji";
-}
-
-.fit2-page {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 18px 14px 64px;
+    Helvetica,
+    Arial;
 }
 
 .fit2-topbar {
@@ -64,7 +47,7 @@ body {
 .fit2-back {
   text-decoration: none;
   color: var(--text);
-  font-weight: 900;
+  font-weight: 600;
   font-size: 14px;
   padding: 10px 12px;
   border-radius: 999px;
@@ -89,7 +72,7 @@ body {
   cursor: pointer;
   border-radius: 999px;
   padding: 8px 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-unitbtn.active {
@@ -105,7 +88,7 @@ body {
 }
 .fit2-kicker {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--muted);
@@ -113,7 +96,7 @@ body {
 .fit2-h1 {
   margin: 6px 0 6px;
   font-size: 28px;
-  font-weight: 1000;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 .fit2-muted {
@@ -147,20 +130,20 @@ body {
 }
 .fit2-dailyLabel {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 .fit2-dailyDate {
   font-size: 18px;
-  font-weight: 1100;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
 .fit2-dailyBadge {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   padding: 8px 12px;
   border-radius: 999px;
   color: var(--card);
@@ -196,13 +179,13 @@ body {
 }
 .fit2-dailyValue {
   font-size: 22px;
-  font-weight: 1000;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 .fit2-dailyText {
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: rgba(65, 66, 77, 0.7);
 }
 
@@ -234,7 +217,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #767684;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 /* Tile grid */
@@ -287,7 +270,7 @@ body {
 }
 .fit2-tileBadge {
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color: #6c6c77;
   padding: 6px 10px;
   border-radius: 999px;
@@ -300,7 +283,7 @@ body {
 }
 .fit2-tileTitle {
   font-size: 16px;
-  font-weight: 1100;
+  font-weight: 700;
   margin-bottom: 3px;
 }
 .fit2-tileSub {
@@ -329,7 +312,7 @@ body {
   padding: 14px;
   box-shadow: var(--shadow2);
   backdrop-filter: blur(12px);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -340,7 +323,7 @@ body {
   border-radius: 18px;
   height: 42px;
   padding: 0 16px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--card);
   background: linear-gradient(135deg, #ea5c9f, #d84f92);
   box-shadow:
@@ -374,7 +357,7 @@ body {
   cursor: pointer;
   border-radius: 12px;
   padding: 10px 12px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 /* Sections */
@@ -386,7 +369,7 @@ body {
 }
 .fit2-sectiontitle {
   font-size: 12px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -394,7 +377,7 @@ body {
 }
 .fit2-subtitle {
   font-size: 13px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   margin: 10px 0;
 }
@@ -426,17 +409,17 @@ body {
   box-shadow: var(--shadow2);
 }
 .fit2-recenttitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-recentsub {
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-recentpill {
   font-size: 12px;
-  font-weight: 1100;
+  font-weight: 700;
   padding: 7px 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -461,11 +444,11 @@ body {
   border-radius: 12px;
   padding: 8px 10px;
   cursor: pointer;
-  font-weight: 1000;
+  font-weight: 700;
 }
 .fit2-callabel {
   font-size: 13px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
 }
 
@@ -477,7 +460,7 @@ body {
 }
 .fit2-caldayhead {
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   text-align: center;
 }
@@ -502,7 +485,7 @@ body {
   border-color: rgba(255, 79, 154, 0.25);
 }
 .fit2-calnum {
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 12px;
 }
 .fit2-caldot {
@@ -537,7 +520,7 @@ body {
 }
 .fit2-timervalue {
   font-size: 18px;
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-timerbtns {
   display: flex;
@@ -550,7 +533,7 @@ body {
   cursor: pointer;
   border-radius: 14px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--card);
   background: linear-gradient(135deg, #111, #333);
 }
@@ -570,7 +553,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   padding: 12px 12px;
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 14px;
   outline: none;
 }
@@ -588,7 +571,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 14px;
   padding: 10px 12px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fit2-addex {
@@ -598,7 +581,7 @@ body {
   cursor: pointer;
   border-radius: 16px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--card);
   background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
@@ -610,7 +593,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 16px;
   padding: 12px 14px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -639,14 +622,14 @@ body {
   width: 100%;
   border: none;
   outline: none;
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 15px;
   padding: 10px 0;
   background: transparent;
 }
 .fit2-lastline {
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
   margin-top: 2px;
 }
@@ -658,7 +641,7 @@ body {
 .fit2-pr {
   margin-left: 8px;
   font-size: 11px;
-  font-weight: 1100;
+  font-weight: 700;
   padding: 4px 8px;
   border-radius: 999px;
   background: rgba(255, 79, 154, 0.14);
@@ -675,7 +658,7 @@ body {
 }
 .fit2-tag {
   font-size: 11px;
-  font-weight: 1100;
+  font-weight: 700;
   padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -695,7 +678,7 @@ body {
   cursor: pointer;
   padding: 8px 10px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   background: transparent;
 }
@@ -712,7 +695,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   padding: 10px 12px;
-  font-weight: 800;
+  font-weight: 600;
   outline: none;
   min-height: 56px;
   resize: vertical;
@@ -725,7 +708,7 @@ body {
   grid-template-columns: 42px 1fr 1fr 1fr 48px 40px;
   gap: 8px;
   font-size: 11px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -738,7 +721,7 @@ body {
   align-items: center;
 }
 .fit2-setnum {
-  font-weight: 1100;
+  font-weight: 700;
   text-align: center;
   color: var(--muted);
 }
@@ -749,7 +732,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 14px;
   padding: 10px 10px;
-  font-weight: 900;
+  font-weight: 600;
   outline: none;
 }
 .fit2-done {
@@ -757,7 +740,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 14px;
   padding: 10px 0;
-  font-weight: 1100;
+  font-weight: 700;
   cursor: pointer;
 }
 .fit2-done.on {
@@ -769,7 +752,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 14px;
   padding: 10px 0;
-  font-weight: 1100;
+  font-weight: 700;
   cursor: pointer;
 }
 .fit2-exfooter {
@@ -804,12 +787,12 @@ body {
   box-shadow: var(--shadow2);
 }
 .fit2-templatetitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-templatelist {
   margin-top: 6px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-templatemeta {
@@ -818,7 +801,7 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-dot {
@@ -858,7 +841,7 @@ body {
   padding-bottom: 10px;
 }
 .fit2-modaltitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-search {
   width: 100%;
@@ -867,7 +850,7 @@ body {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 16px;
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline: none;
 }
 .fit2-addcustom {
@@ -877,7 +860,7 @@ body {
   cursor: pointer;
   border-radius: 16px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--card);
   background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
@@ -907,18 +890,18 @@ body {
   gap: 10px;
 }
 .fit2-listname {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-listsub {
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-historyline {
   margin-top: 6px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-qmark {
@@ -930,7 +913,7 @@ body {
   justify-content: center;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.7);
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-uselast {
   width: 120px;
@@ -938,7 +921,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 20px;
   cursor: pointer;
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-input {
   width: 100%;
@@ -946,7 +929,7 @@ body {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline: none;
 }
 
@@ -954,7 +937,7 @@ body {
 .fit2-syncStatus {
   margin-top: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -986,14 +969,14 @@ body {
 
 .fit2-weeklyLabel {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .fit2-weeklyValue {
   margin-top: 4px;
   font-size: 18px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .fit2-templatetop {
@@ -1009,14 +992,14 @@ body {
   border-radius: 999px;
   padding: 4px 8px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .fit2-progressionTip {
   margin-top: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
