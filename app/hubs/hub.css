@@ -4,16 +4,24 @@
 ============================= */
 
 .hub-page{
-  min-height: 100vh;
   background:
     radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 62%),
     radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%),
     var(--bg);
-  padding: 18px;
-  max-width: 1120px;
-  margin: 0 auto;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  width: 100%;
+  min-height: 100vh;
+  padding: 18px 18px 64px;
+  max-width: none;
+  margin: 0;
+  font-family: "Inter", "SF Pro Text", "SF Pro Display", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
+}
+
+
+.hub-page > * {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hub-topbar{
@@ -36,7 +44,7 @@
 
 .back-link{
   text-decoration:none;
-  font-weight: 900;
+  font-weight: 600;
   color:var(--text);
   background:var(--card);
   border:1px solid color-mix(in srgb, var(--text) 10%, transparent);
@@ -57,7 +65,7 @@
 .hub-title{
   margin: 0;
   font-size: 26px;
-  font-weight: 1100;
+  font-weight: 700;
   letter-spacing: -0.2px;
 }
 
@@ -69,7 +77,7 @@
   margin-top: 8px;
   font-size: 13px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.35;
 }
 
@@ -85,7 +93,7 @@
 
 .hub-badge-label{
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--accent);
   letter-spacing: 0.4px;
 }
@@ -93,7 +101,7 @@
 .hub-badge-value{
   margin-top: 4px;
   font-size: 20px;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .stats-grid{
@@ -119,7 +127,7 @@
 }
 
 .stat-label{
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 13px;
 }
 
@@ -128,7 +136,7 @@
   border:1px solid var(--border);
   padding: 6px 10px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 12px;
   color:#555;
 }
@@ -136,14 +144,14 @@
 .stat-value{
   margin-top: 12px;
   font-size: 22px;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .stat-sub{
   margin-top: 8px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .hub-section{
@@ -159,7 +167,7 @@
 }
 
 .hub-section-title{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 15px;
 }
 
@@ -167,7 +175,7 @@
   margin-top: 6px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .form-grid{
@@ -184,7 +192,7 @@
 
 .form-label{
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   color:#555;
 }
 
@@ -193,7 +201,7 @@
   background:var(--card2);
   border-radius: 14px;
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -205,7 +213,7 @@
 .tiny-note{
   font-size: 11px;
   color:#888;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .row{
@@ -226,7 +234,7 @@
   border: none;
   border-radius: 14px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
   color:var(--card);
   background: linear-gradient(135deg, #FF8AC7, var(--accent));
@@ -239,7 +247,7 @@
   background:var(--card);
   border-radius: 14px;
   padding: 12px 14px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 
@@ -260,7 +268,7 @@
   background:var(--card);
   padding: 12px 14px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
@@ -283,7 +291,7 @@
   background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -313,14 +321,14 @@
 }
 
 .nutri-logname{
-  font-weight: 1100;
+  font-weight: 700;
 }
 
 .nutri-logsub{
   margin-top: 6px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nutri-del{
@@ -330,7 +338,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .nutri-del:hover{
@@ -344,7 +352,7 @@
   background:var(--card2);
   border-radius: 999px;
   padding: 8px 12px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .nutri-miniinput{
@@ -353,13 +361,13 @@
   background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
 .nutri-muted{
   color:var(--muted);
-  font-weight: 900;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -375,7 +383,7 @@
   padding: 8px 12px;
   border-radius: 999px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 .mini-btn:hover { opacity: 0.92; }
@@ -402,7 +410,7 @@
 
 .fit2-back{
   text-decoration:none;
-  font-weight:900;
+  font-weight:600;
   color:var(--text);
   background:var(--card);
   border:1px solid var(--border);
@@ -421,7 +429,7 @@
   background:var(--card);
   padding:10px 14px;
   border-radius: 999px;
-  font-weight: 900;
+  font-weight: 600;
   cursor: pointer;
 }
 .fit2-unitbtn.active{
@@ -444,14 +452,14 @@
 
 .fit2-kicker{
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color:var(--accent);
   letter-spacing: 0.4px;
 }
 .fit2-h1{
   margin: 6px 0 0;
   font-size: 28px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .fit2-muted{
@@ -495,7 +503,7 @@
   background:#FFE3EF;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   color:var(--accent);
-  font-weight: 900;
+  font-weight: 600;
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
@@ -504,7 +512,7 @@
 .fit2-tileTitle{
   margin-top: 10px;
   font-size: 16px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 .fit2-tileSub{
   margin-top: 6px;
@@ -528,7 +536,7 @@
 
 .fit2-sectiontitle{
   font-size: 16px;
-  font-weight: 1000;
+  font-weight: 700;
   margin-bottom: 10px;
 }
 
@@ -537,7 +545,7 @@
   padding: 14px 16px;
   border-radius: 16px;
   border: none;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   color: var(--card);
   background: linear-gradient(135deg, #FF8AC7, var(--accent));
@@ -564,7 +572,7 @@
   background:var(--card);
   padding: 10px 14px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
@@ -575,7 +583,7 @@
 
 .fit2-subtitle{
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   color:var(--muted);
   margin: 8px 0 10px;
 }
@@ -601,7 +609,7 @@
 }
 
 .fit2-templatetitle{
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 15px;
 }
 .fit2-templatelist{
@@ -618,7 +626,7 @@
   gap: 8px;
   font-size: 12px;
   color:#888;
-  font-weight: 800;
+  font-weight: 600;
 }
 .fit2-dot{
   width: 8px;
@@ -648,12 +656,12 @@
   border-radius: 12px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 
 .fit2-callabel{
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 14px;
 }
 
@@ -667,7 +675,7 @@
 .fit2-caldayhead{
   text-align:center;
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--muted);
   padding: 6px 0;
 }
@@ -696,7 +704,7 @@
   position:absolute;
   top: 10px;
   left: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 13px;
 }
 
@@ -718,7 +726,7 @@
   padding: 14px 16px;
   border-radius: 16px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .fit2-recentlist{
@@ -739,7 +747,7 @@
   box-shadow: 0 10px 22px rgba(0,0,0,0.05);
 }
 
-.fit2-recenttitle{ font-weight: 1000; }
+.fit2-recenttitle{ font-weight: 700; }
 .fit2-recentsub{
   margin-top: 6px;
   font-size: 13px;
@@ -752,7 +760,7 @@
   background:var(--card2);
   padding: 8px 10px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 12px;
 }
 
@@ -772,7 +780,7 @@
   border-radius: 14px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 
@@ -790,7 +798,7 @@
 }
 
 .fit2-timervalue{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 18px;
 }
 
@@ -804,7 +812,7 @@
   border:none;
   border-radius: 14px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
   color:var(--card);
   background: linear-gradient(135deg, #FF8AC7, var(--accent));
@@ -822,7 +830,7 @@
 .fit2-titleinput{
   width:100%;
   font-size: 18px;
-  font-weight: 1100;
+  font-weight: 700;
   border:none;
   outline:none;
 }
@@ -845,7 +853,7 @@
   border:none;
   outline:none;
   background:transparent;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fit2-addex{
@@ -855,7 +863,7 @@
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   background:var(--card2);
-  font-weight: 1100;
+  font-weight: 700;
   color:var(--accent);
   cursor:pointer;
 }
@@ -867,7 +875,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 
@@ -897,20 +905,20 @@
   border:none;
   outline:none;
   font-size: 16px;
-  font-weight: 1100;
+  font-weight: 700;
 }
 
 .fit2-lastline{
   margin-top: 8px;
   font-size: 12px;
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fit2-divider{
   margin: 0 6px;
   color:#bbb;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fit2-tag{
@@ -919,7 +927,7 @@
   border-radius: 999px;
   background:var(--card2);
   border: 1px solid var(--border);
-  font-weight: 900;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -941,7 +949,7 @@
   background:var(--card);
   border-radius: 999px;
   padding: 8px 12px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 .fit2-modebtn.active{
@@ -969,7 +977,7 @@
   grid-template-columns: 42px 1fr 1fr 1fr 42px 42px;
   gap: 8px;
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--muted);
 }
 
@@ -982,7 +990,7 @@
 }
 
 .fit2-setnum{
-  font-weight: 1100;
+  font-weight: 700;
   text-align:center;
 }
 
@@ -991,7 +999,7 @@
   background:var(--card);
   border-radius: 12px;
   padding: 10px 10px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -1000,7 +1008,7 @@
   background:var(--card);
   border-radius: 12px;
   padding: 10px 10px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -1011,7 +1019,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
 }
 .fit2-done.on{
   border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
@@ -1026,7 +1034,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .fit2-exfooter{
@@ -1063,7 +1071,7 @@
 }
 
 .fit2-modaltitle{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 16px;
 }
 
@@ -1073,7 +1081,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
@@ -1086,7 +1094,7 @@
   border: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border));
   background: var(--card2);
   color: var(--accent);
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 
@@ -1124,21 +1132,21 @@
 }
 
 .fit2-listname{
-  font-weight: 1100;
+  font-weight: 700;
 }
 
 .fit2-listsub{
   margin-top: 5px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .fit2-historyline{
   margin-top: 6px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fit2-qmark{
@@ -1149,7 +1157,7 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .fit2-uselast{
@@ -1160,7 +1168,7 @@
   border-radius: 999px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 13px;
   cursor:pointer;
   box-shadow: 0 10px 22px rgba(0,0,0,0.06);
@@ -1177,7 +1185,7 @@
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   color:var(--accent);
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -1203,14 +1211,14 @@
   border-radius: 14px;
   border: 1px solid var(--border);
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
 
 .fit2-small{
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color:var(--muted);
 }
 
@@ -1239,7 +1247,7 @@
   background:var(--card);
   padding: 12px 14px;
   border-radius: 999px;
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
   display:flex;
@@ -1256,7 +1264,7 @@
 
 .life-tabmeta{
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color:var(--muted);
 }
 
@@ -1280,7 +1288,7 @@
   background:var(--card);
   border-radius: 14px;
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -1314,7 +1322,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
   flex:0 0 auto;
 }
 
@@ -1336,7 +1344,7 @@
 }
 
 .life-title{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 14px;
   color:var(--text);
 }
@@ -1356,13 +1364,13 @@
 
 .life-sub.small{
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .life-dot{
   margin: 0 6px;
   color:#bbb;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .life-badge{
@@ -1373,7 +1381,7 @@
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   color:var(--accent);
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -1422,7 +1430,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
   flex:0 0 auto;
 }
 
@@ -1444,7 +1452,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
@@ -1472,7 +1480,7 @@
 }
 
 .life-goaltitle{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 15px;
 }
 
@@ -1511,7 +1519,7 @@
   align-items:center;
   justify-content:space-between;
   gap: 10px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .life-inline{
@@ -1595,7 +1603,7 @@
 
 .life-kicker{
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--accent);
   letter-spacing: .3px;
 }
@@ -1603,14 +1611,14 @@
 .life-score{
   margin-top: 6px;
   font-size: 30px;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .life-scorepill{
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   background:var(--card2);
   color:var(--accent);
-  font-weight: 1000;
+  font-weight: 700;
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 12px;
@@ -1633,7 +1641,7 @@
   border-radius: 14px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
 }
 
@@ -1684,7 +1692,7 @@
 }
 
 .life-routinetitle{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 15px;
 }
 
@@ -1702,7 +1710,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
@@ -1712,7 +1720,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
@@ -1736,7 +1744,7 @@
 }
 
 .chev {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 18px;
   color: #1c1c1e;
   min-width: 24px;
@@ -1770,7 +1778,7 @@
 }
 
 .meal-title {
-  font-weight: 900;
+  font-weight: 600;
   font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
@@ -1923,4 +1931,22 @@
   background: var(--card-soft);
   color: var(--text-primary);
   border-color: var(--border);
+}
+
+
+.ui-min-tap{min-height:44px;}
+
+
+@media (max-width: 640px) {
+  .hub-topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ghost-btn,
+  .back-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
