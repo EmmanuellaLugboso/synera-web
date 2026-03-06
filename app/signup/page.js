@@ -20,6 +20,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 
 export default function SignupPage() {
+  const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
   const router = useRouter();
 
   const [email, setEmail] = useState("");

@@ -1,8 +1,8 @@
-/* Mind & Sleep (ms3) — dedicated CSS (do NOT put in hub.css) */
+/* Mind & Sleep (ms3) — uses unified design tokens from globals.css */
 
 .ms3-tabs{
   display:flex;
-  gap:10px;
+  gap: var(--space-xs);
   margin: 6px 0 14px;
 }
 .ms3-tab{
@@ -13,12 +13,13 @@
   border-radius: 999px;
   font-weight: 700;
   cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
 }
 .ms3-tab.active{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 .ms3-toprow{
@@ -40,21 +41,29 @@
   padding: 12px 14px;
   font-weight: 700;
   cursor:pointer;
-  color:var(--card);
-  background: linear-gradient(135deg, #FF8AC7, var(--accent));
-  box-shadow: 0 12px 26px rgba(255, 79, 154, 0.20);
+  color: white;
+  background: var(--accent);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
 }
-.ms3-primary:hover{ opacity: .95; }
+.ms3-primary:hover{
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
 
 .ms3-search{
   width:100%;
-  margin-top: 12px;
-  border-radius: 16px;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 600;
   outline:none;
-  background:var(--card2);
+  background: var(--card2);
+  transition: all 150ms ease;
+}
+.ms3-search:focus {
+  border-color: var(--accent);
 }
 
 .ms3-row{
@@ -98,17 +107,18 @@
 }
 .ms3-scorebtn{
   height: 40px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background:var(--card);
   font-weight: 700;
   cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
 }
 .ms3-scorebtn.active{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 @media (max-width: 420px){
   .ms3-scoregrid{ grid-template-columns: repeat(6, 1fr); }
@@ -117,11 +127,11 @@
 /* Cards / list rows */
 .ms3-card{
   border: 1px solid var(--border);
-  background:var(--card);
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
-  margin-top: 12px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-soft);
+  margin-top: var(--space-sm);
 }
 .ms3-list{
   display:flex;
@@ -131,11 +141,11 @@
 }
 .ms3-item{
   border: 1px solid var(--border);
-  background:var(--card);
-  border-radius: 16px;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   display:flex;
-  gap: 10px;
+  gap: var(--space-xs);
   overflow:hidden;
 }
 .ms3-itemMain{
@@ -150,7 +160,7 @@
   font-weight: 700;
   display:flex;
   align-items:center;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 .ms3-sub{
   margin-top: 6px;
@@ -173,21 +183,21 @@
 .ms3-iconbtn{
   width: 40px;
   height: 40px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background:var(--card);
+  background: var(--card);
   cursor:pointer;
   font-weight: 600;
 }
 .ms3-iconbtn:hover{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 .ms3-iconbtn.danger:hover{
-  border-color:#FFD0E1;
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 .ms3-badge{
@@ -211,13 +221,17 @@
 }
 .ms3-taginput{
   flex: 1;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 600;
   outline:none;
-  background:var(--card2);
+  background: var(--card2);
   min-width: 220px;
+  transition: all 150ms ease;
+}
+.ms3-taginput:focus {
+  border-color: var(--accent);
 }
 .ms3-tags{
   display:flex;
@@ -232,11 +246,12 @@
   padding: 8px 12px;
   font-weight: 700;
   cursor:pointer;
+  transition: all 150ms ease;
 }
 .ms3-tag:hover{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 /* Modal */
@@ -253,10 +268,10 @@
 .ms3-modalCard{
   width: 100%;
   max-width: 740px;
-  background:var(--card);
-  border-radius: 22px;
-  padding: 14px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
 }
 .ms3-modalTop{
   display:flex;
@@ -272,25 +287,33 @@
 
 .ms3-input{
   width:100%;
-  margin-top: 10px;
-  border-radius: 16px;
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 700;
   outline:none;
-  background:var(--card2);
+  background: var(--card2);
+  transition: all 150ms ease;
+}
+.ms3-input:focus {
+  border-color: var(--accent);
 }
 .ms3-textarea{
   width:100%;
-  margin-top: 10px;
-  border-radius: 16px;
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   padding: 12px 14px;
   font-weight: 600;
   outline:none;
-  background:var(--card2);
+  background: var(--card2);
   min-height: 160px;
   resize: vertical;
+  transition: all 150ms ease;
+}
+.ms3-textarea:focus {
+  border-color: var(--accent);
 }
 
 .ms3-grid2{
@@ -319,9 +342,9 @@
 .ms3-calBtn{
   width: 40px;
   height: 40px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background:var(--card);
+  background: var(--card);
   cursor:pointer;
   font-weight: 700;
 }
@@ -344,14 +367,15 @@
 .ms3-calCell{
   position: relative;
   height: 52px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  background:var(--card);
+  background: var(--card);
   cursor:pointer;
+  transition: all 150ms ease;
 }
 .ms3-calCell:hover{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
+  border-color: var(--accent);
+  background: var(--accentSoft);
 }
 .ms3-calCell.empty{
   border:none;
@@ -359,8 +383,9 @@
   cursor:default;
 }
 .ms3-calCell.selected{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 .ms3-calNum{
   position:absolute;
@@ -401,12 +426,13 @@
   padding: 10px 12px;
   font-weight: 700;
   cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
 }
 .ms3-pillbtn.active{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 .ms3-miniinput{
   width: 92px;
@@ -416,6 +442,10 @@
   padding: 10px 12px;
   font-weight: 600;
   outline:none;
+  transition: all 150ms ease;
+}
+.ms3-miniinput:focus {
+  border-color: var(--accent);
 }
 .ms3-toggle{
   border: 1px solid var(--border);
@@ -424,12 +454,13 @@
   border-radius: 999px;
   font-weight: 700;
   cursor:pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
+  transition: all 150ms ease;
 }
 .ms3-toggle.on{
-  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
-  background:var(--card2);
-  color:var(--accent);
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 /* Export */

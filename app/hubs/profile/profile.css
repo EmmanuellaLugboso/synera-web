@@ -50,7 +50,7 @@
   padding: 12px 20px;
   font-weight: 600;
   cursor:pointer;
-  transition: 0.2s ease;
+  transition: all 150ms ease;
 }
 
 .pro-edit:hover{
@@ -64,8 +64,8 @@
 .pro-card{
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   padding: 30px;
   margin-bottom: 24px;
 }
@@ -127,8 +127,8 @@
 .pro-wide{
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   padding: 24px;
 }
 
@@ -224,6 +224,13 @@
   padding: 10px 14px;
   font-weight: 600;
   cursor:pointer;
+  transition: all 150ms ease;
+}
+
+.pro-photoBtn:hover {
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--accent);
 }
 
 .pro-photoBtn:disabled{
