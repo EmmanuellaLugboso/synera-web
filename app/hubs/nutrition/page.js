@@ -367,6 +367,11 @@ export default function Page() {
   const [quickP, setQuickP] = useState("");
   const [quickC, setQuickC] = useState("");
   const [quickF, setQuickF] = useState("");
+  const [foodSearchQ, setFoodSearchQ] = useState("");
+  const [foodSearchLoading, setFoodSearchLoading] = useState(false);
+  const [foodSearchError, setFoodSearchError] = useState("");
+  const [foodSearchResults, setFoodSearchResults] = useState([]);
+  const [foodSearchSource, setFoodSearchSource] = useState("");
 
   const scopedDates = useMemo(() => {
     if (scope !== "week") return [date];
@@ -451,6 +456,42 @@ export default function Page() {
     totals.fatG,
     data?.waterLitres,
   ]);
+
+  async function searchFoodDatabase() {
+    const q = foodSearchQ.trim();
+    if (!q) {
+      setFoodSearchResults([]);
+      setFoodSearchError("");
+      return;
+    }
+
+    setFoodSearchLoading(true);
+    setFoodSearchError("");
+    try {
+      const res = await fetch(`/api/food/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error?.message || json?.error || "Food search failed");
+      const results = Array.isArray(json?.results) ? json.results : [];
+      setFoodSearchResults(results);
+      setFoodSearchSource(String(json?.source || ""));
+      if (!results.length) setFoodSearchError("No foods found for this search.");
+    } catch (e) {
+      setFoodSearchError(e?.message || "Food search failed");
+      setFoodSearchResults([]);
+    } finally {
+      setFoodSearchLoading(false);
+    }
+  }
+
+  function applyFoodResult(result) {
+    if (!result) return;
+    setQuickName(result.description || result.brandName || "Food");
+    setQuickServings("1");
+    setQuickCals(String(Math.round(clampNumber(result.calories))));
+    setQuickP(String(Math.round(clampNumber(result.protein))));
+    setQuickC(String(Math.round(clampNumber(result.carbs))));
+    setQuickF(String(Math.round(clampNumber(result.fat))));
+  }
 
   function addQuickFoodManual() {
     const name = quickName.trim();
@@ -904,9 +945,9 @@ export default function Page() {
   return (
     <HubShell
       className="nutri-page"
-      title="Nutrition Hub"
+      title="Nutrition"
       emoji="🥗"
-      subtitle="Track food, hydration, recipes, and supplements."
+      subtitle="Fuel your body with intention."
       rightMeta={(
         <div className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}>
           <div className="nutri-badgeLabel">Hydration</div>
@@ -1015,6 +1056,7 @@ export default function Page() {
                   {syncMessage ? <div className="nutri-tiny nutri-over">{syncMessage}</div> : null}
                 </div>
 
+                <div className="nutri-layoutLabel section-title">Daily Snapshot</div>
                 <div className="nutri-grid2">
                   <div className="nutri-card nutri-card-metric">
                     <div className="nutri-cardTop">
@@ -1058,6 +1100,7 @@ export default function Page() {
                   </div>
                 </div>
 
+                <div className="nutri-layoutLabel section-title">Primary Action</div>
                 <div className="nutri-actions nutri-actions-main">
                   <button
                     className="nutri-primary nutri-primary-main"
@@ -1366,7 +1409,7 @@ export default function Page() {
                 <Modal
                   open={logFoodOpen}
                   onClose={() => setLogFoodOpen(false)}
-                  title="Log Food (Manual)"
+                  title="Log Food"
                 >
                   <div className="nutri-row">
                     <select
@@ -1379,6 +1422,45 @@ export default function Page() {
                       <option value="dinner">Dinner</option>
                       <option value="snack">Snack</option>
                     </select>
+                  </div>
+
+                  <div className="nutri-card" style={{ marginTop: 12 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Food database search</div>
+                      <div className="nutri-chip">USDA / OFF</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={foodSearchQ}
+                        onChange={(e) => setFoodSearchQ(e.target.value)}
+                        placeholder="Search foods (e.g. banana, oats, chicken breast)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={searchFoodDatabase}>
+                        Search
+                      </button>
+                    </div>
+                    {foodSearchLoading ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Searching…</div> : null}
+                    {foodSearchError ? <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>{foodSearchError}</div> : null}
+                    {foodSearchSource ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Data source: {foodSearchSource === "usda" ? "USDA FoodData Central" : "OpenFoodFacts fallback"}</div> : null}
+                    {foodSearchResults.length ? (
+                      <div className="nutri-list" style={{ marginTop: 10, maxHeight: 200, overflow: 'auto' }}>
+                        {foodSearchResults.slice(0, 8).map((r) => (
+                          <button
+                            key={r.id}
+                            type="button"
+                            className="nutri-listRow"
+                            onClick={() => applyFoodResult(r)}
+                          >
+                            <div>
+                              <div className="nutri-rowName">{r.description}</div>
+                              <div className="nutri-rowSub">{Math.round(clampNumber(r.calories))} kcal • P {Math.round(clampNumber(r.protein))}g • C {Math.round(clampNumber(r.carbs))}g • F {Math.round(clampNumber(r.fat))}g</div>
+                            </div>
+                            <div className="nutri-plus">Use</div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="nutri-grid2" style={{ marginTop: 12 }}>

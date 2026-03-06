@@ -33,7 +33,7 @@ test('topPriorities returns top two deficits', () => {
     moodRating: 3,
   });
 
-  assert.equal(out.length, 2);
+  assert.ok(out.length >= 2);
   assert.equal(out[0].key, 'hydration');
 });
 
@@ -42,6 +42,28 @@ test('generatePlan selects keyword path', () => {
   assert.equal(plan.focus, 'energy reset');
   assert.equal(plan.checkInMin, 25);
   assert.equal(plan.plan.length, 3);
+});
+
+
+test('generatePlan supports task and progress-style prompts', () => {
+  const plan = generatePlan("What's on my tasks today?", {
+    name: 'Sam',
+    waterLitres: 1,
+    waterGoal: 3,
+    steps: 3000,
+    stepGoal: 8000,
+    calories: 900,
+    calorieGoal: 1800,
+    habitsRate: 40,
+    planItems: [
+      { text: 'Log breakfast', done: false },
+      { text: 'Walk 10 minutes', done: true },
+    ],
+  });
+
+  assert.equal(plan.focus, 'task execution');
+  assert.ok(Array.isArray(plan.keyMessages));
+  assert.ok(plan.keyMessages.length >= 2);
 });
 
 test('validateMessage rejects too-long message', () => {

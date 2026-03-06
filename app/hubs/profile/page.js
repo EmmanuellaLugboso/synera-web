@@ -5,15 +5,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { updateProfile } from "firebase/auth";
 
-import { auth, storage } from "../../firebase/config";
+import { auth } from "../../firebase/config";
 import PageState from "../../components/ui/PageState";
 import HubShell from "../../components/hub/HubShell";
 import {
   getUserProfile,
   ensureUserProfile,
   updateUserProfile,
+  uploadUserAvatar,
 } from "../../services/userService";
 
 export default function ProfileHub() {
@@ -44,11 +45,17 @@ export default function ProfileHub() {
         return;
       }
 
-      // Create doc if missing, then load
-      const ensured = await ensureUserProfile(u);
-      setProfile(ensured);
-      setDraft(ensured);
-      setLoading(false);
+      try {
+        // Create doc if missing, then load
+        const ensured = await ensureUserProfile(u);
+        setProfile(ensured);
+        setDraft(ensured);
+      } catch {
+        setProfile(null);
+        setDraft(null);
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsub();
@@ -104,36 +111,16 @@ export default function ProfileHub() {
 
     setUploadError("");
     setUploadSuccess("");
-
-    if (!file.type.startsWith("image/")) {
-      setUploadError("Please choose an image file.");
-      e.target.value = "";
-      return;
-    }
-
-    const maxBytes = 5 * 1024 * 1024;
-    if (file.size > maxBytes) {
-      setUploadError("Image is too large. Please upload up to 5MB.");
-      e.target.value = "";
-      return;
-    }
-
     setUploading(true);
     try {
-      // store in: avatars/{uid}-{ts}.ext
-      const ext = file.name.split(".").pop() || "jpg";
-      const fileRef = ref(storage, `avatars/${userAuth.uid}-${Date.now()}.${ext}`);
+      const { photoURL } = await uploadUserAvatar(userAuth.uid, file);
 
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-
-      // update UI immediately
-      const nextDraft = { ...(draft || profile), photoURL: url };
+      const nextDraft = { ...(draft || profile), photoURL };
       setDraft(nextDraft);
-      setProfile((p) => ({ ...(p || {}), photoURL: url }));
+      setProfile((p) => ({ ...(p || {}), photoURL }));
+      await updateProfile(userAuth, { photoURL });
 
-      // persist
-      await updateUserProfile(userAuth.uid, { photoURL: url, updatedAt: Date.now() });
+      await updateUserProfile(userAuth.uid, { photoURL, updatedAt: Date.now() });
       setUploadSuccess("Profile photo updated.");
     } catch (err) {
       setUploadError(err?.message || "Failed to upload photo. Try again.");
@@ -232,7 +219,7 @@ export default function ProfileHub() {
 
         <div className="pro-stat">
           <div className="pro-label">Focus</div>
-          <div className="pro-value">{profile.focus || "—"}</div>
+          <div className="pro-value">{Array.isArray(profile.focus) ? (profile.focus.join(", ") || "—") : (profile.focus || "—")}</div>
         </div>
       </div>
 
