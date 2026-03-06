@@ -150,7 +150,7 @@ export default function Dashboard() {
   const [coachMessages, setCoachMessages] = useState([
     {
       role: "assistant",
-      text: "Hey — I’m your Synera Assistant. I can help with tasks, habits, goals, planning, and progress.",
+      text: "Hey — I’m your SYRA. I can help with tasks, habits, goals, planning, and progress.",
       focus: "daily alignment",
       plan: ["Check open tasks", "Close one quick win", "Plan your next check-in"],
       keyMessages: ["Ask: What should I focus on today?", "Ask: Where am I falling behind this week?"],
@@ -500,7 +500,7 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/coach", {
+      const res = await fetch("/api/syra", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -523,29 +523,40 @@ export default function Dashboard() {
                     100,
                 )
               : 0,
-            planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
+            openTasks: planItems.filter((item) => !item.done).length,
+            totalTasks: planItems.length,
           },
         }),
       });
 
       const payload = await res.json();
       if (!res.ok)
-        throw new Error(payload?.error || "Could not get coach response.");
+        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: payload?.reply || "One small action now. You’ve got this.",
-          focus: payload?.focus || "",
-          plan: Array.isArray(payload?.plan) ? payload.plan : [],
+          text: payload?.reply || payload?.headline || "One small action now. You’ve got this.",
+          focus: payload?.focus || payload?.kind || "",
+          plan: Array.isArray(payload?.plan)
+            ? payload.plan
+            : Array.isArray(payload?.actions)
+              ? payload.actions
+              : Array.isArray(payload?.nextSteps)
+                ? payload.nextSteps
+                : [],
           checkInMin: payload?.checkInMin || null,
-          nextPrompt: payload?.nextPrompt || "",
-          keyMessages: Array.isArray(payload?.keyMessages) ? payload.keyMessages : [],
+          nextPrompt: payload?.nextPrompt || payload?.prompt || "",
+          keyMessages: Array.isArray(payload?.keyMessages)
+            ? payload.keyMessages
+            : payload?.summary
+              ? [payload.summary]
+              : [],
         },
       ]);
     } catch (e) {
-      setCoachError(e?.message || "Synera Assistant is unavailable right now.");
+      setCoachError(e?.message || "SYRA is unavailable right now.");
     } finally {
       setCoachTyping(false);
     }
@@ -554,11 +565,12 @@ export default function Dashboard() {
   const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
   const coachQuickPrompts = [
-    "What's on my tasks today?",
+    "Describe meal: protein yogurt and banana",
+    "Improve my task: need shopping help and maybe pharmacy too",
+    "I feel overwhelmed",
+    "Reset my day",
+    "Reset my week",
     "What should I focus on today?",
-    "Where am I falling behind?",
-    "What progress have I made this week?",
-    "What habits should I improve?",
   ];
 
   function setCoachPrompt(prompt) {
@@ -641,7 +653,7 @@ export default function Dashboard() {
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              Synera Assistant
+              SYRA
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
               Log food
@@ -1069,7 +1081,7 @@ export default function Dashboard() {
           <div className="coach-modal" onClick={() => setCoachOpen(false)}>
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
-                <div className="coach-title">Synera Assistant</div>
+                <div className="coach-title">SYRA</div>
                 <button
                   className="pill-btn"
                   type="button"

@@ -25,15 +25,15 @@
 }
 
 .brandIcon {
-  width: 56px;
-  height: 56px;
+  width: 88px;
+  height: 88px;
   border-radius: var(--r-md);
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
   display: grid;
   place-items: center;
   color: var(--color-accent-contrast);
   font-weight: var(--fw-extrabold);
-  font-size: 22px;
+  font-size: 34px;
   box-shadow: 0 16px 34px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 

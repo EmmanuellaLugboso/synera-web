@@ -191,7 +191,7 @@ export default function InsightsPage() {
           <BackButton href="/dashboard" label="Dashboard" className="ins-back" />
           <div className="ins-top-actions">
             <button className="ins-ghost" type="button" onClick={refresh}>Refresh</button>
-            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>Synera Assistant</button>
+            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>SYRA</button>
           </div>
         </header>
 
@@ -255,14 +255,20 @@ export default function InsightsPage() {
           </section>
 
           <section className="card coach-brain">
-            <div className="side-title">Coach Summary</div>
-            <div className="suggestion-main">Top lever right now: {model.coach.topLever || "Move"}</div>
-            <div className="risk-flag">Risk: {(model.coach.risks || ["Baseline still building"])[1] || (model.coach.risks || ["Baseline still building"])[0]}</div>
-            <div className="suggestion-sub">Next best action: {model.coach.action}</div>
+            <div className="coach-head">
+              <h3 style={{ margin: 0 }}>Coach Summary</h3>
+              <button className="ins-ghost" onClick={() => setCoachOpen(true)} type="button">Open Assistant</button>
+            </div>
+            <div className="coach-highlight">{model.coach.headline}</div>
+            <div className="coach-grid">
+              <div className="coach-chip"><strong>Top lever</strong><span>{model.coach.topLever || "Move"}</span></div>
+              <div className="coach-chip"><strong>Priority risk</strong><span>{(model.coach.risks || ["Baseline still building"])[0]}</span></div>
+              <div className="coach-chip"><strong>Action</strong><span>{model.coach.action}</span></div>
+            </div>
           </section>
         </div>
 
-        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">Synera Assistant</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask Synera Assistant in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
+        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">SYRA</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask SYRA in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
       </div>
     </div>
   );
