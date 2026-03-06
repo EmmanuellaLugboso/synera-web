@@ -1,43 +1,34 @@
-/* app/hubs/fitness/fitness.css - uses unified design tokens from globals.css */
+/* app/hubs/fitness/fitness.css */
+:root {
+  --shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+  --shadow2: 0 10px 22px rgba(0, 0, 0, 0.05);
+  --radius: 22px;
+
+  --pink1: color-mix(in srgb, var(--accent) 24%, var(--card) 76%);
+  --pink2: color-mix(in srgb, var(--accent) 36%, var(--card) 64%);
+}
 
 * {
   box-sizing: border-box;
 }
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
+.fit2-page {
+  width: 100%;
+  max-width: 1700px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: clamp(16px, 2.1vw, 34px) clamp(16px, 3.4vw, 64px) clamp(42px, 5vw, 76px);
   color: var(--text);
-  background:
-    radial-gradient(
-      900px 600px at 10% 0%,
-      rgba(255, 79, 154, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 600px at 90% 10%,
-      rgba(255, 79, 154, 0.045),
-      transparent 55%
-    ),
-    var(--bg);
   font-family:
+    "Inter",
+    "SF Pro Text",
+    "SF Pro Display",
     ui-sans-serif,
     system-ui,
     -apple-system,
     Segoe UI,
     Roboto,
-    Arial,
-    "Apple Color Emoji",
-    "Segoe UI Emoji";
-}
-
-.fit2-page {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 18px 14px 64px;
+    Helvetica,
+    Arial;
 }
 
 .fit2-topbar {
@@ -51,7 +42,7 @@ body {
 .fit2-back {
   text-decoration: none;
   color: var(--text);
-  font-weight: 900;
+  font-weight: 600;
   font-size: 14px;
   padding: 10px 12px;
   border-radius: 999px;
@@ -76,7 +67,7 @@ body {
   cursor: pointer;
   border-radius: 999px;
   padding: 8px 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-unitbtn.active {
@@ -92,15 +83,15 @@ body {
 }
 .fit2-kicker {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--muted);
 }
 .fit2-h1 {
-  margin: 6px 0;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-extrabold);
+  margin: 6px 0 6px;
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 .fit2-muted {
@@ -111,53 +102,59 @@ body {
 
 /* Hub home */
 .fit2-hubhome {
-  padding-top: 6px;
+  padding-top: 12px;
+  display: grid;
+  gap: clamp(18px, 2vw, 30px);
 }
 
 /* DAILY SUMMARY */
 .fit2-dailyCard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-card);
-  margin: var(--space-sm) 0 var(--space-lg);
+  background:
+    radial-gradient(900px 240px at 12% -16%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 68%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white) 0%, var(--card) 100%);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 30px;
+  padding: clamp(20px, 2.2vw, 30px);
+  box-shadow: 0 24px 54px rgba(16, 18, 30, 0.1);
+  backdrop-filter: blur(14px);
+  margin: 0;
 }
 
 .fit2-dailyHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .fit2-dailyLabel {
-  font-size: 12px;
-  font-weight: 1000;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 .fit2-dailyDate {
-  font-size: 18px;
-  font-weight: 1100;
-  letter-spacing: -0.01em;
+  font-size: clamp(24px, 2.4vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.03em;
 }
 
 .fit2-dailyBadge {
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-extrabold);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  color: white;
-  background: var(--accent);
-  box-shadow: var(--shadow-soft);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, #ffa0cf), var(--accent));
+  box-shadow: 0 8px 20px rgba(255, 79, 154, 0.2);
 }
 
 .fit2-dailyGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
 }
 @media (max-width: 720px) {
   .fit2-dailyGrid {
@@ -166,30 +163,28 @@ body {
 }
 
 .fit2-dailyItem {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.84),
-    rgba(248, 248, 252, 0.86)
-  );
-  border: 1px solid rgba(17, 18, 25, 0.08);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm) var(--space-xs);
-  text-align: center;
-  box-shadow: var(--shadow-soft);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 20px;
+  padding: 16px 14px;
+  text-align: left;
+  box-shadow: var(--shadow2);
   transition:
     transform 140ms ease,
     box-shadow 140ms ease;
 }
 .fit2-dailyValue {
-  font-size: 22px;
-  font-weight: var(--font-weight-extrabold);
+  font-size: clamp(24px, 1.8vw, 30px);
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 .fit2-dailyText {
-  margin-top: 4px;
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(65, 66, 77, 0.7);
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  color: rgba(65, 66, 77, 0.68);
 }
 
 .fit2-dailyItem:hover {
@@ -198,41 +193,62 @@ body {
 }
 
 .fit2-dailyActions {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 14px;
+  margin-top: 18px;
+  align-items: end;
+}
+
+.fit2-actionPrimary {
+  display: grid;
   gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
+}
+
+.fit2-actionHint {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.fit2-actionSecondary {
+  display: flex;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .fit2-featureSection {
-  margin-top: var(--space-xs);
-  padding: var(--space-sm);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow-soft);
+  margin-top: 4px;
+  padding: clamp(14px, 1.8vw, 24px);
+  border-radius: 30px;
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
+  background:
+    radial-gradient(500px 140px at 100% -12%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 72%),
+    color-mix(in srgb, var(--card) 95%, transparent);
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.07);
 }
 
 .fit2-featureTitle {
-  margin: 0 2px 10px;
+  margin: 0 2px 16px;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #767684;
-  font-weight: 1000;
+  color: #6e6e79;
+  font-weight: 700;
 }
 
 /* Tile grid */
 .fit2-tilegrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
   row-gap: 18px;
 }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .fit2-tilegrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 520px) {
@@ -244,53 +260,61 @@ body {
 .fit2-tile {
   cursor: pointer;
   text-align: left;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 15px;
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white), color-mix(in srgb, var(--card) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 24px;
+  padding: 20px;
+  min-height: 186px;
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.08);
+  backdrop-filter: blur(14px);
   transition:
     transform 150ms ease,
     box-shadow 150ms ease,
     border-color 150ms ease;
+  display: flex;
+  flex-direction: column;
 }
 .fit2-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--border);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 42px rgba(16, 18, 30, 0.11);
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
 }
 .fit2-tileTop {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .fit2-tileIcon {
   font-size: 22px;
 }
 .fit2-tileBadge {
   font-size: 11px;
-  font-weight: 1000;
-  color: #6c6c77;
+  font-weight: 600;
+  color: #5f606a;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  background: color-mix(in srgb, var(--card) 95%, transparent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
+  min-width: 64px;
+  margin-left: auto;
 }
 .fit2-tileTitle {
-  font-size: 16px;
-  font-weight: 1100;
-  margin-bottom: 3px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 .fit2-tileSub {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: auto;
+  padding-top: 16px;
 }
 
 /* Generic UI */
@@ -309,10 +333,11 @@ body {
   margin-top: var(--space-lg);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-soft);
-  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow2);
+  backdrop-filter: blur(12px);
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -320,30 +345,27 @@ body {
 .fit2-primarywide {
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-lg);
-  height: 44px;
-  padding: 0 var(--space-lg);
-  font-weight: var(--font-weight-extrabold);
-  color: white;
-  background: var(--accent);
-  box-shadow: var(--shadow-soft);
-  transition: all 150ms ease;
-}
-.fit2-primarywide:hover {
-  box-shadow: var(--shadow-card);
-  transform: translateY(-1px);
+  border-radius: 16px;
+  min-height: 52px;
+  padding: 0 22px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 82%, #ff8bc8), var(--accent));
+  box-shadow: 0 10px 22px rgba(221, 82, 145, 0.2);
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
 }
 .fit2-pillbtn {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   backdrop-filter: blur(10px);
   cursor: pointer;
-  border-radius: 999px;
-  height: 34px;
-  padding: 0 12px;
-  font-size: 12px;
-  font-weight: 950;
+  border-radius: 14px;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: #4a4b57;
+  transition: border-color 140ms ease, transform 140ms ease;
 }
 .fit2-pillbtn.ghost {
   background: transparent;
@@ -360,19 +382,21 @@ body {
   cursor: pointer;
   border-radius: 12px;
   padding: 10px 12px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 /* Sections */
 .fit2-start {
-  padding-top: 6px;
+  padding-top: 8px;
+  display: grid;
+  gap: 16px;
 }
 .fit2-section {
-  margin-top: 16px;
+  margin-top: 0;
 }
 .fit2-sectiontitle {
   font-size: 12px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -380,18 +404,21 @@ body {
 }
 .fit2-subtitle {
   font-size: 13px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   margin: 10px 0;
 }
 
 /* Cards & lists */
 .fit2-simpleCard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(500px 120px at 0% -14%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 72%),
+    var(--card);
+  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+  border-radius: 24px;
+  padding: clamp(16px, 1.8vw, 24px);
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.08);
+  backdrop-filter: blur(14px);
 }
 
 .fit2-recentlist {
@@ -411,19 +438,19 @@ body {
   box-shadow: var(--shadow-soft);
 }
 .fit2-recenttitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-recentsub {
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-recentpill {
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-extrabold);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--card2);
 }
@@ -446,11 +473,11 @@ body {
   border-radius: var(--radius-md);
   padding: var(--space-xs) var(--space-sm);
   cursor: pointer;
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
 }
 .fit2-callabel {
   font-size: 13px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
 }
 
@@ -462,7 +489,7 @@ body {
 }
 .fit2-caldayhead {
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color: var(--muted);
   text-align: center;
 }
@@ -487,7 +514,7 @@ body {
   border-color: var(--accent);
 }
 .fit2-calnum {
-  font-weight: 1000;
+  font-weight: 700;
   font-size: 12px;
 }
 .fit2-caldot {
@@ -501,7 +528,9 @@ body {
 
 /* Session UI */
 .fit2-session {
-  padding-top: 6px;
+  padding-top: 8px;
+  display: grid;
+  gap: 16px;
 }
 .fit2-sessiontop {
   display: flex;
@@ -521,7 +550,7 @@ body {
 }
 .fit2-timervalue {
   font-size: 18px;
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-timerbtns {
   display: flex;
@@ -534,26 +563,29 @@ body {
   cursor: pointer;
   border-radius: 14px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--card);
   background: linear-gradient(135deg, #111, #333);
 }
 
 .fit2-sessioncard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(460px 120px at 0% -16%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 72%),
+    var(--card);
+  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+  border-radius: 24px;
+  padding: clamp(16px, 1.8vw, 24px);
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.09);
+  backdrop-filter: blur(14px);
 }
 
 .fit2-titleinput {
   width: 100%;
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 12px 12px;
+  font-weight: 700;
   font-size: 14px;
   outline: none;
 }
@@ -568,10 +600,10 @@ body {
 }
 .fit2-metainput {
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 600;
 }
 
 .fit2-addex {
@@ -579,27 +611,21 @@ body {
   width: 100%;
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-lg);
-  font-weight: var(--font-weight-extrabold);
-  color: white;
-  background: var(--accent);
-  box-shadow: var(--shadow-soft);
-  transition: all 150ms ease;
-}
-.fit2-addex:hover {
-  box-shadow: var(--shadow-card);
-  transform: translateY(-1px);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--card);
+  background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
 
 .fit2-cancel {
   margin-top: var(--space-sm);
   width: 100%;
   border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-lg);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -611,11 +637,12 @@ body {
   gap: 12px;
 }
 .fit2-excard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-soft);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 14px 28px rgba(16, 18, 30, 0.07);
+  backdrop-filter: blur(14px);
 }
 .fit2-exhead {
   display: flex;
@@ -627,14 +654,14 @@ body {
   width: 100%;
   border: none;
   outline: none;
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
   font-size: 15px;
   padding: var(--space-xs) 0;
   background: transparent;
 }
 .fit2-lastline {
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
   margin-top: 2px;
 }
@@ -644,14 +671,14 @@ body {
 }
 
 .fit2-pr {
-  margin-left: var(--space-xs);
-  font-size: var(--font-size-3xs);
-  font-weight: var(--font-weight-extrabold);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  background: var(--accentSoft);
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 79, 154, 0.14);
+  border: 1px solid rgba(255, 79, 154, 0.25);
+  color: #c01558;
 }
 
 .fit2-exmeta {
@@ -662,10 +689,10 @@ body {
   margin-top: 10px;
 }
 .fit2-tag {
-  font-size: var(--font-size-3xs);
-  font-weight: var(--font-weight-extrabold);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--card2);
   color: var(--muted);
@@ -681,9 +708,9 @@ body {
 .fit2-modebtn {
   border: none;
   cursor: pointer;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  font-weight: var(--font-weight-bold);
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-weight: 700;
   color: var(--muted);
   background: transparent;
 }
@@ -697,10 +724,10 @@ body {
   width: 100%;
   margin-top: var(--space-sm);
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-weight: 600;
   outline: none;
   min-height: 56px;
   resize: vertical;
@@ -713,7 +740,7 @@ body {
   grid-template-columns: 42px 1fr 1fr 1fr 48px 40px;
   gap: 8px;
   font-size: 11px;
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -726,7 +753,7 @@ body {
   align-items: center;
 }
 .fit2-setnum {
-  font-weight: 1100;
+  font-weight: 700;
   text-align: center;
   color: var(--muted);
 }
@@ -734,18 +761,18 @@ body {
 .fit2-setinput {
   width: 100%;
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  padding: 10px 10px;
+  font-weight: 600;
   outline: none;
 }
 .fit2-done {
   border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) 0;
-  font-weight: var(--font-weight-extrabold);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 14px;
+  padding: 10px 0;
+  font-weight: 700;
   cursor: pointer;
   transition: all 150ms ease;
 }
@@ -756,10 +783,10 @@ body {
 }
 .fit2-minus {
   border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) 0;
-  font-weight: var(--font-weight-extrabold);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 14px;
+  padding: 10px 0;
+  font-weight: 700;
   cursor: pointer;
   transition: all 150ms ease;
 }
@@ -800,12 +827,12 @@ body {
   transform: translateY(-1px);
 }
 .fit2-templatetitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-templatelist {
   margin-top: 6px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-templatemeta {
@@ -814,7 +841,7 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-dot {
@@ -854,16 +881,16 @@ body {
   padding-bottom: 10px;
 }
 .fit2-modaltitle {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-search {
   width: 100%;
   margin-top: var(--space-xs);
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 12px 12px;
+  font-weight: 600;
   outline: none;
 }
 .fit2-addcustom {
@@ -871,17 +898,11 @@ body {
   width: 100%;
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-lg);
-  font-weight: var(--font-weight-extrabold);
-  color: white;
-  background: var(--accent);
-  box-shadow: var(--shadow-soft);
-  transition: all 150ms ease;
-}
-.fit2-addcustom:hover {
-  box-shadow: var(--shadow-card);
-  transform: translateY(-1px);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--card);
+  background: linear-gradient(135deg, var(--pink1), var(--pink2));
 }
 .fit2-list {
   margin-top: 12px;
@@ -914,18 +935,18 @@ body {
   transform: translateY(-1px);
 }
 .fit2-listname {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .fit2-listsub {
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-historyline {
   margin-top: 6px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 .fit2-qmark {
@@ -936,8 +957,8 @@ body {
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  background: var(--card);
-  font-weight: var(--font-weight-extrabold);
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
 }
 .fit2-uselast {
   width: 120px;
@@ -945,16 +966,15 @@ body {
   background: var(--card);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  font-weight: var(--font-weight-extrabold);
-  padding: var(--space-xs) var(--space-sm);
+  font-weight: 700;
 }
 .fit2-input {
   width: 100%;
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 12px 12px;
+  font-weight: 600;
   outline: none;
 }
 
@@ -962,7 +982,7 @@ body {
 .fit2-syncStatus {
   margin-top: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -981,8 +1001,8 @@ body {
 .fit2-weeklyRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .fit2-weeklyCard {
@@ -994,14 +1014,14 @@ body {
 
 .fit2-weeklyLabel {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .fit2-weeklyValue {
   margin-top: 4px;
   font-size: 18px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .fit2-templatetop {
@@ -1017,14 +1037,14 @@ body {
   border-radius: 999px;
   padding: 4px 8px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .fit2-progressionTip {
   margin-top: 8px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -1038,59 +1058,38 @@ body {
   }
 }
 
-/* Theme consistency overrides */
-.fit2-page {
-  background: var(--bg) !important;
-  color: var(--text-primary);
+
+.fit2-primarywide:hover{ transform: translateY(-1px); filter: saturate(1.04); box-shadow: 0 14px 28px rgba(221, 82, 145, 0.26); }
+.fit2-primarywide:focus-visible,
+.fit2-pillbtn:focus-visible,
+.fit2-tile:focus-visible{ outline: 2px solid color-mix(in srgb, var(--accent) 55%, #ffffff); outline-offset: 2px; }
+.fit2-pillbtn:hover{ border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); transform: translateY(-1px); }
+
+@media (min-width: 1728px){
+  .fit2-page{ padding-inline: clamp(24px, 3.8vw, 88px); }
 }
 
-.fit2-page .fit2-topbar,
-.fit2-page .fit2-hubhome,
-.fit2-page .fit2-section,
-.fit2-page .fit2-sessioncard,
-.fit2-page .fit2-simpleCard,
-.fit2-page .fit2-templatecard,
-.fit2-page .fit2-weeklyCard,
-.fit2-page .fit2-dailyCard,
-.fit2-page .fit2-modalcard,
-.fit2-page .fit2-mutedbox,
-.fit2-page .fit2-excard {
-  background: var(--card-bg) !important;
-  border-color: var(--border) !important;
-  color: var(--text-primary);
-  box-shadow: var(--shadow-soft) !important;
+@media (max-width: 1280px){
+  .fit2-page{ padding-inline: clamp(16px, 2.6vw, 34px); }
 }
-
-.fit2-page .fit2-muted,
-.fit2-page .fit2-meta,
-.fit2-page .fit2-subtitle,
-.fit2-page .fit2-listsub,
-.fit2-page .fit2-note,
-.fit2-page .fit2-weeklyLabel,
-.fit2-page .fit2-dailyLabel {
-  color: var(--text-muted) !important;
+@media (max-width: 1024px){
+  .fit2-dailyGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fit2-dailyActions{ grid-template-columns: 1fr; }
+  .fit2-actionSecondary{ justify-content: flex-start; }
+  .fit2-primarywide{ width: 100%; }
 }
-
-.fit2-page .fit2-pillbtn,
-.fit2-page .fit2-input,
-.fit2-page .fit2-select,
-.fit2-page .fit2-setinput,
-.fit2-page .fit2-titleinput,
-.fit2-page .fit2-search,
-.fit2-page .fit2-metainput,
-.fit2-page .fit2-mode,
-.fit2-page .fit2-calbtn,
-.fit2-page .fit2-ghosticon {
-  background: var(--card-soft) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border) !important;
+@media (max-width: 768px){
+  .fit2-dailyCard{ border-radius: 22px; }
+  .fit2-dailyActions{ gap: 8px; }
+  .fit2-pillbtn{ flex: 1 1 calc(50% - 4px); }
 }
-
-.fit2-page .primary-btn,
-.fit2-page .fit2-primarywide,
-.fit2-page .fit2-finish,
-.fit2-page .fit2-start {
-  background: var(--accent) !important;
-  color: var(--card-bg) !important;
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+@media (max-width: 390px){
+  .fit2-page{ padding-inline: 12px; }
+  .fit2-dailyGrid{ grid-template-columns: 1fr; }
+  .fit2-weeklyRow{ grid-template-columns: 1fr; }
+  .fit2-pillbtn{ flex: 1 1 100%; }
+}
+@media (max-width: 360px){
+  .fit2-tile{ min-height: 154px; padding: 14px; }
+  .fit2-dailyDate{ font-size: 20px; }
 }

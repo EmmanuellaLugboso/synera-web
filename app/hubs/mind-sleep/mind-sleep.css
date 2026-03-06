@@ -8,10 +8,10 @@
 .ms3-tab{
   flex: 1;
   border: 1px solid var(--border);
-  background: var(--card2);
-  padding: var(--space-sm);
-  border-radius: var(--radius-pill);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  padding: 12px 14px;
+  border-radius: 999px;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: var(--shadow-soft);
   transition: all 150ms ease;
@@ -37,9 +37,9 @@
 
 .ms3-primary{
   border:none;
-  border-radius: var(--radius-lg);
-  padding: var(--space-xs) var(--space-md);
-  font-weight: var(--font-weight-extrabold);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 700;
   cursor:pointer;
   color: white;
   background: var(--accent);
@@ -56,8 +56,8 @@
   margin-top: var(--space-md);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  padding: 12px 14px;
+  font-weight: 600;
   outline:none;
   background: var(--card2);
   transition: all 150ms ease;
@@ -75,26 +75,26 @@
 
 .ms3-select{
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 600;
   outline:none;
 }
 
 .ms3-chip{
-  background: var(--accentSoft);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-weight: var(--font-weight-bold);
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-sm);
-  font-size: var(--font-size-2xs);
+  background:#FFE3EF;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  color:var(--accent);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 .ms3-muted{
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -109,8 +109,8 @@
   height: 40px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: var(--card);
-  font-weight: var(--font-weight-extrabold);
+  background:var(--card);
+  font-weight: 700;
   cursor:pointer;
   box-shadow: var(--shadow-soft);
   transition: all 150ms ease;
@@ -157,7 +157,7 @@
   cursor:pointer;
 }
 .ms3-title{
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
   display:flex;
   align-items:center;
   gap: var(--space-xs);
@@ -166,13 +166,13 @@
   margin-top: 6px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 .ms3-preview{
   margin-top: 8px;
   font-size: 12px;
   color:#666;
-  font-weight: 800;
+  font-weight: 600;
 }
 .ms3-actions{
   display:flex;
@@ -187,8 +187,7 @@
   border: 1px solid var(--border);
   background: var(--card);
   cursor:pointer;
-  font-weight: var(--font-weight-extrabold);
-  transition: all 150ms ease;
+  font-weight: 600;
 }
 .ms3-iconbtn:hover{
   border-color: var(--accent);
@@ -203,13 +202,13 @@
 
 .ms3-badge{
   display:inline-block;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  background: var(--accentSoft);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-size: var(--font-size-3xs);
-  font-weight: var(--font-weight-extrabold);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background:#FFE3EF;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  color:var(--accent);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* Tags */
@@ -224,8 +223,8 @@
   flex: 1;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  padding: 12px 14px;
+  font-weight: 600;
   outline:none;
   background: var(--card2);
   min-width: 220px;
@@ -242,10 +241,10 @@
 }
 .ms3-tag{
   border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
   cursor:pointer;
   transition: all 150ms ease;
 }
@@ -282,7 +281,7 @@
   margin-bottom: 10px;
 }
 .ms3-modalTitle{
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
   font-size: 16px;
 }
 
@@ -291,8 +290,8 @@
   margin-top: var(--space-sm);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  padding: 12px 14px;
+  font-weight: 700;
   outline:none;
   background: var(--card2);
   transition: all 150ms ease;
@@ -305,8 +304,8 @@
   margin-top: var(--space-sm);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  padding: 12px 14px;
+  font-weight: 600;
   outline:none;
   background: var(--card2);
   min-height: 160px;
@@ -347,15 +346,10 @@
   border: 1px solid var(--border);
   background: var(--card);
   cursor:pointer;
-  font-weight: var(--font-weight-extrabold);
-  transition: all 150ms ease;
-}
-.ms3-calBtn:hover {
-  border-color: var(--accent);
-  background: var(--accentSoft);
+  font-weight: 700;
 }
 .ms3-calLabel{
-  font-weight: 1100;
+  font-weight: 700;
 }
 .ms3-calGrid{
   margin-top: 12px;
@@ -366,7 +360,7 @@
 .ms3-calDow{
   text-align:center;
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--muted);
   padding: 6px 0;
 }
@@ -397,7 +391,7 @@
   position:absolute;
   top: 10px;
   left: 12px;
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 13px;
 }
 .ms3-dots{
@@ -427,10 +421,10 @@
 }
 .ms3-pillbtn{
   border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: var(--shadow-soft);
   transition: all 150ms ease;
@@ -443,10 +437,10 @@
 .ms3-miniinput{
   width: 92px;
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 600;
   outline:none;
   transition: all 150ms ease;
 }
@@ -455,10 +449,10 @@
 }
 .ms3-toggle{
   border: 1px solid var(--border);
-  background: var(--card);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  font-weight: var(--font-weight-bold);
+  background:var(--card);
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: var(--shadow-soft);
   transition: all 150ms ease;
@@ -481,7 +475,7 @@
   background:var(--card);
   padding: 10px 12px;
   border-radius: 14px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }

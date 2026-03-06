@@ -1,4 +1,17 @@
-/* app/hubs/nutrition/nutrition.css - uses unified design tokens from globals.css */
+/* app/hubs/nutrition/nutrition.css */
+
+/* Apple-ish base */
+:root {
+  --soft: #f8f8fa;
+
+  --pink-1: color-mix(in srgb, var(--accent) 8%, var(--card) 92%);
+  --pink-2: color-mix(in srgb, var(--accent) 14%, var(--card) 86%);
+  --pink-3: color-mix(in srgb, var(--accent) 35%, var(--card) 65%);
+  --pink-4: var(--accent);
+  --pink-5: color-mix(in srgb, var(--accent) 70%, var(--card) 30%);
+
+  --shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+}
 
 * {
   box-sizing: border-box;
@@ -20,6 +33,9 @@
     var(--bg);
   color: var(--text);
   font-family:
+    "Inter",
+    "SF Pro Text",
+    "SF Pro Display",
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -38,14 +54,9 @@
   margin-bottom: 12px;
 }
 
-/* Hide back-button strip above the title */
-.nutri-topbar {
-  display: none;
-}
-
 .nutri-back {
   text-decoration: none;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text);
   background: var(--card);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -56,8 +67,8 @@
 
 .nutri-container {
   width: 100%;
-  max-width: 980px; /* not A4 skinny */
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .nutri-hero {
@@ -70,8 +81,8 @@
 
 .nutri-title {
   margin: 0;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-extrabold);
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: -0.2px;
 }
 .nutri-emoji {
@@ -82,7 +93,7 @@
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.35;
 }
 
@@ -97,16 +108,16 @@
 }
 
 .nutri-badgeLabel {
-  font-size: var(--font-size-3xs);
-  font-weight: var(--font-weight-extrabold);
-  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  color: #6f6f79;
   letter-spacing: 0.35px;
 }
 
 .nutri-badgeValue {
   margin-top: 3px;
   font-size: 16px;
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
 }
 
 .nutri-badge.is-complete {
@@ -219,7 +230,7 @@
 }
 
 .nutri-label {
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   font-size: 13px;
   color: var(--muted);
 }
@@ -227,41 +238,41 @@
 .nutri-chip {
   background: var(--card2);
   border: 1px solid var(--border);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-2xs);
-  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #555;
 }
 
 .nutri-big {
   margin-top: 10px;
   font-size: 27px;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .nutri-small {
   margin-top: 7px;
   font-size: 12px;
   color: rgba(28, 28, 30, 0.58);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nutri-tiny {
   margin-top: 8px;
   font-size: 11px;
   color: #888;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nutri-strong {
-  font-weight: 1100;
+  font-weight: 700;
   color: var(--text);
 }
 
 .nutri-over {
   color: #c1121f;
-  font-weight: 1100;
+  font-weight: 700;
 }
 
 .nutri-miniTrack {
@@ -289,9 +300,9 @@
 
 .nutri-primary {
   border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-md);
-  font-weight: var(--font-weight-extrabold);
+  border-radius: 14px;
+  padding: 11px 14px;
+  font-weight: 700;
   cursor: pointer;
   color: white;
   background: var(--accent);
@@ -309,9 +320,9 @@
 .nutri-ghost {
   border: 1px solid var(--border);
   background: var(--card);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 150ms ease;
 }
@@ -324,9 +335,9 @@
 .nutri-pillBtn {
   border: 1px solid var(--border);
   background: var(--card);
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-md);
-  font-weight: var(--font-weight-bold);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
   transition: all 150ms ease;
@@ -346,26 +357,26 @@
 
 .nutri-select {
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 600;
   outline: none;
 }
 
 .nutri-miniInput {
   width: 110px;
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 600;
   outline: none;
 }
 
 .nutri-inlineLabel {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   color: #555;
 }
 
@@ -377,16 +388,16 @@
 
 .nutri-fieldLabel {
   font-size: 12px;
-  font-weight: 1000;
+  font-weight: 700;
   color: #555;
 }
 
 .nutri-input {
   border: 1px solid var(--border);
-  background: var(--card2);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  background: var(--soft);
+  border-radius: 14px;
+  padding: 12px 12px;
+  font-weight: 600;
   outline: none;
   transition: all 150ms ease;
 }
@@ -400,8 +411,8 @@
   margin-top: var(--space-md);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-sm);
-  font-weight: var(--font-weight-bold);
+  padding: 12px 14px;
+  font-weight: 600;
   outline: none;
   background: var(--card2);
   transition: all 150ms ease;
@@ -416,8 +427,8 @@
   padding: var(--space-md);
   border-radius: var(--radius-lg);
   color: var(--muted);
-  font-weight: var(--font-weight-bold);
-  margin-top: var(--space-sm);
+  font-weight: 600;
+  margin-top: 10px;
 }
 
 .nutri-danger {
@@ -450,7 +461,7 @@
 }
 
 .nutri-sectionTitle {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 15px;
 }
 
@@ -458,7 +469,7 @@
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nutri-sectionBody {
@@ -466,7 +477,7 @@
 }
 
 .nutri-chev {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 18px;
   color: var(--text);
   min-width: 24px;
@@ -482,7 +493,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--muted);
   margin-bottom: 6px;
 }
@@ -527,22 +538,22 @@
   transform: translateY(0);
 }
 .nutri-stickyTitle {
-  font-weight: var(--font-weight-extrabold);
-  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  font-size: 12px;
 }
 .nutri-stickySub {
   font-size: var(--font-size-2xs);
   color: var(--muted);
-  font-weight: var(--font-weight-bold);
+  font-weight: 600;
   margin-top: 2px;
 }
 .nutri-stickyBtn {
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-sm);
-  font-weight: var(--font-weight-extrabold);
-  background: var(--accent);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--pink-5), var(--pink-4));
   color: white;
   white-space: nowrap;
 }
@@ -566,17 +577,17 @@
   box-shadow: var(--shadow-soft);
 }
 .nutri-rowName {
-  font-weight: 1100;
+  font-weight: 700;
 }
 .nutri-rowSub {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 .nutri-kcalPill {
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-extrabold);
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text);
   background: var(--card2);
   border: 1px solid var(--border);
@@ -590,7 +601,7 @@
   margin-top: 14px;
 }
 .nutri-mealTitle {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
@@ -603,7 +614,7 @@
 .nutri-mealHint {
   font-size: 11px;
   color: #999;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
 }
@@ -623,7 +634,7 @@
   border: none;
   background: #c1121f;
   color: var(--card);
-  font-weight: 1100;
+  font-weight: 700;
   cursor: pointer;
 }
 .nutri-swipeCard {
@@ -663,7 +674,7 @@
   gap: 10px;
 }
 .nutri-modalTitle {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 16px;
 }
 .nutri-iconBtn {
@@ -672,7 +683,7 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--card);
-  font-weight: var(--font-weight-extrabold);
+  font-weight: 700;
   cursor: pointer;
   transition: all 150ms ease;
 }
@@ -736,14 +747,14 @@
 }
 .nutri-recipeTitle {
   margin-top: 10px;
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 14px;
 }
 .nutri-recipeMeta {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 /* Recipe modal details */
@@ -762,7 +773,7 @@
 }
 .nutri-recipeH1 {
   font-size: 18px;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 .nutri-split {
@@ -784,7 +795,7 @@
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.05);
 }
 .nutri-blockTitle {
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 14px;
 }
 .nutri-ingredList {
@@ -799,11 +810,11 @@
   justify-content: space-between;
   gap: 10px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
 }
 .nutri-muted {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .nutri-instructions {
@@ -850,7 +861,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 1200;
+  font-weight: 600;
 }
 
 /* Theme consistency overrides */
@@ -919,7 +930,7 @@
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 .nutri-syncBadge.syncing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .nutri-syncBadge.synced { color: var(--text-primary); }
