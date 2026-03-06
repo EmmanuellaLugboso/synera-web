@@ -7,7 +7,7 @@ import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { normalizeError } from "../lib/errors";
 import { logError } from "../lib/logging";
-import StateMessage from "../components/StateMessage";
+import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
 import { db, auth } from "../firebase/config";
@@ -646,9 +646,9 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-shell">
-        {!ready ? <StateMessage>Loading your data…</StateMessage> : null}
+        {!ready ? <PageState type="loading" message="Loading your data…" /> : null}
         {dailyLoading ? (
-          <StateMessage>Loading today’s log…</StateMessage>
+          <PageState type="loading" message="Loading today’s log…" />
         ) : null}
 
         <div className="dash-grid">

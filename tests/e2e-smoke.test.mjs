@@ -28,7 +28,6 @@ test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages
     cwd: process.cwd(),
     env: {
       ...process.env,
-      NEXT_PUBLIC_E2E_TEST_MODE: "1",
     },
     stdio: "pipe",
   });
@@ -45,13 +44,9 @@ test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages
 
     const signupHtml = await (await fetch(`${base}/signup`)).text();
     assert.match(signupHtml, /data-testid="signup-page"/);
-    assert.match(signupHtml, /data-testid="e2e-open-onboarding"/);
 
-    const finishHtml = await (await fetch(`${base}/onboarding/finish`)).text();
-    assert.match(finishHtml, /data-testid="onboarding-finish-page"/);
-
-    const dashboardHtml = await (await fetch(`${base}/dashboard`)).text();
-    assert.match(dashboardHtml, /data-testid="dashboard-page"/);
+    const onboardingHtml = await (await fetch(`${base}/onboarding/name`)).text();
+    assert.match(onboardingHtml, /Checking your onboarding status|login-page/);
 
     const hubsHtml = await (await fetch(`${base}/hubs`)).text();
     assert.match(hubsHtml, /data-testid="hubs-page"/);

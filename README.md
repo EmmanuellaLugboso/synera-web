@@ -40,7 +40,6 @@ Use `.env.local` for local development and your hosting provider secret manager 
 | Variable | Required | Dev | Prod | Purpose | Where used | Safe default |
 |---|---|---|---|---|---|---|
 | `USDA_API_KEY` | Yes (for nutrition/recipe APIs) | ✅ | ✅ | USDA food search + macro estimation requests | `app/api/food/search/route.js`, `app/api/recipes/macros/route.js` | None |
-| `NEXT_PUBLIC_E2E_TEST_MODE` | No | Optional | No | Enables auth/onboarding bypass only for smoke automation | `app/context/OnboardingContext.js`, `app/onboarding/layout.js`, `app/onboarding/finish/page.js`, `app/signup/page.js`, `tests/e2e-smoke.test.mjs` | `0` / unset |
 
 ### Firebase config strategy
 - Firebase web config currently lives in `app/firebase/config.js`.

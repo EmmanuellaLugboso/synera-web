@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 import { getUserProfile } from "../services/userService";
 import { shouldBlockOnboarding } from "../lib/authRouting";
-import StateMessage from "../components/StateMessage";
+import PageState from "../components/ui/PageState";
 
 export default function OnboardingLayout({ children }) {
   const router = useRouter();
@@ -18,11 +18,6 @@ export default function OnboardingLayout({ children }) {
 
     async function guardOnboarding() {
       if (!ready) return;
-      if (isE2EMode) {
-        setChecking(false);
-        return;
-      }
-
       if (!user?.uid) {
         router.replace("/login");
         return;
@@ -47,7 +42,7 @@ export default function OnboardingLayout({ children }) {
   }, [ready, user?.uid, router, isE2EMode]);
 
   if (checking) {
-    return <div className="onboard-container"><StateMessage>Checking your onboarding status…</StateMessage></div>;
+    return <div className="onboard-container"><PageState type="loading" message="Checking your onboarding status…" /></div>;
   }
 
   return children;

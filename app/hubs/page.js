@@ -32,7 +32,7 @@ export default function HubsIndexPage() {
       </div>
       <div className="hub-hero">
         <div>
-          <h1 className="hub-title">Hubs <span className="hub-emoji">🌸</span></h1>
+          <h1 className="hub-title">All Hubs <span className="hub-emoji">🌸</span></h1>
           <p className="hub-sub">Choose your lane and keep momentum.</p>
         </div>
       </div>

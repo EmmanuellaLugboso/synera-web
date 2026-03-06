@@ -14,7 +14,9 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
-import InlineAlert from "../components/InlineAlert";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import InlineAlert from "../components/ui/InlineAlert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -93,31 +95,27 @@ export default function LoginPage() {
           </div>
 
           <form className="auth-form" onSubmit={handleLogin}>
-            <label className="auth-label">
-              Email
-              <input
-                type="email"
-                className="auth-input"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
-            </label>
+            <Input
+              id="login-email"
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
 
-            <label className="auth-label">
-              Password
-              <input
-                type="password"
-                className="auth-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </label>
+            <Input
+              id="login-password"
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
 
             <div className="auth-row">
               <button
@@ -131,9 +129,9 @@ export default function LoginPage() {
 
             {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
-            <button className="auth-primary" disabled={!canSubmit} type="submit">
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
+            <Button className="auth-primary" disabled={!canSubmit} type="submit">
+              {loading ? "Signing in..." : "Sign in"}
+            </Button>
           </form>
 
           <div className="auth-divider">

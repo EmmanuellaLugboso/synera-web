@@ -15,7 +15,9 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
-import InlineAlert from "../components/InlineAlert";
+import InlineAlert from "../components/ui/InlineAlert";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
 
 export default function SignupPage() {
   const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
@@ -88,28 +90,37 @@ export default function SignupPage() {
         <p className="signup-subtitle">Start your wellness journey</p>
 
         <form className="signup-form" onSubmit={handleSignup}>
-          <input
+          <Input
+            id="signup-email"
+            label="Email"
             type="email"
             placeholder="Email address"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            id="signup-password"
+            label="Password"
             type="password"
             placeholder="Password"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            id="signup-confirm"
+            label="Confirm password"
             type="password"
             placeholder="Confirm password"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
@@ -117,9 +128,9 @@ export default function SignupPage() {
 
           {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
-          <button className="signup-btn" disabled={loading} type="submit">
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
+          <Button className="signup-btn" disabled={loading} type="submit">
+            {loading ? "Creating account..." : "Sign up"}
+          </Button>
         </form>
 
         <div className="divider">
@@ -131,17 +142,6 @@ export default function SignupPage() {
           Continue with Google
         </button>
 
-
-        {isE2EMode ? (
-          <button
-            type="button"
-            className="google-btn"
-            data-testid="e2e-open-onboarding"
-            onClick={() => router.push("/onboarding/finish")}
-          >
-            Continue in test mode
-          </button>
-        ) : null}
 
         <p className="login-text">
           Already have an account?{" "}

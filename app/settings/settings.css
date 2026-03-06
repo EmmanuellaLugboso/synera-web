@@ -127,3 +127,6 @@
 .settings-switch.on .settings-switch-knob {
   transform: translateX(24px);
 }
+
+
+.ui-min-tap{min-height:44px;}

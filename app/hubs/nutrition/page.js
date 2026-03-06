@@ -1,10 +1,12 @@
 // app/hubs/nutrition/page.js
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import "./nutrition.css";
+import HubShell from "../../components/hub/HubShell";
+import HubTabs from "../../components/hub/HubTabs";
+import PageState from "../../components/ui/PageState";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -900,36 +902,20 @@ export default function Page() {
      RENDER
   ------------------------ */
   return (
-    <div className="nutri-page">
-      <div className="nutri-topbar">
-        <Link href="/dashboard" className="nutri-back">
-          ← Back
-        </Link>
-      </div>
-
-      <div className="nutri-container">
-        <div className="nutri-hero">
-          <div>
-            <h1 className="nutri-title">
-              Nutrition Hub <span className="nutri-emoji">🥗</span>
-            </h1>
-            <p className="nutri-sub">
-              Track food, hydration, recipes, and supplements.
-            </p>
-          </div>
-
-          <div
-            className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}
-          >
-            <div className="nutri-badgeLabel">Hydration</div>
-            <div className="nutri-badgeValue">
-              {data?.hydrationProgress ?? 0}%
-            </div>
-          </div>
+    <HubShell
+      className="nutri-page"
+      title="Nutrition Hub"
+      emoji="🥗"
+      subtitle="Track food, hydration, recipes, and supplements."
+      rightMeta={(
+        <div className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}>
+          <div className="nutri-badgeLabel">Hydration</div>
+          <div className="nutri-badgeValue">{data?.hydrationProgress ?? 0}%</div>
         </div>
-
+      )}
+    >
         {showLoading ? (
-          <div className="nutri-mutedBox">Loading your nutrition hub…</div>
+          <PageState type="loading" message="Loading your nutrition hub…" />
         ) : showLoggedOut ? (
           <div className="nutri-mutedBox">
             You’re not logged in. Please log in to save food, hydration,
@@ -965,7 +951,7 @@ export default function Page() {
 
             {/* Tabs */}
             <div className="nutri-tabsWrap">
-              <div className="nutri-tabs">
+              <HubTabs className="nutri-tabs">
                 <button
                   className={`nutri-tab ${tab === "tracker" ? "active" : ""}`}
                   onClick={() => setTab("tracker")}
@@ -987,7 +973,7 @@ export default function Page() {
                 >
                   Supplements
                 </button>
-              </div>
+              </HubTabs>
             </div>
 
             {/* ---------------- TRACKER ---------------- */}
@@ -1555,7 +1541,7 @@ export default function Page() {
                   title="Recipe"
                 >
                   {recipeDetailLoading ? (
-                    <div className="nutri-mutedBox">Loading recipe…</div>
+                    <PageState type="loading" message="Loading recipe…" />
                   ) : recipeDetailErr ? (
                     <div className="nutri-mutedBox nutri-danger">
                       {recipeDetailErr}
@@ -1953,7 +1939,7 @@ export default function Page() {
 
                   {suppLoading ? (
                     <div className="nutri-mutedBox" style={{ marginTop: 12 }}>
-                      Loading…
+                      Loading supplements…
                     </div>
                   ) : suppErr ? (
                     <div
@@ -1992,7 +1978,6 @@ export default function Page() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </HubShell>
   );
 }

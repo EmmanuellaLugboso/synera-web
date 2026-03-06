@@ -7,7 +7,9 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { normalizeError } from "../lib/errors";
 import { logError } from "../lib/logging";
-import InlineAlert from "../components/InlineAlert";
+import InlineAlert from "../components/ui/InlineAlert";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -44,24 +46,24 @@ export default function ForgotPasswordPage() {
           </div>
 
           <form className="auth-form" onSubmit={handleReset}>
-            <label className="auth-label">
-              Email
-              <input
-                type="email"
-                className="auth-input"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </label>
+            <Input
+              id="reset-email"
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              className="auth-label"
+              inputClassName="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
             {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
             {message ? <InlineAlert type="success">{message}</InlineAlert> : null}
 
-            <button className="auth-primary" disabled={loading || !email.trim()} type="submit">
+            <Button className="auth-primary" disabled={loading || !email.trim()} type="submit">
               {loading ? "Sending..." : "Send reset link"}
-            </button>
+            </Button>
           </form>
 
           <div className="auth-foot">

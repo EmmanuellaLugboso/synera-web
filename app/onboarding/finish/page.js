@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { getUserProfile } from "../../services/userService";
 import { normalizeError } from "../../lib/errors";
 import { logError } from "../../lib/logging";
-import InlineAlert from "../../components/InlineAlert";
-import StateMessage from "../../components/StateMessage";
+import InlineAlert from "../../components/ui/InlineAlert";
+import PageState from "../../components/ui/PageState";
 
 export default function FinishPage() {
   const { data, user, ready } = useOnboarding();
@@ -62,7 +62,7 @@ export default function FinishPage() {
     }
   }
 
-  if (!ready) return <div className="onboard-container" data-testid="onboarding-finish-page"><StateMessage>Loading…</StateMessage></div>;
+  if (!ready) return <div className="onboard-container" data-testid="onboarding-finish-page"><PageState type="loading" message="Loading…" /></div>;
 
   return (
     <div className="onboard-container" data-testid="onboarding-finish-page">
