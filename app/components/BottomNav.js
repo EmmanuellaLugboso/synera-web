@@ -20,7 +20,12 @@ export default function BottomNav() {
         const Icon = tab.icon;
 
         return (
-          <Link key={tab.href} href={tab.href} className="nav-item">
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`nav-item ${Active ? "is-active" : ""}`.trim()}
+            aria-current={Active ? "page" : undefined}
+          >
             <Icon active={Active} />
             {Active && <span className="nav-label">{tab.label}</span>}
           </Link>
