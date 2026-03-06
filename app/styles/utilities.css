@@ -2,3 +2,20 @@
 .cluster { display: flex; align-items: center; gap: var(--s-2); }
 .wrap { flex-wrap: wrap; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.surface-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.interactive-soft {
+  background: var(--color-hover);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.interactive-soft:hover { background: var(--color-pressed); border-color: var(--color-border-strong); }
+
+.text-muted { color: var(--color-text-muted); }

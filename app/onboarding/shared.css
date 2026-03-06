@@ -1,62 +1,67 @@
 .onboard-container {
   min-height: 100vh;
-  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: clamp(20px, 5vw, 38px);
+  background:
+    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
+    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    var(--bg);
+  color: var(--text);
 }
 
 .onboard-card {
-  background: var(--card-bg);
+  background: var(--card);
   width: 100%;
-  max-width: 480px;
-  padding: 40px;
-  border-radius: 22px;
-  box-shadow: var(--card-shadow);
+  max-width: 520px;
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
   text-align: center;
 }
 
 .onboard-title {
-  font-size: 34px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 40px;      /* more space under question */
+  font-size: clamp(30px, 5vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: var(--fw-extrabold);
+  color: var(--text);
+  margin: 0 0 var(--s-4);
 }
 
 .onboard-subtitle {
-  font-size: 18px;
-  color: var(--text-muted);
-  margin-bottom: 40px;      /* pushes input further down */
+  font-size: var(--fs-base);
+  color: var(--muted);
+  margin: 0 0 var(--s-5);
+  line-height: 1.55;
 }
 
-
-/* Bigger & premium-style onboarding button */
 .onboard-button {
-  margin-top: 28px;
-  padding: 18px 32px;        /* bigger padding */
-  width: 100%;               /* full width button */
-  max-width: 260px;          /* but not too wide */
-  height: 60px;              /* taller button */
-  background: var(--accent);
-  color: var(--card-bg);
-  font-size: 20px;           /* bigger text */
-  font-weight: 700;          /* bold + clean */
-  border-radius: 18px;       /* softer rounded edges */
-  border: none;
+  margin-top: var(--s-5);
+  min-height: 52px;
+  padding: 0 var(--s-6);
+  width: 100%;
+  max-width: 280px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
+  color: var(--color-accent-contrast);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--border));
   cursor: pointer;
-  transition: 0.25s ease;
-  display: flex;             /* perfectly centre text */
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
   justify-content: center;
   align-items: center;
   margin-left: auto;
-  margin-right: auto;        /* centers button */
-  box-shadow: var(--shadow);
+  margin-right: auto;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .onboard-button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 .onboard-button:disabled {
@@ -65,36 +70,29 @@
   box-shadow: none;
 }
 
-
 .text-input {
   width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  border-radius: 12px;
+  min-height: 46px;
+  padding: 0 var(--s-3);
+  font-size: var(--fs-base);
+  border-radius: var(--r-md);
   border: 1px solid var(--border);
   outline: none;
-  margin-bottom: 18px;
+  margin-bottom: var(--s-3);
+  background: var(--card);
+  color: var(--text);
 }
 
 .text-input:focus {
-  border-color: var(--accent);
-}
-
-
-/* Theme alignment overrides */
-.onboard-container {
-  background:
-    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
-    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
-    var(--bg);
-  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  box-shadow: var(--focus-ring);
 }
 
 .onboard-card,
 .sex-card {
   background: var(--card) !important;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
   color: var(--text);
 }
 
@@ -133,11 +131,8 @@
 
 .onboard-button,
 .bigger-btn {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--accent) 72%, var(--card-bg)),
-    var(--accent)
-  ) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent)) !important;
+  color: var(--color-accent-contrast) !important;
   box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
@@ -160,9 +155,11 @@
 .meal-cards button,
 .water-cards button,
 .supp-grid button {
+  min-height: 44px;
   background: color-mix(in srgb, var(--card) 92%, transparent) !important;
   border: 1px solid var(--border) !important;
   color: var(--text) !important;
+  border-radius: var(--r-md) !important;
 }
 
 .choice-grid button.selected,
@@ -180,5 +177,4 @@
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
 }
 
-
-.ui-min-tap{min-height:44px;}
+.ui-min-tap { min-height: 44px; }
