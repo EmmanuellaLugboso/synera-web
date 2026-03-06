@@ -46,7 +46,7 @@ export default function InsightsPage() {
     return clampNumber(found?.steps);
   }, [data?.stepsLog, date]);
 
-  const waterLitres = clampNumber(data?.waterTodayLitres);
+  const waterLitres = clampNumber(data?.waterLitres ?? data?.waterTodayLitres);
   const waterGoal = clampNumber(data?.waterGoalLitres) || 3;
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
