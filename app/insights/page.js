@@ -98,13 +98,15 @@ export default function InsightsPage() {
 
       const payload = await res.json();
       if (!res.ok) throw new Error(payload?.error || "Failed to get insight");
-      setAnswer(payload);
+
+      const insight = payload?.insight ?? payload;
+      setAnswer(insight);
       if (finalQuestion) {
         saveHistory({
           question: finalQuestion,
           mode,
           at: new Date().toISOString(),
-          headline: payload?.fastWin?.headline || "Fast win",
+          headline: insight?.fastWin?.headline || "Fast win",
         });
       }
     } catch (e) {
