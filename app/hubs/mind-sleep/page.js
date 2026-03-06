@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import "../hub.css";
+import HubShell from "../../components/hub/HubShell";
+import HubTabs from "../../components/hub/HubTabs";
 import "./mind-sleep.css";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useEffect, useMemo, useState } from "react";
@@ -722,29 +723,19 @@ export default function Page() {
   const journalLockedActive = locked && hasPin;
 
   return (
-    <div className="hub-page">
-      <div className="hub-topbar">
-        <Link href="/dashboard" className="back-link">
-          ← Back
-        </Link>
-      </div>
-
-      <div className="hub-hero">
-        <div>
-          <h1 className="hub-title">
-            Mind & Sleep <span className="hub-emoji">🫧</span>
-          </h1>
-          <p className="hub-sub">Journal + check-ins + sleep + patterns. Clean. Adult. Useful.</p>
-        </div>
-
-        <div className="hub-badge">
+    <HubShell
+      title="Mind & Sleep"
+      emoji="🫧"
+      subtitle="Journal + check-ins + sleep + patterns. Clean. Adult. Useful."
+      rightMeta={(
+        <>
           <div className="hub-badge-label">Today</div>
           <div className="hub-badge-value">{date}</div>
-        </div>
-      </div>
-
+        </>
+      )}
+    >
       {/* Tabs */}
-      <div className="ms3-tabs">
+      <HubTabs className="ms3-tabs">
         <button className={`ms3-tab ${tab === "journal" ? "active" : ""}`} onClick={() => setTab("journal")} type="button">
           Journal
         </button>
@@ -757,7 +748,7 @@ export default function Page() {
         <button className={`ms3-tab ${tab === "insights" ? "active" : ""}`} onClick={() => setTab("insights")} type="button">
           Calendar
         </button>
-      </div>
+      </HubTabs>
 
       {/* ---------------- JOURNAL ---------------- */}
       {tab === "journal" && (
@@ -1572,6 +1563,6 @@ export default function Page() {
           </div>
         </>
       )}
-    </div>
+    </HubShell>
   );
 }

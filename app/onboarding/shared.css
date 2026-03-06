@@ -179,3 +179,6 @@
   background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
 }
+
+
+.ui-min-tap{min-height:44px;}

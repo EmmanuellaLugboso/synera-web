@@ -5,6 +5,10 @@ import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getUserProfile } from "../../services/userService";
+import { normalizeError } from "../../lib/errors";
+import { logError } from "../../lib/logging";
+import InlineAlert from "../../components/ui/InlineAlert";
+import PageState from "../../components/ui/PageState";
 
 export default function FinishPage() {
   const { data, user, ready } = useOnboarding();
@@ -48,28 +52,30 @@ export default function FinishPage() {
       await saveOnboardingData(data);
       router.replace("/dashboard");
     } catch (err) {
-      console.error("Error saving onboarding:", err);
-      setError("Could not finish onboarding. Please try again.");
+      const normalized = normalizeError(err, "Could not finish onboarding. Please try again.");
+      logError("onboarding.finish.failed", err, { screen: "onboarding/finish" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
   }
 
-  if (!ready) return <div className="onboard-container">Loading…</div>;
+  if (!ready) return <div className="onboard-container" data-testid="onboarding-finish-page"><PageState type="loading" message="Loading…" /></div>;
 
   return (
-    <div className="onboard-container">
+    <div className="onboard-container" data-testid="onboarding-finish-page">
       <div className="onboard-card">
         <h1 className="onboard-title">You&apos;re All Set 🎉</h1>
 
         <button
+          data-testid="onboarding-finish-btn"
           className="onboard-button"
           onClick={saveOnboarding}
           disabled={loading}
         >
           {loading ? "Saving..." : "Finish"}
         </button>
-        {error ? <p className="onboard-subtitle">{error}</p> : null}
+        {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
       </div>
     </div>
   );

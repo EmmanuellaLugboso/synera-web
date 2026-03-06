@@ -11,7 +11,7 @@
   background:var(--card);
   padding: 12px 14px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
@@ -38,7 +38,7 @@
   border:none;
   border-radius: 16px;
   padding: 12px 14px;
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
   color:var(--card);
   background: linear-gradient(135deg, #FF8AC7, var(--accent));
@@ -52,7 +52,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
 }
@@ -69,7 +69,7 @@
   background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 
@@ -77,7 +77,7 @@
   background:#FFE3EF;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   color:var(--accent);
-  font-weight: 1000;
+  font-weight: 700;
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
@@ -85,7 +85,7 @@
 
 .ms3-muted{
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -101,7 +101,7 @@
   border-radius: 14px;
   border: 1px solid var(--border);
   background:var(--card);
-  font-weight: 1100;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.04);
 }
@@ -147,7 +147,7 @@
   cursor:pointer;
 }
 .ms3-title{
-  font-weight: 1100;
+  font-weight: 700;
   display:flex;
   align-items:center;
   gap: 8px;
@@ -156,13 +156,13 @@
   margin-top: 6px;
   font-size: 12px;
   color:var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 .ms3-preview{
   margin-top: 8px;
   font-size: 12px;
   color:#666;
-  font-weight: 800;
+  font-weight: 600;
 }
 .ms3-actions{
   display:flex;
@@ -177,7 +177,7 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1200;
+  font-weight: 600;
 }
 .ms3-iconbtn:hover{
   border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
@@ -198,7 +198,7 @@
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   color:var(--accent);
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 /* Tags */
@@ -214,7 +214,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
   min-width: 220px;
@@ -230,7 +230,7 @@
   background:var(--card);
   border-radius: 999px;
   padding: 8px 12px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
 }
 .ms3-tag:hover{
@@ -266,7 +266,7 @@
   margin-bottom: 10px;
 }
 .ms3-modalTitle{
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 16px;
 }
 
@@ -276,7 +276,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 1000;
+  font-weight: 700;
   outline:none;
   background:var(--card2);
 }
@@ -286,7 +286,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   padding: 12px 14px;
-  font-weight: 800;
+  font-weight: 600;
   outline:none;
   background:var(--card2);
   min-height: 160px;
@@ -323,10 +323,10 @@
   border: 1px solid var(--border);
   background:var(--card);
   cursor:pointer;
-  font-weight: 1100;
+  font-weight: 700;
 }
 .ms3-calLabel{
-  font-weight: 1100;
+  font-weight: 700;
 }
 .ms3-calGrid{
   margin-top: 12px;
@@ -337,7 +337,7 @@
 .ms3-calDow{
   text-align:center;
   font-size: 11px;
-  font-weight: 1000;
+  font-weight: 700;
   color:var(--muted);
   padding: 6px 0;
 }
@@ -366,7 +366,7 @@
   position:absolute;
   top: 10px;
   left: 12px;
-  font-weight: 1100;
+  font-weight: 700;
   font-size: 13px;
 }
 .ms3-dots{
@@ -399,7 +399,7 @@
   background:var(--card);
   border-radius: 999px;
   padding: 10px 12px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
@@ -414,7 +414,7 @@
   background:var(--card);
   border-radius: 14px;
   padding: 10px 12px;
-  font-weight: 900;
+  font-weight: 600;
   outline:none;
 }
 .ms3-toggle{
@@ -422,7 +422,7 @@
   background:var(--card);
   padding: 10px 12px;
   border-radius: 999px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
@@ -444,7 +444,7 @@
   background:var(--card);
   padding: 10px 12px;
   border-radius: 14px;
-  font-weight: 1000;
+  font-weight: 700;
   cursor:pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
