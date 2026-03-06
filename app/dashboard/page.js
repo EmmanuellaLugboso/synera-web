@@ -5,6 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
+import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
 import { db, auth } from "../firebase/config";
@@ -322,8 +325,9 @@ export default function Dashboard() {
       await signOut(auth);
       router.push("/login");
     } catch (e) {
-      console.log("LOGOUT ERROR:", e);
-      alert(e?.message || "Logout failed.");
+      const normalized = normalizeError(e, "Could not log out right now.");
+      logError("auth.logout.failed", e, { screen: "dashboard" });
+      setInsightError(normalized.message);
     }
   }
 
@@ -576,7 +580,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dash-page">
+    <div className="dash-page" data-testid="dashboard-page">
       {/* Top bar */}
       <div className="dash-topbar">
         <div className="dash-topbar-inner">
@@ -631,9 +635,9 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-shell">
-        {!ready ? <div className="dash-loading">Loading your data…</div> : null}
+        {!ready ? <PageState type="loading" message="Loading your data…" /> : null}
         {dailyLoading ? (
-          <div className="dash-loading">Loading today’s log…</div>
+          <PageState type="loading" message="Loading today’s log…" />
         ) : null}
 
         <div className="dash-grid">
@@ -730,7 +734,7 @@ export default function Dashboard() {
             </div>
 
             <div className="hero-note">
-              Quick actions are placeholders — we’ll wire to logs next.
+              Quick add is live — hydration updates your daily log instantly.
             </div>
           </section>
 
