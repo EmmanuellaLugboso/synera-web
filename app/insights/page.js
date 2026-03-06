@@ -478,11 +478,6 @@ export default function InsightsPage() {
       ref,
       {
         date: dateISO,
-        calories: 0,
-        steps: 0,
-        waterMl: 0,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
       },
       { merge: true }
     );
