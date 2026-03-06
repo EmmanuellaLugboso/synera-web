@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 
 const port = 4011;
 const base = `http://127.0.0.1:${port}`;
@@ -23,6 +24,24 @@ async function waitForServer(url, timeoutMs = 60_000) {
   throw new Error(`Server did not become ready within ${timeoutMs}ms`);
 }
 
+async function stopDevServer(child, timeoutMs = 5_000) {
+  const onExit = once(child, "exit").catch(() => null);
+  const isPosix = process.platform !== "win32";
+  const targetPid = isPosix ? -child.pid : child.pid;
+
+  process.kill(targetPid, "SIGINT");
+
+  const exitedGracefully = await Promise.race([
+    onExit.then(() => true),
+    wait(timeoutMs).then(() => false),
+  ]);
+
+  if (exitedGracefully) return;
+
+  process.kill(targetPid, "SIGKILL");
+  await onExit;
+}
+
 test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages render", { timeout: 120_000 }, async () => {
   const child = spawn("npm", ["run", "dev", "--", "--port", String(port)], {
     cwd: process.cwd(),
@@ -30,6 +49,7 @@ test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages
       ...process.env,
     },
     stdio: "pipe",
+    detached: process.platform !== "win32",
   });
 
   const logs = [];
@@ -51,8 +71,6 @@ test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages
     const hubsHtml = await (await fetch(`${base}/hubs`)).text();
     assert.match(hubsHtml, /data-testid="hubs-page"/);
   } finally {
-    child.kill("SIGINT");
-    await wait(600);
-    if (!child.killed) child.kill("SIGKILL");
+    await stopDevServer(child);
   }
 });
