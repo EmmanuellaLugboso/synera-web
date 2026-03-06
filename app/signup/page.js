@@ -3,6 +3,8 @@
 import "./signup.css";
 import Image from "next/image";
 import { useState } from "react";
+import { normalizeError } from "../lib/errors";
+import { logError } from "../lib/logging";
 import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
@@ -13,6 +15,9 @@ import {
 import { auth } from "../firebase/config";
 import { getUserProfile } from "../services/userService";
 import { getPostAuthRoute } from "../lib/authRouting";
+import InlineAlert from "../components/ui/InlineAlert";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -38,8 +43,9 @@ export default function SignupPage() {
       await createUserWithEmailAndPassword(auth, email.trim(), password);
       router.push("/onboarding/name");
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Sign up failed.");
+      const normalized = normalizeError(err, "Sign up failed.");
+      logError("auth.signup.failed", err, { provider: "password" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
@@ -68,52 +74,62 @@ export default function SignupPage() {
       const profile = await getUserProfile(uid);
       router.push(getPostAuthRoute(profile));
     } catch (err) {
-      console.log(err);
-      setError(err?.message || "Google sign-up failed.");
+      const normalized = normalizeError(err, "Google sign-up failed.");
+      logError("auth.signup.failed", err, { provider: "google" });
+      setError(normalized.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="signup-wrapper">
+    <div className="signup-wrapper" data-testid="signup-page">
       <div className="signup-card">
         <h1 className="signup-title">Create your account</h1>
         <p className="signup-subtitle">Start your wellness journey</p>
 
         <form className="signup-form" onSubmit={handleSignup}>
-          <input
+          <Input
+            id="signup-email"
+            label="Email"
             type="email"
             placeholder="Email address"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            id="signup-password"
+            label="Password"
             type="password"
             placeholder="Password"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            id="signup-confirm"
+            label="Confirm password"
             type="password"
             placeholder="Confirm password"
-            className="signup-input"
+            className="signup-inputWrap"
+            inputClassName="signup-input"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
           />
 
-          {error && <p className="signup-error">{error}</p>}
+          {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
 
-          <button className="signup-btn" disabled={loading} type="submit">
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
+          <Button className="signup-btn" disabled={loading} type="submit">
+            {loading ? "Creating account..." : "Sign up"}
+          </Button>
         </form>
 
         <div className="divider">
@@ -124,6 +140,7 @@ export default function SignupPage() {
           <Image src="/google.svg" className="google-icon" alt="Google" width={18} height={18} />
           Continue with Google
         </button>
+
 
         <p className="login-text">
           Already have an account?{" "}

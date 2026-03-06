@@ -2,12 +2,13 @@
 "use client";
 
 import "./fitness.css";
-import Link from "next/link";
+import HubShell from "../../components/hub/HubShell";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import PageState from "../../components/ui/PageState";
 
 /* ---------- Starter templates & library ---------- */
 
@@ -928,37 +929,37 @@ export default function FitnessHub() {
 
   if (!ready) {
     return (
-      <div className="fit2-page">
-        <div className="fit2-topbar">
-          <Link href="/dashboard" className="fit2-back">
-            ← Back
-          </Link>
-        </div>
-        <div className="fit2-mutedbox">Loading your fitness hub…</div>
-      </div>
+      <HubShell
+        className="fit2-page"
+        title="Fitness Hub"
+        subtitle="Strength, cardio, steps, and body metrics in one place."
+        emoji="🏋🏽"
+      >
+        <PageState type="loading" message="Loading your fitness hub…" />
+      </HubShell>
     );
   }
 
   if (!user) {
     return (
-      <div className="fit2-page">
-        <div className="fit2-topbar">
-          <Link href="/dashboard" className="fit2-back">
-            ← Back
-          </Link>
-        </div>
-        <div className="fit2-mutedbox">Redirecting to login…</div>
-      </div>
+      <HubShell
+        className="fit2-page"
+        title="Fitness Hub"
+        subtitle="Strength, cardio, steps, and body metrics in one place."
+        emoji="🏋🏽"
+      >
+        <PageState type="loading" message="Redirecting to login…" />
+      </HubShell>
     );
   }
 
   return (
-    <div className="fit2-page">
-      <div className="fit2-topbar">
-        <Link href="/dashboard" className="fit2-back">
-          ← Back
-        </Link>
-
+    <HubShell
+      className="fit2-page"
+      title="Fitness Hub"
+      subtitle="Pick one lane. No clutter."
+      rightMeta={<div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>Sync: {syncStatus}</div>}
+      topActions={
         <div className="fit2-unit">
           <button
             className={`fit2-unitbtn ${unit === "kg" ? "active" : ""}`}
@@ -975,20 +976,11 @@ export default function FitnessHub() {
             lbs
           </button>
         </div>
-      </div>
-
+      }
+    >
       {/* ========== HUB TILES ========== */}
       {screen === "hub" && (
         <div className="fit2-hubhome">
-          <div className="fit2-headerblock">
-            <div className="fit2-kicker">Fitness Hub</div>
-            <h1 className="fit2-h1">What are we doing today?</h1>
-            <div className="fit2-muted">Pick one lane. No clutter.</div>
-            <div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>
-              Sync: {syncStatus}
-            </div>
-          </div>
-
           {/* DAILY SUMMARY CARD */}
           <div className="fit2-dailyCard">
             <div className="fit2-dailyHeader">
@@ -1042,19 +1034,25 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-dailyActions">
-              <button
-                className="fit2-primarywide"
-                onClick={goStrength}
-                type="button"
-              >
-                Start Strength
-              </button>
-              <button className="fit2-pillbtn" onClick={goSteps} type="button">
-                Log Steps
-              </button>
-              <button className="fit2-pillbtn" onClick={goCardio} type="button">
-                Log Cardio
-              </button>
+              <div className="fit2-actionPrimary">
+                <button
+                  className="fit2-primarywide"
+                  onClick={goStrength}
+                  type="button"
+                >
+                  Start Strength
+                </button>
+                <div className="fit2-actionHint">Launch your next workout with templates, timers, and progression tracking.</div>
+              </div>
+
+              <div className="fit2-actionSecondary">
+                <button className="fit2-pillbtn" onClick={goSteps} type="button">
+                  Log Steps
+                </button>
+                <button className="fit2-pillbtn" onClick={goCardio} type="button">
+                  Log Cardio
+                </button>
+              </div>
             </div>
           </div>
 
@@ -2085,6 +2083,6 @@ export default function FitnessHub() {
           </div>
         </div>
       )}
-    </div>
+    </HubShell>
   );
 }

@@ -8,6 +8,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { auth, storage } from "../../firebase/config";
+import PageState from "../../components/ui/PageState";
+import HubShell from "../../components/hub/HubShell";
 import {
   getUserProfile,
   ensureUserProfile,
@@ -141,23 +143,48 @@ export default function ProfileHub() {
     }
   }
 
-  if (loading) return <div className="pro-page">Loading…</div>;
-  if (!userAuth) return <div className="pro-page">Redirecting to login…</div>;
-  if (!profile) return <div className="pro-page">No profile found.</div>;
+  if (loading) {
+    return (
+      <HubShell title="Profile Hub" subtitle="Account details and setup" emoji="🙋🏽">
+        <PageState type="loading" message="Loading your profile…" />
+      </HubShell>
+    );
+  }
+
+  if (!userAuth) {
+    return (
+      <HubShell title="Profile Hub" subtitle="Account details and setup" emoji="🙋🏽">
+        <PageState type="loading" message="Redirecting to login…" />
+      </HubShell>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <HubShell title="Profile Hub" subtitle="Account details and setup" emoji="🙋🏽">
+        <PageState type="empty" message="No profile found yet." />
+      </HubShell>
+    );
+  }
 
   return (
-    <div className="pro-page">
-      <div className="pro-top">
-        <div>
-          <div className="pro-title">Profile</div>
-          <div className="pro-sub">Your setup</div>
-        </div>
-
+    <HubShell
+      className="pro-page"
+      title="Profile Hub"
+      subtitle="Account details and setup"
+      emoji="🙋🏽"
+      topActions={
         <button className="pro-edit" type="button" onClick={toggleEdit}>
           {editMode ? "Close" : "Edit"}
         </button>
-      </div>
-
+      }
+      rightMeta={(
+        <>
+          <div className="hub-badge-label">Profile</div>
+          <div className="hub-badge-value">Active</div>
+        </>
+      )}
+    >
       <div className="pro-card">
         <div className="pro-row">
           <div className="pro-avatar">
@@ -267,6 +294,6 @@ export default function ProfileHub() {
           </div>
         </div>
       )}
-    </div>
+    </HubShell>
   );
 }

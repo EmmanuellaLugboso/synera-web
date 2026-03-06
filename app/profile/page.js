@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
+import PageState from "../components/ui/PageState";
 import { auth, db, storage } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -177,7 +178,13 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) return <div className="profile-page">Loading profile…</div>;
+  if (loading) {
+    return (
+      <div className="profile-page">
+        <PageState type="loading" message="Loading profile…" />
+      </div>
+    );
+  }
 
   return (
     <div className="profile-page">

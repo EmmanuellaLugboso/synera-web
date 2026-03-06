@@ -12,6 +12,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
 import { auth } from "../firebase/config";
 import { getUserProfile, mergeUserProfile, sanitizeForFirestore } from "../services/userService";
+import { logError } from "../lib/logging";
 
 const OnboardingContext = createContext({
   data: {},
@@ -201,7 +202,7 @@ export function OnboardingProvider({ children }) {
           setData(DEFAULT_DATA);
         }
       } catch (error) {
-        console.log("Firestore load failed:", error);
+        logError("onboarding.remote_load.failed", error, { stage: "load" });
         // Keep local data if Firestore fails
       }
 
@@ -241,7 +242,7 @@ export function OnboardingProvider({ children }) {
 
         lastSavedJSON.current = json;
       } catch (error) {
-        console.log("Firestore save failed:", error);
+        logError("onboarding.remote_save.failed", error, { stage: "save" });
       }
     }, 450);
 

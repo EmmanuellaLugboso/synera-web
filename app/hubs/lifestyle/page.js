@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import "../hub.css";
+import HubShell from "../../components/hub/HubShell";
+import HubTabs from "../../components/hub/HubTabs";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -624,31 +625,19 @@ export default function Page() {
   }, [ready, user?.uid, dateISO, disciplineDays, habitLogs, habits]);
 
   return (
-    <div className="hub-page">
-      <div className="hub-topbar">
-        <Link href="/dashboard" className="back-link">
-          ← Back
-        </Link>
-      </div>
-
-      <div className="hub-hero">
-        <div>
-          <h1 className="hub-title">
-            Lifestyle Hub <span className="hub-emoji">✨</span>
-          </h1>
-          <p className="hub-sub">
-            High-performance mode: admin, habits, goals, routines — and a discipline score.
-          </p>
-        </div>
-
-        <div className="hub-badge">
+    <HubShell
+      title="Lifestyle Hub"
+      emoji="✨"
+      subtitle="High-performance mode: admin, habits, goals, routines — and a discipline score."
+      rightMeta={(
+        <>
           <div className="hub-badge-label">Today</div>
           <div className="hub-badge-value">{fmtDateLabel(dateISO)}</div>
-        </div>
-      </div>
-
+        </>
+      )}
+    >
       {/* Lifestyle tabs */}
-      <div className="life-tabs">
+      <HubTabs className="life-tabs">
         <button
           className={`life-tab ${tab === "admin" ? "active" : ""}`}
           onClick={() => setTab("admin")}
@@ -689,7 +678,7 @@ export default function Page() {
           Routines
           <span className="life-tabmeta">{headerSummary.routines}</span>
         </button>
-      </div>
+      </HubTabs>
 
       {/* ---------------- ADMIN ---------------- */}
       {tab === "admin" && (
@@ -1504,6 +1493,6 @@ export default function Page() {
           )}
         </>
       )}
-    </div>
+    </HubShell>
   );
 }
