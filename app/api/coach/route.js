@@ -11,7 +11,7 @@ export async function POST(req) {
   try {
     if (isRateLimited(req)) {
       return NextResponse.json(
-        { error: "Too many coach requests. Please wait a minute and retry." },
+        { error: "Too many assistant requests. Please wait a minute and retry." },
         { status: 429 },
       );
     }
@@ -25,6 +25,16 @@ export async function POST(req) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
+    const planItems = Array.isArray(contextRaw?.planItems)
+      ? contextRaw.planItems
+          .slice(0, 10)
+          .map((item) => ({
+            text: String(item?.text || "").trim(),
+            done: Boolean(item?.done),
+          }))
+          .filter((item) => item.text)
+      : [];
+
     const context = {
       name: String(contextRaw?.name || "friend"),
       waterLitres: clamp(contextRaw?.waterLitres),
@@ -36,23 +46,23 @@ export async function POST(req) {
       moodRating: clamp(contextRaw?.moodRating),
       sleepHours: clamp(contextRaw?.sleepHours),
       habitsRate: clamp(contextRaw?.habitsRate),
+      planItems,
     };
 
     const planResult = generatePlan(message, context);
     const priorities = topPriorities(context).map((x) => x.summary);
-    const nextPrompt =
-      "Want me to turn this into a timed schedule for the next 3 hours?";
 
     return NextResponse.json({
-      reply: `${planResult.reply} Top priorities: ${priorities.join(" • ")}.`,
+      reply: `${planResult.reply} Top priorities: ${priorities.slice(0, 2).join(" • ") || "Build consistency across your daily pillars"}.`,
       focus: planResult.focus,
       plan: planResult.plan,
       checkInMin: planResult.checkInMin,
-      nextPrompt,
+      nextPrompt: planResult.nextPrompt || "Want me to adapt this for your available time today?",
+      keyMessages: Array.isArray(planResult.keyMessages) ? planResult.keyMessages : [],
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error?.message || "Failed to generate coach reply" },
+      { error: error?.message || "Failed to generate assistant reply" },
       { status: 500 },
     );
   }

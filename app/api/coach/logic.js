@@ -55,15 +55,61 @@ export function topPriorities(context) {
     });
   }
 
-  return deficits.sort((a, b) => b.score - a.score).slice(0, 2);
+  return deficits.sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
+function detectIntent(message = "") {
+  const lower = message.toLowerCase();
+  if (lower.includes("task") || lower.includes("to do") || lower.includes("todo")) return "tasks";
+  if (lower.includes("focus") || lower.includes("priorit")) return "focus";
+  if (lower.includes("falling behind") || lower.includes("behind") || lower.includes("struggling")) return "behind";
+  if (lower.includes("progress") || lower.includes("week") || lower.includes("improved")) return "progress";
+  if (lower.includes("habit")) return "habits";
+  if (lower.includes("plan") || lower.includes("schedule")) return "planning";
+  if (lower.includes("tired") || lower.includes("energy")) return "energy";
+  if (lower.includes("workout") || lower.includes("gym")) return "workout";
+  if (lower.includes("food") || lower.includes("eat") || lower.includes("calorie")) return "nutrition";
+  return "general";
+}
+
+function buildKeyMessages(context, priorities, intent) {
+  const planItems = Array.isArray(context.planItems) ? context.planItems : [];
+  const openItems = planItems.filter((p) => !p?.done);
+  const doneItems = planItems.filter((p) => p?.done);
+
+  const progressLine = `Today: ${progress(context.waterLitres, context.waterGoal)}% hydration • ${progress(context.steps, context.stepGoal)}% movement • ${progress(context.calories, context.calorieGoal)}% fuel • ${Math.round(clamp(context.habitsRate))}% habits.`;
+  const behindLine = priorities.length
+    ? `You are most behind on ${priorities.slice(0, 2).map((p) => p.key).join(" and ")}.`
+    : "You are trending stable across your core pillars.";
+  const taskLine = openItems.length
+    ? `Open tasks: ${openItems.slice(0, 3).map((p) => p.text).join(" • ")}`
+    : "Great work — no open tasks in your current day plan.";
+
+  if (intent === "tasks") return [taskLine, progressLine, behindLine];
+  if (intent === "progress") {
+    return [
+      progressLine,
+      `Completed today: ${doneItems.length}/${planItems.length || 0} planned actions.`,
+      `Recovery snapshot: sleep ${context.sleepHours || 0}h • mood ${context.moodRating || 0}/5.`,
+    ];
+  }
+  if (intent === "habits") {
+    return [
+      `Habit completion is ${Math.round(clamp(context.habitsRate))}%.`,
+      openItems.length ? `Next habit to close: ${openItems[0]?.text || "your next planned habit"}.` : "Habits are complete for today.",
+      "Small consistency wins beat high-effort sprints.",
+    ];
+  }
+
+  return [progressLine, behindLine, taskLine];
 }
 
 export function generatePlan(message, context) {
-  const lower = message.toLowerCase();
+  const intent = detectIntent(message);
   const top = topPriorities(context);
   const primary = top[0]?.key || "hydration";
 
-  if (lower.includes("tired") || lower.includes("energy")) {
+  if (intent === "energy") {
     return {
       focus: "energy reset",
       checkInMin: 25,
@@ -73,10 +119,12 @@ export function generatePlan(message, context) {
         "Eat protein + fruit at your next meal/snack.",
       ],
       reply: `${context.name}, let's run a fast energy reset.`,
+      nextPrompt: "Want a low-effort evening wind-down plan too?",
+      keyMessages: buildKeyMessages(context, top, intent),
     };
   }
 
-  if (lower.includes("workout") || lower.includes("gym")) {
+  if (intent === "workout") {
     return {
       focus: "training execution",
       checkInMin: 45,
@@ -86,14 +134,12 @@ export function generatePlan(message, context) {
         "Log session + recovery (water + protein) immediately after.",
       ],
       reply: `${context.name}, let's keep training simple and executable.`,
+      nextPrompt: "Want me to tailor this for home, gym, or low-energy mode?",
+      keyMessages: buildKeyMessages(context, top, intent),
     };
   }
 
-  if (
-    lower.includes("food") ||
-    lower.includes("eat") ||
-    lower.includes("calorie")
-  ) {
+  if (intent === "nutrition") {
     return {
       focus: "nutrition consistency",
       checkInMin: 60,
@@ -103,6 +149,52 @@ export function generatePlan(message, context) {
         "Pre-decide your next snack so evening choices are easier.",
       ],
       reply: `${context.name}, nutrition focus is on consistency, not perfection.`,
+      nextPrompt: "Do you want a quick dinner template that fits your targets?",
+      keyMessages: buildKeyMessages(context, top, intent),
+    };
+  }
+
+  if (intent === "tasks") {
+    const openItems = (context.planItems || []).filter((p) => !p?.done);
+    return {
+      focus: "task execution",
+      checkInMin: 35,
+      plan: openItems.length
+        ? openItems.slice(0, 3).map((p) => p.text)
+        : ["No open tasks left — lock in recovery and prep tomorrow's top 3 tasks."],
+      reply: `${context.name}, here is your highest-impact task queue for today.`,
+      nextPrompt: "Want me to turn this into a time-blocked schedule?",
+      keyMessages: buildKeyMessages(context, top, intent),
+    };
+  }
+
+  if (intent === "progress") {
+    return {
+      focus: "weekly progress review",
+      checkInMin: 50,
+      plan: [
+        "Protect your strongest metric today to keep momentum.",
+        "Close one lagging metric before evening.",
+        "Review your completed tasks and set tomorrow's top 3.",
+      ],
+      reply: `${context.name}, here is your progress check with the next growth move.`,
+      nextPrompt: "Do you want a simple weekly scorecard summary next?",
+      keyMessages: buildKeyMessages(context, top, intent),
+    };
+  }
+
+  if (intent === "habits") {
+    return {
+      focus: "habit consistency",
+      checkInMin: 40,
+      plan: [
+        "Start with your easiest habit in the next 15 minutes.",
+        "Stack the next habit right after an existing routine.",
+        "Mark completion immediately to reinforce momentum.",
+      ],
+      reply: `${context.name}, let's tighten habit consistency with low-friction actions.`,
+      nextPrompt: "Want a habit stack for morning, afternoon, and evening?",
+      keyMessages: buildKeyMessages(context, top, intent),
     };
   }
 
@@ -116,6 +208,8 @@ export function generatePlan(message, context) {
         "Set tonight's bedtime now and protect it.",
       ],
       reply: `${context.name}, recovery is the bottleneck today.`,
+      nextPrompt: "Should I build a sleep-first evening routine?",
+      keyMessages: buildKeyMessages(context, top, intent),
     };
   }
 
@@ -129,6 +223,8 @@ export function generatePlan(message, context) {
         "Close remaining step gap with a post-meal walk.",
       ],
       reply: `${context.name}, movement gives you the fastest momentum boost right now.`,
+      nextPrompt: "Want me to split your step goal into 3 checkpoints?",
+      keyMessages: buildKeyMessages(context, top, intent),
     };
   }
 
@@ -141,6 +237,8 @@ export function generatePlan(message, context) {
       "Complete your next most important habit before 8pm.",
     ],
     reply: `${context.name}, we can win this day with a focused 3-step plan.`,
+    nextPrompt: "Want me to prioritize this by impact and effort?",
+    keyMessages: buildKeyMessages(context, top, intent),
   };
 }
 
