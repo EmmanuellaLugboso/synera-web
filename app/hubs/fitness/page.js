@@ -1034,19 +1034,25 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-dailyActions">
-              <button
-                className="fit2-primarywide"
-                onClick={goStrength}
-                type="button"
-              >
-                Start Strength
-              </button>
-              <button className="fit2-pillbtn" onClick={goSteps} type="button">
-                Log Steps
-              </button>
-              <button className="fit2-pillbtn" onClick={goCardio} type="button">
-                Log Cardio
-              </button>
+              <div className="fit2-actionPrimary">
+                <button
+                  className="fit2-primarywide"
+                  onClick={goStrength}
+                  type="button"
+                >
+                  Start Strength
+                </button>
+                <div className="fit2-actionHint">Launch your next workout with templates, timers, and progression tracking.</div>
+              </div>
+
+              <div className="fit2-actionSecondary">
+                <button className="fit2-pillbtn" onClick={goSteps} type="button">
+                  Log Steps
+                </button>
+                <button className="fit2-pillbtn" onClick={goCardio} type="button">
+                  Log Cardio
+                </button>
+              </div>
             </div>
           </div>
 

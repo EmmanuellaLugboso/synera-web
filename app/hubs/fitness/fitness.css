@@ -18,10 +18,10 @@
 }
 .fit2-page {
   width: 100%;
-  max-width: 1600px;
+  max-width: 1700px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: clamp(16px, 2.2vw, 34px) clamp(16px, 3.2vw, 52px) clamp(42px, 5vw, 72px);
+  padding: clamp(16px, 2.1vw, 34px) clamp(16px, 3.4vw, 64px) clamp(42px, 5vw, 76px);
   color: var(--text);
   font-family:
     "Inter",
@@ -107,18 +107,20 @@
 
 /* Hub home */
 .fit2-hubhome {
-  padding-top: 10px;
+  padding-top: 12px;
   display: grid;
-  gap: clamp(16px, 1.8vw, 26px);
+  gap: clamp(18px, 2vw, 30px);
 }
 
 /* DAILY SUMMARY */
 .fit2-dailyCard {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white) 0%, var(--card) 100%);
-  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
-  border-radius: 26px;
-  padding: clamp(16px, 2vw, 26px);
-  box-shadow: 0 20px 44px rgba(16, 18, 30, 0.08);
+  background:
+    radial-gradient(900px 240px at 12% -16%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 68%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white) 0%, var(--card) 100%);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 30px;
+  padding: clamp(20px, 2.2vw, 30px);
+  box-shadow: 0 24px 54px rgba(16, 18, 30, 0.1);
   backdrop-filter: blur(14px);
   margin: 0;
 }
@@ -127,37 +129,37 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .fit2-dailyLabel {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 .fit2-dailyDate {
-  font-size: clamp(20px, 1.8vw, 28px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: clamp(24px, 2.4vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.03em;
 }
 
 .fit2-dailyBadge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 9px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
   border-radius: 999px;
   color: #fff;
   border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, #ffa0cf), var(--accent));
-  box-shadow: 0 10px 24px rgba(255, 79, 154, 0.22);
+  box-shadow: 0 8px 20px rgba(255, 79, 154, 0.2);
 }
 
 .fit2-dailyGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 @media (max-width: 720px) {
   .fit2-dailyGrid {
@@ -166,10 +168,10 @@
 }
 
 .fit2-dailyItem {
-  background: color-mix(in srgb, var(--card) 94%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
   border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
-  border-radius: 18px;
-  padding: 14px 12px;
+  border-radius: 20px;
+  padding: 16px 14px;
   text-align: left;
   box-shadow: var(--shadow2);
   transition:
@@ -177,15 +179,17 @@
     box-shadow 140ms ease;
 }
 .fit2-dailyValue {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: clamp(24px, 1.8vw, 30px);
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 .fit2-dailyText {
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: 8px;
+  font-size: 11px;
   font-weight: 600;
-  color: rgba(65, 66, 77, 0.72);
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  color: rgba(65, 66, 77, 0.68);
 }
 
 .fit2-dailyItem:hover {
@@ -194,25 +198,46 @@
 }
 
 .fit2-dailyActions {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 14px;
+  margin-top: 18px;
+  align-items: end;
+}
+
+.fit2-actionPrimary {
+  display: grid;
+  gap: 8px;
+}
+
+.fit2-actionHint {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.fit2-actionSecondary {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 16px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .fit2-featureSection {
-  margin-top: 2px;
+  margin-top: 4px;
   padding: clamp(14px, 1.8vw, 24px);
-  border-radius: 26px;
+  border-radius: 30px;
   border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
-  background: color-mix(in srgb, var(--card) 95%, transparent);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
+  background:
+    radial-gradient(500px 140px at 100% -12%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 72%),
+    color-mix(in srgb, var(--card) 95%, transparent);
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.07);
 }
 
 .fit2-featureTitle {
-  margin: 0 2px 14px;
-  font-size: 12px;
+  margin: 0 2px 16px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #6e6e79;
@@ -223,8 +248,8 @@
 .fit2-tilegrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 16px;
-  row-gap: 16px;
+  column-gap: 18px;
+  row-gap: 18px;
 }
 @media (max-width: 1024px) {
   .fit2-tilegrid {
@@ -243,10 +268,10 @@
   text-align: left;
   background: linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white), color-mix(in srgb, var(--card) 92%, transparent));
   border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
-  border-radius: 22px;
-  padding: 18px;
-  min-height: 170px;
-  box-shadow: 0 14px 32px rgba(16, 18, 30, 0.07);
+  border-radius: 24px;
+  padding: 20px;
+  min-height: 186px;
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.08);
   backdrop-filter: blur(14px);
   transition:
     transform 150ms ease,
@@ -256,9 +281,9 @@
   flex-direction: column;
 }
 .fit2-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
-  border-color: rgba(255, 255, 255, 0.98);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 42px rgba(16, 18, 30, 0.11);
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
 }
 .fit2-tileTop {
   display: flex;
@@ -294,6 +319,8 @@
   color: var(--muted);
   font-weight: 600;
   line-height: 1.4;
+  margin-top: auto;
+  padding-top: 16px;
 }
 
 /* Generic UI */
@@ -324,9 +351,9 @@
 .fit2-primarywide {
   border: none;
   cursor: pointer;
-  border-radius: 14px;
-  min-height: 48px;
-  padding: 0 20px;
+  border-radius: 16px;
+  min-height: 52px;
+  padding: 0 22px;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 82%, #ff8bc8), var(--accent));
@@ -338,8 +365,8 @@
   background: color-mix(in srgb, var(--card) 94%, transparent);
   backdrop-filter: blur(10px);
   cursor: pointer;
-  border-radius: 12px;
-  min-height: 42px;
+  border-radius: 14px;
+  min-height: 44px;
   padding: 0 14px;
   font-size: 13px;
   font-weight: 600;
@@ -366,10 +393,12 @@
 
 /* Sections */
 .fit2-start {
-  padding-top: 6px;
+  padding-top: 8px;
+  display: grid;
+  gap: 16px;
 }
 .fit2-section {
-  margin-top: 16px;
+  margin-top: 0;
 }
 .fit2-sectiontitle {
   font-size: 12px;
@@ -388,11 +417,13 @@
 
 /* Cards & lists */
 .fit2-simpleCard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
+  background:
+    radial-gradient(500px 120px at 0% -14%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 72%),
+    var(--card);
+  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+  border-radius: 24px;
+  padding: clamp(16px, 1.8vw, 24px);
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.08);
   backdrop-filter: blur(14px);
 }
 
@@ -503,7 +534,9 @@
 
 /* Session UI */
 .fit2-session {
-  padding-top: 6px;
+  padding-top: 8px;
+  display: grid;
+  gap: 16px;
 }
 .fit2-sessiontop {
   display: flex;
@@ -543,11 +576,13 @@
 }
 
 .fit2-sessioncard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
+  background:
+    radial-gradient(460px 120px at 0% -16%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 72%),
+    var(--card);
+  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+  border-radius: 24px;
+  padding: clamp(16px, 1.8vw, 24px);
+  box-shadow: 0 18px 38px rgba(16, 18, 30, 0.09);
   backdrop-filter: blur(14px);
 }
 
@@ -609,11 +644,11 @@
   gap: 12px;
 }
 .fit2-excard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 14px 28px rgba(16, 18, 30, 0.07);
   backdrop-filter: blur(14px);
 }
 .fit2-exhead {
@@ -1024,8 +1059,6 @@
 }
 
 .fit2-page .fit2-topbar,
-.fit2-page .fit2-hubhome,
-.fit2-page .fit2-section,
 .fit2-page .fit2-sessioncard,
 .fit2-page .fit2-simpleCard,
 .fit2-page .fit2-templatecard,
@@ -1067,8 +1100,7 @@
 
 .fit2-page .primary-btn,
 .fit2-page .fit2-primarywide,
-.fit2-page .fit2-finish,
-.fit2-page .fit2-start {
+.fit2-page .fit2-finish {
   background: var(--accent) !important;
   color: var(--card-bg) !important;
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
@@ -1081,12 +1113,18 @@
 .fit2-tile:focus-visible{ outline: 2px solid color-mix(in srgb, var(--accent) 55%, #ffffff); outline-offset: 2px; }
 .fit2-pillbtn:hover{ border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); transform: translateY(-1px); }
 
+@media (min-width: 1728px){
+  .fit2-page{ padding-inline: clamp(24px, 3.8vw, 88px); }
+}
+
 @media (max-width: 1280px){
   .fit2-page{ padding-inline: clamp(16px, 2.6vw, 34px); }
 }
 @media (max-width: 1024px){
   .fit2-dailyGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .fit2-primarywide{ flex: 1 1 100%; }
+  .fit2-dailyActions{ grid-template-columns: 1fr; }
+  .fit2-actionSecondary{ justify-content: flex-start; }
+  .fit2-primarywide{ width: 100%; }
 }
 @media (max-width: 768px){
   .fit2-dailyCard{ border-radius: 22px; }
