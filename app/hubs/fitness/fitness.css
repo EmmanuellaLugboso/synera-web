@@ -18,10 +18,10 @@
 }
 .fit2-page {
   width: 100%;
-  max-width: none;
-  margin: 0;
+  max-width: 1600px;
+  margin: 0 auto;
   min-height: 100vh;
-  padding: 18px 18px 64px;
+  padding: clamp(16px, 2.2vw, 34px) clamp(16px, 3.2vw, 52px) clamp(42px, 5vw, 72px);
   color: var(--text);
   font-family:
     "Inter",
@@ -107,26 +107,28 @@
 
 /* Hub home */
 .fit2-hubhome {
-  padding-top: 6px;
+  padding-top: 10px;
+  display: grid;
+  gap: clamp(16px, 1.8vw, 26px);
 }
 
 /* DAILY SUMMARY */
 .fit2-dailyCard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white) 0%, var(--card) 100%);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 26px;
+  padding: clamp(16px, 2vw, 26px);
+  box-shadow: 0 20px 44px rgba(16, 18, 30, 0.08);
   backdrop-filter: blur(14px);
-  margin: 10px 0 14px;
+  margin: 0;
 }
 
 .fit2-dailyHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .fit2-dailyLabel {
   font-size: 12px;
@@ -136,25 +138,26 @@
   text-transform: uppercase;
 }
 .fit2-dailyDate {
-  font-size: 18px;
+  font-size: clamp(20px, 1.8vw, 28px);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .fit2-dailyBadge {
   font-size: 12px;
   font-weight: 700;
-  padding: 8px 12px;
+  padding: 9px 14px;
   border-radius: 999px;
-  color: var(--card);
-  background: linear-gradient(135deg, var(--pink1), var(--pink2));
-  box-shadow: 0 10px 22px rgba(255, 79, 154, 0.25);
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, #ffa0cf), var(--accent));
+  box-shadow: 0 10px 24px rgba(255, 79, 154, 0.22);
 }
 
 .fit2-dailyGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 @media (max-width: 720px) {
   .fit2-dailyGrid {
@@ -163,15 +166,11 @@
 }
 
 .fit2-dailyItem {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.84),
-    rgba(248, 248, 252, 0.86)
-  );
-  border: 1px solid rgba(17, 18, 25, 0.08);
-  border-radius: 16px;
-  padding: 12px 10px;
-  text-align: center;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 18px;
+  padding: 14px 12px;
+  text-align: left;
   box-shadow: var(--shadow2);
   transition:
     transform 140ms ease,
@@ -183,10 +182,10 @@
   letter-spacing: -0.01em;
 }
 .fit2-dailyText {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(65, 66, 77, 0.7);
+  color: rgba(65, 66, 77, 0.72);
 }
 
 .fit2-dailyItem:hover {
@@ -196,40 +195,40 @@
 
 .fit2-dailyActions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-top: 12px;
+  margin-top: 16px;
   align-items: center;
 }
 
 .fit2-featureSection {
-  margin-top: 8px;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.46);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  margin-top: 2px;
+  padding: clamp(14px, 1.8vw, 24px);
+  border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
+  background: color-mix(in srgb, var(--card) 95%, transparent);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
 }
 
 .fit2-featureTitle {
-  margin: 0 2px 10px;
-  font-size: 11px;
+  margin: 0 2px 14px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #767684;
+  color: #6e6e79;
   font-weight: 700;
 }
 
 /* Tile grid */
 .fit2-tilegrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 14px;
-  row-gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+  row-gap: 16px;
 }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .fit2-tilegrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 520px) {
@@ -242,16 +241,19 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: var(--radius);
-  padding: 15px;
-  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 98%, white), color-mix(in srgb, var(--card) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 22px;
+  padding: 18px;
+  min-height: 170px;
+  box-shadow: 0 14px 32px rgba(16, 18, 30, 0.07);
   backdrop-filter: blur(14px);
   transition:
     transform 150ms ease,
     box-shadow 150ms ease,
     border-color 150ms ease;
+  display: flex;
+  flex-direction: column;
 }
 .fit2-tile:hover {
   transform: translateY(-2px);
@@ -261,35 +263,37 @@
 .fit2-tileTop {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .fit2-tileIcon {
   font-size: 22px;
 }
 .fit2-tileBadge {
   font-size: 11px;
-  font-weight: 700;
-  color: #6c6c77;
+  font-weight: 600;
+  color: #5f606a;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  background: color-mix(in srgb, var(--card) 95%, transparent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
+  min-width: 64px;
+  margin-left: auto;
 }
 .fit2-tileTitle {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  margin-bottom: 3px;
+  margin-bottom: 6px;
 }
 .fit2-tileSub {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 /* Generic UI */
@@ -320,27 +324,27 @@
 .fit2-primarywide {
   border: none;
   cursor: pointer;
-  border-radius: 18px;
-  height: 42px;
-  padding: 0 16px;
+  border-radius: 14px;
+  min-height: 48px;
+  padding: 0 20px;
   font-weight: 700;
-  color: var(--card);
-  background: linear-gradient(135deg, #ea5c9f, #d84f92);
-  box-shadow:
-    0 10px 22px rgba(221, 82, 145, 0.24),
-    0 0 0 1px rgba(255, 255, 255, 0.26) inset;
+  color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 82%, #ff8bc8), var(--accent));
+  box-shadow: 0 10px 22px rgba(221, 82, 145, 0.2);
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
 }
 .fit2-pillbtn {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   backdrop-filter: blur(10px);
   cursor: pointer;
-  border-radius: 999px;
-  height: 34px;
-  padding: 0 12px;
-  font-size: 12px;
-  font-weight: 950;
+  border-radius: 12px;
+  min-height: 42px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: #4a4b57;
+  transition: border-color 140ms ease, transform 140ms ease;
 }
 .fit2-pillbtn.ghost {
   background: transparent;
@@ -956,8 +960,8 @@
 .fit2-weeklyRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .fit2-weeklyCard {
@@ -1068,4 +1072,34 @@
   background: var(--accent) !important;
   color: var(--card-bg) !important;
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+}
+
+
+.fit2-primarywide:hover{ transform: translateY(-1px); filter: saturate(1.04); box-shadow: 0 14px 28px rgba(221, 82, 145, 0.26); }
+.fit2-primarywide:focus-visible,
+.fit2-pillbtn:focus-visible,
+.fit2-tile:focus-visible{ outline: 2px solid color-mix(in srgb, var(--accent) 55%, #ffffff); outline-offset: 2px; }
+.fit2-pillbtn:hover{ border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); transform: translateY(-1px); }
+
+@media (max-width: 1280px){
+  .fit2-page{ padding-inline: clamp(16px, 2.6vw, 34px); }
+}
+@media (max-width: 1024px){
+  .fit2-dailyGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fit2-primarywide{ flex: 1 1 100%; }
+}
+@media (max-width: 768px){
+  .fit2-dailyCard{ border-radius: 22px; }
+  .fit2-dailyActions{ gap: 8px; }
+  .fit2-pillbtn{ flex: 1 1 calc(50% - 4px); }
+}
+@media (max-width: 390px){
+  .fit2-page{ padding-inline: 12px; }
+  .fit2-dailyGrid{ grid-template-columns: 1fr; }
+  .fit2-weeklyRow{ grid-template-columns: 1fr; }
+  .fit2-pillbtn{ flex: 1 1 100%; }
+}
+@media (max-width: 360px){
+  .fit2-tile{ min-height: 154px; padding: 14px; }
+  .fit2-dailyDate{ font-size: 20px; }
 }
