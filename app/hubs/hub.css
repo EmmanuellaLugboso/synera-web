@@ -1940,3 +1940,40 @@
     align-items: center;
   }
 }
+
+/* === Premium polish overrides === */
+.hub-page {
+  background:
+    radial-gradient(960px 560px at 12% 4%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 64%),
+    radial-gradient(860px 520px at 95% 14%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%),
+    var(--bg);
+}
+
+.back-link,
+.ghost-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--r-pill);
+}
+
+.hub-badge,
+.stat-card,
+.hub-section-white {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+.form-label,
+.tiny-note {
+  color: var(--muted);
+}

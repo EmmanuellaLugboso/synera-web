@@ -1,7 +1,7 @@
 export function HomeIcon({ active }) {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-      stroke={active ? "#F7A8C4" : "#F7A8C4"}
+      stroke="currentColor"
       strokeWidth={active ? "2.5" : "1.7"}
       strokeLinecap="round" strokeLinejoin="round"
       className={active ? "icon-active" : "icon"}
@@ -14,7 +14,7 @@ export function HomeIcon({ active }) {
 export function FitnessIcon({ active }) {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-      stroke={active ? "#F7A8C4" : "#F7A8C4"}
+      stroke="currentColor"
       strokeWidth={active ? "2.5" : "1.7"}
       strokeLinecap="round" strokeLinejoin="round"
       className={active ? "icon-active" : "icon"}
@@ -27,7 +27,7 @@ export function FitnessIcon({ active }) {
 export function NutritionIcon({ active }) {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-      stroke={active ? "#F7A8C4" : "#F7A8C4"}
+      stroke="currentColor"
       strokeWidth={active ? "2.5" : "1.7"}
       strokeLinecap="round" strokeLinejoin="round"
       className={active ? "icon-active" : "icon"}
@@ -42,7 +42,7 @@ export function NutritionIcon({ active }) {
 export function SleepIcon({ active }) {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-      stroke={active ? "#F7A8C4" : "#F7A8C4"}
+      stroke="currentColor"
       strokeWidth={active ? "2.5" : "1.7"}
       strokeLinecap="round" strokeLinejoin="round"
       className={active ? "icon-active" : "icon"}
@@ -56,7 +56,7 @@ export function SleepIcon({ active }) {
 export function LifestyleIcon({ active }) {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-      stroke={active ? "#F7A8C4" : "#F7A8C4"}
+      stroke="currentColor"
       strokeWidth={active ? "2.5" : "1.7"}
       strokeLinecap="round" strokeLinejoin="round"
       className={active ? "icon-active" : "icon"}
