@@ -1,5 +1,7 @@
 function isPlainObject(value) {
-  return Object.prototype.toString.call(value) === "[object Object]";
+  if (Object.prototype.toString.call(value) !== "[object Object]") return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }
 
 export function sanitizeForFirestore(value) {
