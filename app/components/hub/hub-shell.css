@@ -32,8 +32,8 @@
   color: var(--text);
   font-weight: 600;
   border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  border-radius: 999px;
-  padding: 10px 12px;
+  border-radius: var(--r-pill);
+  padding: var(--s-3) var(--s-4);
   background: var(--card);
 }
 
@@ -52,17 +52,17 @@
 .hub-shell__meta {
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   background: var(--card2);
-  border-radius: 16px;
-  padding: 10px 12px;
+  border-radius: var(--r-md);
+  padding: var(--s-3) var(--s-4);
   min-width: 112px;
 }
 
 .hub-section-card {
   border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   background: var(--card);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.06);
-  padding: 16px;
+  box-shadow: var(--shadow-md);
+  padding: var(--s-4);
 }
 
 .hub-section-card__head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
