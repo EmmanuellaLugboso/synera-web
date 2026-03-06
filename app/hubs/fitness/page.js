@@ -931,8 +931,8 @@ export default function FitnessHub() {
     return (
       <HubShell
         className="fit2-page"
-        title="Fitness Hub"
-        subtitle="Strength, cardio, steps, and body metrics in one place."
+        title="Fitness"
+        subtitle="Train smarter. Track progress."
         emoji="🏋🏽"
       >
         <PageState type="loading" message="Loading your fitness hub…" />
@@ -944,8 +944,8 @@ export default function FitnessHub() {
     return (
       <HubShell
         className="fit2-page"
-        title="Fitness Hub"
-        subtitle="Strength, cardio, steps, and body metrics in one place."
+        title="Fitness"
+        subtitle="Train smarter. Track progress."
         emoji="🏋🏽"
       >
         <PageState type="loading" message="Redirecting to login…" />
@@ -956,8 +956,8 @@ export default function FitnessHub() {
   return (
     <HubShell
       className="fit2-page"
-      title="Fitness Hub"
-      subtitle="Pick one lane. No clutter."
+      title="Fitness"
+      subtitle="Train smarter. Track progress."
       rightMeta={<div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>Sync: {syncStatus}</div>}
       topActions={
         <div className="fit2-unit">

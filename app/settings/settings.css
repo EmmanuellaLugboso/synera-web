@@ -1,11 +1,14 @@
 .settings-page {
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(900px 520px at 14% 4%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 64%),
+    var(--bg);
   color: var(--text);
-  padding: 20px;
+  padding: var(--s-5);
 }
+
 .settings-shell {
-  max-width: 860px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -16,117 +19,109 @@
   gap: 12px;
 }
 
-.settings-logout {
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, var(--card));
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.settings-logout:hover {
-  background: color-mix(in srgb, var(--accent) 20%, var(--card));
-}
-
-.settings-back {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 900;
-}
 .settings-card {
-  margin-top: 12px;
+  margin-top: var(--s-4);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 18px;
-  box-shadow: var(--shadow);
+  border-radius: var(--r-xl);
+  padding: clamp(18px, 2.8vw, 24px);
+  box-shadow: var(--shadow-sm);
 }
-.settings-card h1 {
-  margin: 0;
-}
-.settings-card p {
-  margin-top: 6px;
-  color: var(--muted);
-  font-weight: 700;
-}
-.settings-field {
-  margin-top: 14px;
+
+.settings-grid {
+  margin-top: var(--s-5);
   display: grid;
-  gap: 6px;
-  font-weight: 900;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+}
+
+.settings-block {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card2);
+  padding: var(--s-4);
+  display: grid;
+  gap: 10px;
+}
+
+.settings-kv {
+  display: grid;
+  gap: 3px;
+}
+
+.settings-kv span {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
 }
+
+.settings-kv strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.settings-field {
+  margin-top: var(--s-2);
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
 .settings-field select {
-  width: 280px;
+  width: 320px;
   max-width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: var(--card);
   color: var(--text);
-  padding: 10px 12px;
-  font-weight: 900;
+  min-height: 46px;
+  padding: 0 var(--s-3);
+  font-size: 14px;
 }
+
 .settings-note {
-  margin-top: 12px;
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
 }
 
-.settings-toggleRow {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 88%, transparent);
+.settings-links {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: var(--s-2);
 }
 
-.settings-toggleTitle {
-  font-weight: 900;
-}
-
-.settings-toggleSub {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.settings-switch {
-  width: 56px;
-  height: 32px;
-  border-radius: 999px;
+.settings-linkBtn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
   border: 1px solid var(--border);
-  background: var(--accentSoft);
-  padding: 3px;
-  cursor: pointer;
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
-  transition: background 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.settings-switch.on {
-  background: var(--accent);
+.settings-logout {
+  margin-top: var(--s-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--color-accent-contrast);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
+  border-radius: var(--r-md);
+  min-height: 46px;
+  padding: 0 var(--s-4);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.settings-switch-knob {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease;
+@media (max-width: 860px) {
+  .settings-page { padding: var(--s-4); }
+  .settings-grid { grid-template-columns: 1fr; }
 }
-
-.settings-switch.on .settings-switch-knob {
-  transform: translateX(24px);
-}
-
-
-.ui-min-tap{min-height:44px;}

@@ -1,16 +1,16 @@
 "use client";
 
 import "./profile.css";
-import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 import PageState from "../components/ui/PageState";
-import { auth, db, storage } from "../firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
+import BackButton from "../components/BackButton";
+import { auth, db } from "../firebase/config";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { uploadUserAvatar } from "../services/userService";
 
 const FOCUS_OPTIONS = [
   "Strength",
@@ -34,6 +34,7 @@ export default function ProfilePage() {
 
   const [authUser, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
@@ -64,6 +65,8 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadProfile() {
       if (!ready || !authUser?.uid) return;
+      setLoading(true);
+      setLoadingError("");
       try {
         const refDoc = doc(db, "users", authUser.uid);
         const snap = await getDoc(refDoc);
@@ -85,6 +88,8 @@ export default function ProfilePage() {
           photoURL:
             remote?.photoURL || data?.photoURL || authUser.photoURL || "",
         });
+      } catch {
+        setLoadingError("We couldn’t load your profile right now. Please retry.");
       } finally {
         setLoading(false);
       }
@@ -125,6 +130,10 @@ export default function ProfilePage() {
       };
 
       await setDoc(doc(db, "users", authUser.uid), payload, { merge: true });
+      await updateProfile(authUser, {
+        displayName: payload.name,
+        photoURL: payload.photoURL || null,
+      });
 
       updateMany({
         name: payload.name,
@@ -144,6 +153,7 @@ export default function ProfilePage() {
   }
 
   function openPicker() {
+    if (uploading) return;
     fileInputRef.current?.click();
   }
 
@@ -156,22 +166,14 @@ export default function ProfilePage() {
     setErrorMsg("");
 
     try {
-      const fileRef = ref(storage, `users/${authUser.uid}/avatar_${Date.now()}.jpg`);
-      await uploadBytes(fileRef, file, {
-        contentType: file.type || "image/jpeg",
-      });
-      const url = await getDownloadURL(fileRef);
+      const { photoURL } = await uploadUserAvatar(authUser.uid, file);
 
-      setForm((prev) => ({ ...prev, photoURL: url }));
-      await setDoc(
-        doc(db, "users", authUser.uid),
-        { photoURL: url, updatedAt: serverTimestamp() },
-        { merge: true },
-      );
-      updateMany({ photoURL: url });
+      setForm((prev) => ({ ...prev, photoURL }));
+      updateMany({ photoURL });
+      await updateProfile(authUser, { photoURL });
       setSavedMsg("Profile picture updated.");
-    } catch {
-      setErrorMsg("Image upload failed. Please try another file.");
+    } catch (error) {
+      setErrorMsg(error?.message || "Image upload failed. Please try another file.");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -186,13 +188,25 @@ export default function ProfilePage() {
     );
   }
 
+  if (loadingError) {
+    return (
+      <div className="profile-page">
+        <PageState
+          type="error"
+          title="Profile unavailable"
+          message={loadingError}
+          actionLabel="Retry"
+          onAction={() => router.refresh()}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="profile-page">
       <div className="profile-shell">
         <header className="profile-top">
-          <Link href="/dashboard" className="profile-back">
-            ← Dashboard
-          </Link>
+          <BackButton href="/dashboard" label="Dashboard" className="profile-back" />
         </header>
 
         <section className="profile-card">
@@ -257,6 +271,7 @@ export default function ProfilePage() {
               />
             </label>
           </div>
+
 
           <div className="chip-block">
             <div className="chip-title">Focus</div>

@@ -935,3 +935,35 @@
 .nutri-syncBadge.syncing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .nutri-syncBadge.synced { color: var(--text-primary); }
 .nutri-syncBadge.error { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card-bg)); }
+
+/* Dashboard architecture refinements */
+.nutri-layoutLabel {
+  margin: 12px 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nutri-cardTop .nutri-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.nutri-small,
+.nutri-sub,
+.nutri-rowSub,
+.nutri-tiny {
+  font-weight: 400;
+}
+
+.nutri-page .hub-shell__content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 1100px) {
+  .nutri-grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

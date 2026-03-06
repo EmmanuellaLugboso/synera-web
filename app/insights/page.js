@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import BackButton from "../components/BackButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
@@ -27,6 +27,58 @@ async function fetchDaily(uid) {
     }),
   );
   return normalizeDailyTimeline(docs, 30);
+}
+
+
+function MetricBarChart({ title, unit, labels, values, max = 1 }) {
+  const safeMax = Math.max(1, max, ...values);
+  return (
+    <div className="graph-card detailed">
+      <div className="graph-head">
+        <span>{title}</span>
+        <em>{unit}</em>
+      </div>
+      <div className="bar-chart">
+        {values.map((v, i) => (
+          <div key={`${title}-${i}`} className="bar-col">
+            <div className="bar-value">{Math.round(v)}</div>
+            <div className="bar-track">
+              <div className="bar-fill" style={{ height: `${Math.max(6, (v / safeMax) * 100)}%` }} />
+            </div>
+            <div className="bar-label">{labels[i]}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+function buildMockWeekTimeline() {
+  const dates = getLastNDatesISO(30);
+  return dates.map((dateISO, idx) => {
+    const day = idx % 7;
+    const steps = [6500, 8200, 9100, 7300, 10000, 11800, 5400][day];
+    const waterMl = [1800, 2200, 2500, 2000, 2700, 3000, 1700][day];
+    const calories = [1750, 1820, 1680, 1900, 1850, 2100, 1650][day];
+    const proteinG = [95, 110, 105, 98, 120, 125, 90][day];
+    const mood = [3, 4, 4, 3, 5, 4, 3][day];
+    const sleepHours = [6.4, 7.1, 7.4, 6.8, 7.8, 8.0, 6.6][day];
+    const habitsTotal = 5;
+    const habitsDone = [3, 4, 4, 3, 5, 5, 2][day];
+
+    return {
+      dateISO,
+      steps,
+      waterMl,
+      calories,
+      macros: { proteinG, carbsG: 180, fatG: 60 },
+      mood: { rating: mood },
+      sleep: { hours: sleepHours },
+      habits: { total: habitsTotal, completed: habitsDone },
+      missing: false,
+    };
+  });
 }
 
 function Sparkline({ series }) {
@@ -59,6 +111,13 @@ export default function InsightsPage() {
   const refresh = useCallback(async () => {
     if (!user?.uid) return;
     setLoading(true);
+
+    if (user.uid === "e2e-user") {
+      setDays(buildMockWeekTimeline());
+      setError("");
+      setLoading(false);
+      return;
+    }
     setError("");
     try {
       setDays(await fetchDaily(user.uid));
@@ -97,6 +156,26 @@ export default function InsightsPage() {
     return { base, pillars, weeklyScore, validDays, coach };
   }, [days, stepGoal, calorieGoal, waterGoal, proteinGoal]);
 
+  const weeklySlice = useMemo(() => model.base.slice(-7), [model.base]);
+  const weekdayLabels = weeklySlice.map((d) => {
+    const dt = new Date(`${d.dateISO}T00:00:00`);
+    return dt.toLocaleDateString([], { weekday: "short" });
+  });
+
+  const dailyInsight = useMemo(() => {
+    const today = model.base[model.base.length - 1] || {};
+    const stepPct = stepGoal ? Math.round((Number(today.steps || 0) / stepGoal) * 100) : 0;
+    const waterPct = waterGoal ? Math.round(((Number(today.waterMl || 0) / 1000) / waterGoal) * 100) : 0;
+    return `Today: ${Number(today.steps || 0)} steps (${stepPct}%) • ${Math.round(Number(today.waterMl || 0) / 1000)}L water (${waterPct}%).`;
+  }, [model.base, stepGoal, waterGoal]);
+
+  const weeklyInsight = useMemo(() => {
+    const w = weeklySlice;
+    const avgSteps = w.length ? Math.round(w.reduce((a, b) => a + Number(b.steps || 0), 0) / w.length) : 0;
+    const avgWater = w.length ? (w.reduce((a, b) => a + Number(b.waterMl || 0), 0) / w.length / 1000).toFixed(1) : "0.0";
+    return `Weekly: avg ${avgSteps} steps/day and ${avgWater}L water/day across last 7 days.`;
+  }, [weeklySlice]);
+
   const cards = [
     ["Move", "move", "Log steps or a workout"],
     ["Fuel", "fuel", "Log calories or meal"],
@@ -109,10 +188,10 @@ export default function InsightsPage() {
     <div className="ins-page">
       <div className="ins-shell">
         <header className="ins-top">
-          <Link href="/dashboard" className="ins-back">← Dashboard</Link>
+          <BackButton href="/dashboard" label="Dashboard" className="ins-back" />
           <div className="ins-top-actions">
             <button className="ins-ghost" type="button" onClick={refresh}>Refresh</button>
-            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>AI Coach</button>
+            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>Synera Assistant</button>
           </div>
         </header>
 
@@ -139,6 +218,17 @@ export default function InsightsPage() {
           </section>
         ) : null}
 
+        <section className="card insights-dual">
+          <div className="insights-item">
+            <div className="section-title">Daily Insight</div>
+            <p className="ins-sub">{dailyInsight}</p>
+          </div>
+          <div className="insights-item">
+            <div className="section-title">Weekly Insight</div>
+            <p className="ins-sub">{weeklyInsight}</p>
+          </div>
+        </section>
+
         <section className="card pillars-wrap">
           <div className="pillars-grid">
             {cards.map(([label, key, hint]) => {
@@ -157,8 +247,10 @@ export default function InsightsPage() {
         <div className="ins-layout">
           <section className="card ins-main">
             <div className="graph-grid">
-              <div className="graph-card"><div className="graph-head"><span>Steps 30D</span></div>{loading ? <div className="skeleton chart" /> : <Sparkline series={model.base.map((d) => d.steps)} />}</div>
-              <div className="graph-card"><div className="graph-head"><span>Water 30D</span></div>{loading ? <div className="skeleton chart" /> : <Sparkline series={model.base.map((d) => d.waterMl / 1000)} />}</div>
+              <div className="graph-card"><div className="graph-head"><span>Steps 30D trend</span></div>{loading ? <div className="skeleton chart" /> : <Sparkline series={model.base.map((d) => d.steps)} />}</div>
+              <div className="graph-card"><div className="graph-head"><span>Water 30D trend</span></div>{loading ? <div className="skeleton chart" /> : <Sparkline series={model.base.map((d) => d.waterMl / 1000)} />}</div>
+              {loading ? <div className="graph-card"><div className="skeleton chart" /></div> : <MetricBarChart title="Daily steps (7D)" unit="steps" labels={weekdayLabels} values={weeklySlice.map((d) => Number(d.steps || 0))} max={stepGoal} />}
+              {loading ? <div className="graph-card"><div className="skeleton chart" /></div> : <MetricBarChart title="Daily water (7D)" unit="ml" labels={weekdayLabels} values={weeklySlice.map((d) => Number(d.waterMl || 0))} max={Math.max(1, waterGoal * 1000)} />}
             </div>
           </section>
 
@@ -170,7 +262,7 @@ export default function InsightsPage() {
           </section>
         </div>
 
-        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">AI Coach</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}</div></div></div> : null}
+        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">Synera Assistant</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask Synera Assistant in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
       </div>
     </div>
   );

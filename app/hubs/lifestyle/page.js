@@ -626,9 +626,9 @@ export default function Page() {
 
   return (
     <HubShell
-      title="Lifestyle Hub"
+      title="Lifestyle"
       emoji="✨"
-      subtitle="High-performance mode: admin, habits, goals, routines — and a discipline score."
+      subtitle="Build routines that move life forward."
       rightMeta={(
         <>
           <div className="hub-badge-label">Today</div>
