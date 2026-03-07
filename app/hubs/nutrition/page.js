@@ -510,7 +510,11 @@ export default function Page() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Could not estimate meal.");
-      setQuickName((json?.matchedFoods || ["Meal"]).join(", "));
+      if (json?.kind !== "meal") throw new Error("Unexpected SYRA response for meal estimate.");
+      const itemNames = Array.isArray(json?.items)
+        ? json.items.map((item) => item?.name).filter(Boolean)
+        : [];
+      setQuickName((itemNames.length ? itemNames : ["Meal"]).join(", "));
       setQuickServings("1");
       setQuickCals(String(Math.round(clampNumber(json?.totals?.calories))));
       setQuickP(String(Math.round(clampNumber(json?.totals?.protein))));
