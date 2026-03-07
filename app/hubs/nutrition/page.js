@@ -630,6 +630,7 @@ export default function Page() {
   const [recipeResults, setRecipeResults] = useState([]);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeErr, setRecipeErr] = useState("");
+  // Manual trigger to re-run recipe search effect when user clicks Retry.
   const [recipeRetryKey, setRecipeRetryKey] = useState(0);
 
   const [recipeOpen, setRecipeOpen] = useState(false);
@@ -802,6 +803,7 @@ export default function Page() {
   const [suppResults, setSuppResults] = useState([]);
   const [suppLoading, setSuppLoading] = useState(false);
   const [suppErr, setSuppErr] = useState("");
+  // Manual trigger to re-run supplement lookup effect when user clicks Retry.
   const [suppRetryKey, setSuppRetryKey] = useState(0);
 
   const [selectedSuppInfo, setSelectedSuppInfo] = useState(null);

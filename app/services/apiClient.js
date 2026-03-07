@@ -22,7 +22,9 @@ export async function requestJson(url, options = {}) {
     fallbackError = "Request failed.",
   } = options;
 
+  // Retry loop: handles transient upstream/network instability without duplicating retry logic in pages.
   for (let attempt = 0; attempt <= retries; attempt += 1) {
+    // Timeout per-attempt so slow endpoints fail fast and surface a friendly retry path.
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 

@@ -227,6 +227,7 @@ export function OnboardingProvider({ children }) {
   // ---- Debounced Firestore autosave (ONLY writes to doc.data)
   useEffect(() => {
     if (!user || (isE2EMode && user?.uid === "e2e-user")) return;
+    // Prevent writing local defaults back to Firestore before remote profile has been merged.
     if (!hasLoadedRemote.current) return;
 
     const json = JSON.stringify(data);
