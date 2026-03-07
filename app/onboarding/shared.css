@@ -178,3 +178,31 @@
 }
 
 .ui-min-tap { min-height: 44px; }
+
+/* Deployment polish overrides */
+.onboard-container .onboard-card {
+  max-width: 560px;
+}
+
+.onboard-container button {
+  min-height: 44px;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.onboard-container button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.onboard-container input,
+.onboard-container select,
+.onboard-container textarea {
+  color: var(--text) !important;
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+.onboard-container .selected,
+.onboard-container .active {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border)) !important;
+  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+}

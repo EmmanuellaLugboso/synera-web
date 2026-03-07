@@ -371,6 +371,7 @@ export default function Page() {
   const [foodSearchLoading, setFoodSearchLoading] = useState(false);
   const [foodSearchError, setFoodSearchError] = useState("");
   const [foodSearchResults, setFoodSearchResults] = useState([]);
+  const [foodSearchSource, setFoodSearchSource] = useState("");
 
   const scopedDates = useMemo(() => {
     if (scope !== "week") return [date];
@@ -476,6 +477,7 @@ export default function Page() {
           ? json.results
           : [];
       setFoodSearchResults(results);
+      setFoodSearchSource(String(payload?.source || ""));
       if (!results.length) setFoodSearchError("No foods found for this search.");
     } catch (e) {
       setFoodSearchError(e?.message || "Food search failed");
@@ -1444,6 +1446,7 @@ export default function Page() {
                     </div>
                     {foodSearchLoading ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Searching…</div> : null}
                     {foodSearchError ? <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>{foodSearchError}</div> : null}
+                    {foodSearchSource ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Data source: {foodSearchSource === "usda" ? "USDA FoodData Central" : "OpenFoodFacts fallback"}</div> : null}
                     {foodSearchResults.length ? (
                       <div className="nutri-list" style={{ marginTop: 10, maxHeight: 200, overflow: 'auto' }}>
                         {foodSearchResults.slice(0, 8).map((r) => (
@@ -1829,6 +1832,25 @@ export default function Page() {
                         {selectedSuppInfo.category}
                       </div>
                     ) : null}
+                  </div>
+
+                  <div className="nutri-card" style={{ marginTop: 10 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Quick log with SYRA</div>
+                      <div className="nutri-chip">Approximate</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={syraMealText}
+                        onChange={(e) => setSyraMealText(e.target.value)}
+                        placeholder="Describe meal (e.g. toast eggs and tea)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={estimateMealWithSyra}>
+                        {syraMealLoading ? "Estimating…" : "Describe meal"}
+                      </button>
+                    </div>
+                    {syraMealNote ? <div className="nutri-tiny" style={{ marginTop: 8 }}>{syraMealNote}</div> : null}
                   </div>
 
                   <div className="nutri-grid2" style={{ marginTop: 12 }}>

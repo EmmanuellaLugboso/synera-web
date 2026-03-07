@@ -1,10 +1,11 @@
 export const THEME_OPTIONS = [
+  { value: "pink", label: "Pink" },
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
   { value: "blue", label: "Blue" },
 ];
 
-export const DEFAULT_THEME = "light";
+export const DEFAULT_THEME = "pink";
 
 export function isValidTheme(theme) {
   return THEME_OPTIONS.some((t) => t.value === theme);

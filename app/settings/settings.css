@@ -1,14 +1,14 @@
 .settings-page {
   min-height: 100vh;
   background:
-    radial-gradient(900px 520px at 14% 4%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 64%),
+    radial-gradient(900px 520px at 14% 4%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 64%),
     var(--bg);
   color: var(--text);
   padding: var(--s-5);
 }
 
 .settings-shell {
-  max-width: 860px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -19,58 +19,54 @@
   gap: 12px;
 }
 
-.settings-logout {
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, var(--card));
-  border-radius: var(--r-md);
-  min-height: 44px;
-  padding: 0 var(--s-4);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
-}
-
-.settings-logout:hover { background: color-mix(in srgb, var(--accent) 20%, var(--card)); }
-
-.settings-back {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: var(--fw-bold);
-  border-radius: var(--r-pill);
-  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  background: var(--card);
-  min-height: 44px;
-  padding: 0 var(--s-4);
-  display: inline-flex;
-  align-items: center;
-}
-
 .settings-card {
   margin-top: var(--s-4);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--r-xl);
   padding: clamp(18px, 2.8vw, 24px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
-.settings-card h1 {
-  margin: 0;
-  font-size: clamp(28px, 4vw, 34px);
-  letter-spacing: -0.02em;
+.settings-grid {
+  margin-top: var(--s-5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
 }
 
-.settings-card p {
-  margin-top: 8px;
+.settings-block {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card2);
+  padding: var(--s-4);
+  display: grid;
+  gap: 10px;
+}
+
+.settings-kv {
+  display: grid;
+  gap: 3px;
+}
+
+.settings-kv span {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
-  font-weight: var(--fw-semibold);
+}
+
+.settings-kv strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
 }
 
 .settings-field {
-  margin-top: var(--s-5);
+  margin-top: var(--s-2);
   display: grid;
   gap: 8px;
-  font-weight: var(--fw-bold);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
 }
 
@@ -83,66 +79,49 @@
   color: var(--text);
   min-height: 46px;
   padding: 0 var(--s-3);
-  font-weight: var(--fw-semibold);
+  font-size: 14px;
 }
 
 .settings-note {
-  margin-top: var(--s-3);
   color: var(--muted);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
+  font-size: 14px;
 }
 
-.settings-toggleRow {
-  margin-top: var(--s-4);
-  padding: var(--s-3);
-  border-radius: var(--r-md);
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 88%, transparent);
+.settings-links {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: var(--s-2);
 }
 
-.settings-toggleTitle { font-weight: var(--fw-bold); }
-
-.settings-toggleSub {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-}
-
-.settings-switch {
-  width: 56px;
-  height: 32px;
+.settings-linkBtn {
+  min-height: 42px;
+  padding: 0 14px;
   border-radius: var(--r-pill);
   border: 1px solid var(--border);
-  background: var(--accentSoft);
-  padding: 3px;
-  cursor: pointer;
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
-  transition: background 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.settings-switch.on { background: var(--accent); }
-
-.settings-switch-knob {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--r-pill);
-  background: var(--card);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease;
+.settings-logout {
+  margin-top: var(--s-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--color-accent-contrast);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
+  border-radius: var(--r-md);
+  min-height: 46px;
+  padding: 0 var(--s-4);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.settings-switch.on .settings-switch-knob { transform: translateX(24px); }
-
-.ui-min-tap { min-height: 44px; }
-
-@media (max-width: 640px) {
+@media (max-width: 860px) {
   .settings-page { padding: var(--s-4); }
-  .settings-top { flex-wrap: wrap; }
+  .settings-grid { grid-template-columns: 1fr; }
 }

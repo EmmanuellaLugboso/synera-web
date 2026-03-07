@@ -1,0 +1,10 @@
+.about-page { min-height: 100vh; background: var(--bg); color: var(--text); padding: var(--s-5); }
+.about-shell { max-width: 1200px; margin: 0 auto; }
+.about-hero, .about-card { border: 1px solid var(--border); background: var(--card); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); padding: var(--s-4); }
+.about-hero p { max-width: 760px; }
+.about-grid { margin-top: var(--s-4); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+.about-card ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; font-weight: 400; }
+.about-actions { margin-top: var(--s-4); display: flex; gap: 10px; flex-wrap: wrap; }
+.about-btn { min-height: 44px; padding: 0 16px; border-radius: var(--r-md); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)); color: var(--color-accent-contrast); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent)); text-decoration: none; display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; }
+.about-btn.ghost { background: var(--card); color: var(--text); border-color: var(--border); }
+@media (max-width: 900px) { .about-page { padding: var(--s-4); } .about-grid { grid-template-columns: 1fr; } }

@@ -173,6 +173,8 @@ export default function Page() {
   const [taskDue, setTaskDue] = useState(dateISO);
   const [taskEst, setTaskEst] = useState("30");
   const [taskNote, setTaskNote] = useState("");
+  const [syraTaskLoading, setSyraTaskLoading] = useState(false);
+  const [syraTaskNote, setSyraTaskNote] = useState("");
 
   const adminSummary = useMemo(() => {
     const total = lifeAdminTasks.length;
@@ -199,6 +201,34 @@ export default function Page() {
         return (b?.createdAt || 0) - (a?.createdAt || 0);
       });
   }, [lifeAdminTasks, dateISO]);
+
+
+  async function improveTaskWithSyra() {
+    const raw = `${taskTitle} ${taskNote}`.trim();
+    if (!raw) return;
+    setSyraTaskLoading(true);
+    setSyraTaskNote("");
+    try {
+      const res = await fetch("/api/syra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: raw, mode: "task_rewrite" }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || "Could not improve task.");
+      const task = json?.task || {};
+      setTaskTitle(task.title || taskTitle);
+      setTaskCategory(task.category || taskCategory);
+      setTaskPriority(task.urgency === "High" ? "High" : task.urgency === "Low" ? "Low" : "Medium");
+      setTaskEst(String(task.durationMin || taskEst));
+      setTaskNote(task.description || taskNote);
+      setSyraTaskNote("Refined by SYRA. Review and edit before posting.");
+    } catch (e) {
+      setSyraTaskNote(e?.message || "Could not improve task.");
+    } finally {
+      setSyraTaskLoading(false);
+    }
+  }
 
   function addTask() {
     const title = taskTitle.trim();
@@ -785,7 +815,11 @@ export default function Page() {
               <button className="primary-btn" onClick={addTask} type="button">
                 Add
               </button>
+              <button className="ghost-btn" onClick={improveTaskWithSyra} type="button">
+                {syraTaskLoading ? "SYRA refining…" : "Improve with SYRA"}
+              </button>
             </div>
+            {syraTaskNote ? <div className="tiny-note" style={{ marginTop: 8 }}>{syraTaskNote}</div> : null}
           </div>
 
           <div className="hub-section hub-section-white">

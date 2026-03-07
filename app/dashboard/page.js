@@ -5,13 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { normalizeError } from "../lib/errors";
-import { logError } from "../lib/logging";
 import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
-import { db, auth } from "../firebase/config";
-import { signOut } from "firebase/auth";
+import { db } from "../firebase/config";
 import {
   doc,
   getDoc,
@@ -334,17 +331,6 @@ export default function Dashboard() {
   }
 
 
-  async function handleLogout() {
-    try {
-      await signOut(auth);
-      router.push("/login");
-    } catch (e) {
-      const normalized = normalizeError(e, "Could not log out right now.");
-      logError("auth.logout.failed", e, { screen: "dashboard" });
-      setInsightError(normalized.message);
-    }
-  }
-
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
 
   const todaysFoodLogs = useMemo(() => {
@@ -514,7 +500,7 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/coach", {
+      const res = await fetch("/api/syra", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -544,15 +530,21 @@ export default function Dashboard() {
 
       const payload = await res.json();
       if (!res.ok)
-        throw new Error(payload?.error || "Could not get coach response.");
+        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: payload?.reply || "One small action now. You’ve got this.",
-          focus: payload?.focus || "",
-          plan: Array.isArray(payload?.plan) ? payload.plan : [],
+          text: payload?.reply || payload?.headline || "One small action now. You’ve got this.",
+          focus: payload?.focus || payload?.kind || "",
+          plan: Array.isArray(payload?.plan)
+            ? payload.plan
+            : Array.isArray(payload?.actions)
+              ? payload.actions
+              : Array.isArray(payload?.nextSteps)
+                ? payload.nextSteps
+                : [],
           checkInMin: payload?.checkInMin || null,
           nextPrompt: payload?.nextPrompt || "",
           keyMessages: Array.isArray(payload?.keyMessages) ? payload.keyMessages : [],
@@ -647,16 +639,9 @@ export default function Dashboard() {
           </div>
 
           <div className="dash-topbar-right">
-            <button className="icon-btn" type="button" aria-label="Timer">
-              ⏱
-            </button>
-            <button className="icon-btn" type="button" aria-label="Alerts">
-              🔔
-            </button>
-            <Link className="icon-btn" href="/settings" aria-label="Settings">
-              ⚙️
+            <Link className="dash-btn" href="/settings" aria-label="Settings">
+              Settings
             </Link>
-
             <button
               className="dash-btn"
               type="button"
@@ -708,7 +693,6 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* ✅ Controls: settings + logout */}
                 <div className="mini-user-actions">
                   <Link
                     className="mini-user-gear"
@@ -717,15 +701,6 @@ export default function Dashboard() {
                   >
                     ⚙️
                   </Link>
-                  <button
-                    className="mini-user-logout"
-                    type="button"
-                    onClick={handleLogout}
-                    aria-label="Log out"
-                    title="Log out"
-                  >
-                    ⎋
-                  </button>
                 </div>
               </div>
             </div>

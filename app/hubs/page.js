@@ -1,10 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase/config";
-import { useOnboarding } from "../context/OnboardingContext";
 import "./hub.css";
 import BackButton from "../components/BackButton";
 
@@ -17,19 +13,10 @@ const HUBS = [
 ];
 
 export default function HubsIndexPage() {
-  const router = useRouter();
-  const { user } = useOnboarding();
-
-  async function handleLogout() {
-    await signOut(auth);
-    router.push("/login");
-  }
-
   return (
     <div className="hub-page" data-testid="hubs-page">
       <div className="hub-topbar">
         <BackButton href="/dashboard" label="Dashboard" className="back-link" />
-        {user ? <button type="button" className="ghost-btn" onClick={handleLogout}>Logout</button> : null}
       </div>
       <div className="hub-hero">
         <div>

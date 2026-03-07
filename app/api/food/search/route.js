@@ -7,17 +7,25 @@ import {
   safeJson,
 } from "../../_utils";
 
+function toNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function nutrientValue(nutrients, names = []) {
+  const lower = names.map((x) => String(x).toLowerCase());
+  const item = nutrients.find((n) => lower.includes(String(n.nutrientName || "").toLowerCase()));
+  return toNumber(item?.value);
+}
+
 function normalizeUSDAFood(food) {
   const nutrients = Array.isArray(food?.foodNutrients) ? food.foodNutrients : [];
-  const get = (names) => {
-    const hit = nutrients.find((n) => names.includes(String(n.nutrientName || "").toLowerCase()));
-    return Number(hit?.value || 0);
-  };
+  const label = food?.labelNutrients || {};
 
-  const calories = get(["energy", "energy (kcal)"]);
-  const protein = get(["protein"]);
-  const carbs = get(["carbohydrate, by difference", "carbohydrate"]);
-  const fat = get(["total lipid (fat)", "fat"]);
+  const calories = nutrientValue(nutrients, ["energy", "energy (kcal)"]) || toNumber(label?.calories?.value);
+  const protein = nutrientValue(nutrients, ["protein"]) || toNumber(label?.protein?.value);
+  const carbs = nutrientValue(nutrients, ["carbohydrate, by difference", "carbohydrate"]) || toNumber(label?.carbohydrates?.value);
+  const fat = nutrientValue(nutrients, ["total lipid (fat)", "fat"]) || toNumber(label?.fat?.value);
 
   return {
     id: String(food?.fdcId || food?.description || Math.random()),
@@ -38,15 +46,15 @@ function normalizeOFFFood(product) {
     source: "openfoodfacts",
     description: product?.product_name || product?.generic_name || "Food",
     brandName: product?.brands || "",
-    calories: Number(n["energy-kcal_100g"] || n["energy-kcal"] || 0),
-    protein: Number(n.proteins_100g || n.proteins || 0),
-    carbs: Number(n.carbohydrates_100g || n.carbohydrates || 0),
-    fat: Number(n.fat_100g || n.fat || 0),
+    calories: toNumber(n["energy-kcal_100g"] || n["energy-kcal"]),
+    protein: toNumber(n.proteins_100g || n.proteins),
+    carbs: toNumber(n.carbohydrates_100g || n.carbohydrates),
+    fat: toNumber(n.fat_100g || n.fat),
   };
 }
 
-async function searchUSDA(q, key) {
-  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${key}`;
+async function searchUSDA(q, apiKey) {
+  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${encodeURIComponent(apiKey)}`;
 
   const res = await fetchWithTimeout(
     url,
@@ -55,12 +63,12 @@ async function searchUSDA(q, key) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: q,
-        pageSize: 10,
+        pageSize: 12,
         dataType: ["Foundation", "SR Legacy", "Branded"],
       }),
       cache: "no-store",
     },
-    10000,
+    12000,
     1,
   );
 
@@ -75,7 +83,7 @@ async function searchUSDA(q, key) {
 }
 
 async function searchOpenFoodFacts(q) {
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=10`;
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=12`;
   const res = await fetchWithTimeout(url, { cache: "no-store" }, 10000, 1);
 
   if (!res.ok) {
@@ -97,7 +105,11 @@ export async function GET(req) {
 
     if (!q) return jsonSuccess({ results: [] }, { requestId });
 
-    const key = process.env.USDA_API_KEY;
+    const key =
+      process.env.USDA_API_KEY ||
+      process.env.USDA_FOODDATA_API_KEY ||
+      process.env.FOODDATA_CENTRAL_API_KEY;
+
     let results = [];
     let source = "openfoodfacts";
 

@@ -255,10 +255,16 @@ export default function InsightsPage() {
           </section>
 
           <section className="card coach-brain">
-            <div className="side-title">Coach Summary</div>
-            <div className="suggestion-main">Top lever right now: {model.coach.topLever || "Move"}</div>
-            <div className="risk-flag">Risk: {(model.coach.risks || ["Baseline still building"])[1] || (model.coach.risks || ["Baseline still building"])[0]}</div>
-            <div className="suggestion-sub">Next best action: {model.coach.action}</div>
+            <div className="coach-head">
+              <h3 style={{ margin: 0 }}>Coach Summary</h3>
+              <button className="ins-ghost" onClick={() => setCoachOpen(true)} type="button">Open Assistant</button>
+            </div>
+            <div className="coach-highlight">{model.coach.headline}</div>
+            <div className="coach-grid">
+              <div className="coach-chip"><strong>Top lever</strong><span>{model.coach.topLever || "Move"}</span></div>
+              <div className="coach-chip"><strong>Priority risk</strong><span>{(model.coach.risks || ["Baseline still building"])[0]}</span></div>
+              <div className="coach-chip"><strong>Action</strong><span>{model.coach.action}</span></div>
+            </div>
           </section>
         </div>
 

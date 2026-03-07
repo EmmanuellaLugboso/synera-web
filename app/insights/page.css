@@ -198,3 +198,45 @@
 @media (max-width: 980px) {
   .insights-dual { grid-template-columns: 1fr; }
 }
+
+.coach-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.coach-highlight {
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  border-radius: var(--r-md);
+  padding: 12px;
+  font-weight: var(--fw-semibold);
+}
+
+.coach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.coach-chip {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card2);
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.coach-chip strong {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+@media (max-width: 980px) {
+  .coach-grid { grid-template-columns: 1fr; }
+}

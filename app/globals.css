@@ -1,21 +1,39 @@
 @import "./styles/utilities.css";
 
 :root[data-theme="light"] {
-  --color-bg: #f6f8fc;
+  --color-bg: #fdfefe;
   --color-surface: #ffffff;
-  --color-surface-alt: #f5f8ff;
+  --color-surface-alt: #f7f9fc;
   --color-surface-elevated: #ffffff;
-  --color-border: #dbe4f2;
-  --color-border-strong: #c3d2e8;
-  --color-text: #162033;
-  --color-text-muted: #4f607b;
+  --color-border: #e2e8f2;
+  --color-border-strong: #cfd9e8;
+  --color-text: #172133;
+  --color-text-muted: #5a6b86;
   --color-accent: #d65a99;
   --color-accent-strong: #bf3f80;
   --color-accent-contrast: #ffffff;
-  --color-accent-soft: color-mix(in srgb, var(--color-accent) 14%, transparent);
-  --color-hover: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface));
-  --color-pressed: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
-  --shadow-color: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  --color-hover: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+  --color-pressed: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface));
+  --shadow-color: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+:root[data-theme="pink"] {
+  --color-bg: #fbf8fc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fdf6fb;
+  --color-surface-elevated: #ffffff;
+  --color-border: #eadfea;
+  --color-border-strong: #d8c8db;
+  --color-text: #201826;
+  --color-text-muted: #6c5a76;
+  --color-accent: #cd5f97;
+  --color-accent-strong: #b84b86;
+  --color-accent-contrast: #ffffff;
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --color-hover: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+  --color-pressed: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+  --shadow-color: color-mix(in srgb, #3a2542 10%, transparent);
 }
 
 :root[data-theme="dark"] {

@@ -1,0 +1,5 @@
+.info-page { min-height: 100vh; background: var(--bg); color: var(--text); padding: var(--s-5); }
+.info-shell { max-width: 1200px; margin: 0 auto; }
+.info-card { margin-top: var(--s-4); border: 1px solid var(--border); background: var(--card); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); padding: var(--s-4); }
+.info-list { margin-top: var(--s-4); display: grid; gap: var(--s-4); }
+.info-list p { margin-top: 8px; }
