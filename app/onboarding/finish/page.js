@@ -1,9 +1,10 @@
 "use client";
 
+import "../shared.css";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { saveOnboardingData } from "../saveOnboarding";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getUserProfile } from "../../services/userService";
 import { normalizeError } from "../../lib/errors";
 import { logError } from "../../lib/logging";
@@ -16,6 +17,10 @@ export default function FinishPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const isE2EMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === "1";
+
+  const focusCount = Array.isArray(data?.focus) ? data.focus.length : 0;
+  const goalCount = Array.isArray(data?.goals) ? data.goals.length : 0;
+  const profileName = useMemo(() => String(data?.name || "there").trim(), [data?.name]);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +72,13 @@ export default function FinishPage() {
   return (
     <div className="onboard-container" data-testid="onboarding-finish-page">
       <div className="onboard-card">
-        <h1 className="onboard-title">You&apos;re All Set 🎉</h1>
+        <h1 className="onboard-title">You&apos;re all set, {profileName}.</h1>
+        <p className="onboard-subtitle">Your profile is configured and ready. We&apos;ll now personalize your dashboard, hubs, and daily recommendations.</p>
+        <div className="mcq-group" style={{ marginTop: 8 }}>
+          <div className="mcq-btn"><span className="mcq-main">Focus areas selected</span><span className="mcq-desc">{focusCount || "No specific areas selected yet"}</span></div>
+          <div className="mcq-btn"><span className="mcq-main">Goals saved</span><span className="mcq-desc">{goalCount || "No goals selected yet"}</span></div>
+          <div className="mcq-btn"><span className="mcq-main">Profile basics</span><span className="mcq-desc">Name, DOB, biological sex, height, weight</span></div>
+        </div>
 
         <button
           data-testid="onboarding-finish-btn"
@@ -75,7 +86,7 @@ export default function FinishPage() {
           onClick={saveOnboarding}
           disabled={loading}
         >
-          {loading ? "Saving..." : "Finish"}
+          {loading ? "Saving your setup..." : "Go to dashboard"}
         </button>
         {error ? <InlineAlert type="error">{error}</InlineAlert> : null}
       </div>

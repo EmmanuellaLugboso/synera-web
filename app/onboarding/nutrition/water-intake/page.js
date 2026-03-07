@@ -53,7 +53,7 @@ export default function WaterPage() {
 
         <h1 className="onboard-title">Daily Water Intake</h1>
         <p className="onboard-subtitle">
-          Choose the option that best matches your usual hydration 💧
+          Choose the option that best matches your usual hydration.
         </p>
 
         <div className="water-cards">

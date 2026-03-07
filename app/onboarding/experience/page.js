@@ -38,7 +38,7 @@ export default function ExperiencePage() {
           disabled={!data.experience}
           onClick={() => router.push("/onboarding/activity")}
         >
-          Finish
+          Next
         </button>
       </div>
     </div>

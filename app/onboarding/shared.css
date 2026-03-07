@@ -1,118 +1,93 @@
-.onboard-container {
+.onboard-shell {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(20px, 5vw, 38px);
   background:
-    radial-gradient(900px 520px at 18% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
-    radial-gradient(900px 520px at 90% 12%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 60%),
+    radial-gradient(1100px 560px at 15% -8%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 62%),
+    radial-gradient(1000px 540px at 92% -5%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 65%, transparent), transparent 40%),
     var(--bg);
-  color: var(--text);
 }
 
-.onboard-card {
-  background: var(--card);
-  width: 100%;
-  max-width: 520px;
-  padding: clamp(24px, 4vw, 36px);
-  border-radius: var(--r-xl);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-  text-align: center;
+.onboard-progressWrap {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 18px 0 10px;
+  backdrop-filter: blur(8px);
 }
 
-.onboard-title {
-  font-size: clamp(30px, 5vw, 38px);
-  line-height: 1.12;
-  letter-spacing: -0.03em;
-  font-weight: var(--fw-extrabold);
-  color: var(--text);
-  margin: 0 0 var(--s-4);
-}
-
-.onboard-subtitle {
-  font-size: var(--fs-base);
-  color: var(--muted);
-  margin: 0 0 var(--s-5);
-  line-height: 1.55;
-}
-
-.onboard-button {
-  margin-top: var(--s-5);
-  min-height: 52px;
-  padding: 0 var(--s-6);
-  width: 100%;
-  max-width: 280px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent));
-  color: var(--color-accent-contrast);
-  font-size: var(--fs-base);
-  font-weight: var(--fw-bold);
-  border-radius: var(--r-md);
-  border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--border));
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+.onboard-progressMeta {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 28%, transparent);
+  font-size: 12px;
+  margin-bottom: 8px;
 }
 
-.onboard-button:hover:not(:disabled) {
-  transform: translateY(-1px);
+.onboard-progressPhase {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
 }
 
-.onboard-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  box-shadow: none;
+.onboard-progressPct {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text) 78%, var(--muted));
 }
 
-.text-input {
+.onboard-progressTrack {
   width: 100%;
-  min-height: 46px;
-  padding: 0 var(--s-3);
-  font-size: var(--fs-base);
-  border-radius: var(--r-md);
-  border: 1px solid var(--border);
-  outline: none;
-  margin-bottom: var(--s-3);
-  background: var(--card);
-  color: var(--text);
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 88%, transparent);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
 }
 
-.text-input:focus {
-  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
-  box-shadow: var(--focus-ring);
+.onboard-progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 75%, #fff), var(--accent));
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--accent) 28%, transparent);
+  transition: width 280ms ease;
+}
+
+.onboard-container,
+.sex-page {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vw, 48px) 16px 30px;
+  color: var(--text);
 }
 
 .onboard-card,
 .sex-card {
-  background: var(--card) !important;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-  color: var(--text);
+  width: min(760px, 100%);
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent) !important;
+  border-radius: var(--r-xl);
+  padding: clamp(24px, 3.6vw, 38px);
+  box-shadow: 0 18px 48px color-mix(in srgb, #000 14%, transparent);
+  text-align: center;
 }
 
 .onboard-title,
-.sex-title,
-.sex-kicker,
-.mcq-main,
-.day-main,
-.type-label,
-.time-label,
-.env-title,
-.nutri-title,
-.meal-label,
-.water-label,
-.supp-label {
+.sex-title {
+  margin: 0 0 10px;
+  font-size: clamp(1.72rem, 3.1vw, 2.25rem);
+  line-height: 1.16;
+  letter-spacing: -0.03em;
   color: var(--text) !important;
 }
 
 .onboard-subtitle,
 .sex-sub,
+.tiny-note,
+.small-note,
+.converted-text,
 .sub,
 .mcq-desc,
 .day-desc,
@@ -122,31 +97,100 @@
 .nutri-desc,
 .meal-desc,
 .water-desc,
-.supp-desc,
-.tiny-note,
-.small-note,
-.converted-text {
+.supp-desc {
   color: var(--muted) !important;
+  margin: 0 0 16px;
 }
 
 .onboard-button,
-.bigger-btn {
+.bigger-btn,
+.sex-button {
+  width: 100%;
+  max-width: 320px;
+  min-height: 50px;
+  border-radius: 14px !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 72%, var(--card)), var(--accent)) !important;
   color: var(--color-accent-contrast) !important;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 20px auto 0;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.onboard-button:hover:not(:disabled),
+.sex-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.onboard-button:disabled,
+.sex-button:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .text-input,
 .dob-input,
 .other-input {
-  background: var(--card) !important;
+  width: 100%;
+  min-height: 48px;
   border: 1px solid var(--border) !important;
+  border-radius: 12px;
+  padding: 0 14px;
+  background: color-mix(in srgb, var(--card) 95%, transparent) !important;
   color: var(--text) !important;
+  margin-bottom: 12px;
+}
+
+.text-input:focus,
+.dob-input:focus,
+.other-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border)) !important;
+  box-shadow: var(--focus-ring);
+}
+
+.unit-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.toggle-btn {
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.toggle-btn.active {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  background: color-mix(in srgb, var(--accent) 14%, var(--card));
+}
+
+.choice-grid,
+.pill-grid,
+.mcq-group,
+.days-list,
+.type-grid,
+.time-grid,
+.env-grid,
+.nutrition-list,
+.meal-cards,
+.water-cards,
+.supp-grid,
+.sex-options,
+.goal-section {
+  gap: 10px !important;
 }
 
 .choice-grid button,
 .pill-grid button,
-.sex-button,
 .days-list button,
 .type-grid button,
 .time-grid button,
@@ -154,17 +198,57 @@
 .nutrition-list button,
 .meal-cards button,
 .water-cards button,
-.supp-grid button {
-  min-height: 44px;
-  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+.supp-grid button,
+.mcq-btn,
+.goal-pill,
+.sex-option,
+.choice-card,
+.day-item,
+.type-box,
+.time-box,
+.env-card,
+.nutri-card,
+.meal-card,
+.water-card,
+.supp-card {
+  min-height: 54px;
+  border-radius: 14px !important;
   border: 1px solid var(--border) !important;
+  background: color-mix(in srgb, var(--card) 94%, transparent) !important;
   color: var(--text) !important;
-  border-radius: var(--r-md) !important;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
 }
 
+.choice-grid button:hover,
+.pill-grid button:hover,
+.days-list button:hover,
+.type-grid button:hover,
+.time-grid button:hover,
+.env-grid button:hover,
+.nutrition-list button:hover,
+.meal-cards button:hover,
+.water-cards button:hover,
+.supp-grid button:hover,
+.mcq-btn:hover,
+.goal-pill:hover,
+.sex-option:hover,
+.choice-card:hover,
+.day-item:hover,
+.type-box:hover,
+.time-box:hover,
+.env-card:hover,
+.nutri-card:hover,
+.meal-card:hover,
+.water-card:hover,
+.supp-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border)) !important;
+}
+
+.selected,
+.active,
 .choice-grid button.selected,
 .pill-grid button.selected,
-.sex-button.active,
 .days-list button.selected,
 .type-grid button.selected,
 .time-grid button.selected,
@@ -172,37 +256,64 @@
 .nutrition-list button.selected,
 .meal-cards button.selected,
 .water-cards button.selected,
-.supp-grid button.selected {
-  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
+.supp-grid button.selected,
+.goal-pill.selected,
+.choice-card.selected,
+.sex-option.active,
+.day-item.selected,
+.type-box.selected,
+.time-box.selected,
+.env-card.selected,
+.nutri-card.selected,
+.meal-card.selected,
+.water-card.selected,
+.supp-card.selected,
+.mcq-btn.selected {
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border)) !important;
+  background: color-mix(in srgb, var(--accent) 16%, var(--card)) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
-.ui-min-tap { min-height: 44px; }
-
-/* Deployment polish overrides */
-.onboard-container .onboard-card {
-  max-width: 560px;
+.top-icon,
+.type-icon,
+.time-icon,
+.env-icon,
+.nutri-icon,
+.meal-icon,
+.water-icon,
+.supp-icon,
+.icon {
+  display: none;
 }
 
-.onboard-container button {
-  min-height: 44px;
-  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+.sex-kicker {
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted) !important;
 }
 
-.onboard-container button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
+@media (max-width: 768px) {
+  .onboard-progressWrap {
+    width: calc(100% - 20px);
+    padding-top: 12px;
+  }
 
-.onboard-container input,
-.onboard-container select,
-.onboard-container textarea {
-  color: var(--text) !important;
-  background: var(--card) !important;
-  border-color: var(--border) !important;
-}
+  .onboard-card,
+  .sex-card {
+    padding: 22px 16px;
+    border-radius: 18px;
+  }
 
-.onboard-container .selected,
-.onboard-container .active {
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--border)) !important;
-  background: color-mix(in srgb, var(--accent) 14%, var(--card)) !important;
+  .onboard-button,
+  .bigger-btn,
+  .sex-button {
+    max-width: 100%;
+  }
+
+  .type-grid,
+  .time-grid {
+    grid-template-columns: 1fr !important;
+  }
 }

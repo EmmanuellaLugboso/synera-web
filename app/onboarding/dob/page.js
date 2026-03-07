@@ -28,7 +28,7 @@ export default function DobPage() {
     <div className="onboard-container">
       <div className="onboard-card">
 
-        <h1 className="onboard-title">When&apos;s your birthday? 🎂</h1>
+        <h1 className="onboard-title">When&apos;s your birthday?</h1>
 
         <input
           type="date"

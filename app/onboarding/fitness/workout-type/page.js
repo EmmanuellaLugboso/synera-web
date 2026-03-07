@@ -60,7 +60,7 @@ export default function WorkoutTypePage() {
         <h1 className="onboard-title">Your Training Style</h1>
         <p className="onboard-subtitle">
           Pick the types of workouts you enjoy.
-          <span className="multi-hint">You can choose multiple ✨</span>
+          <span className="multi-hint">You can choose multiple.</span>
         </p>
 
         <div className="type-grid">

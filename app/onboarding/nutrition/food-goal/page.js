@@ -52,7 +52,7 @@ export default function FoodGoalPage() {
       <div className="onboard-card">
 
         <h1 className="onboard-title">Your Nutrition Goal</h1>
-        <p className="onboard-subtitle">Pick all that apply ✨</p>
+        <p className="onboard-subtitle">Pick all that apply.</p>
 
         <div className="nutrition-list">
           {GOALS.map((g) => (
