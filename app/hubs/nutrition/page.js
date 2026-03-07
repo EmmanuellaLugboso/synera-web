@@ -1831,6 +1831,25 @@ export default function Page() {
                     ) : null}
                   </div>
 
+                  <div className="nutri-card" style={{ marginTop: 10 }}>
+                    <div className="nutri-cardTop">
+                      <div className="nutri-label">Quick log with SYRA</div>
+                      <div className="nutri-chip">Approximate</div>
+                    </div>
+                    <div className="nutri-row" style={{ marginTop: 8 }}>
+                      <input
+                        className="nutri-search"
+                        value={syraMealText}
+                        onChange={(e) => setSyraMealText(e.target.value)}
+                        placeholder="Describe meal (e.g. toast eggs and tea)"
+                      />
+                      <button className="nutri-pillBtn" type="button" onClick={estimateMealWithSyra}>
+                        {syraMealLoading ? "Estimating…" : "Describe meal"}
+                      </button>
+                    </div>
+                    {syraMealNote ? <div className="nutri-tiny" style={{ marginTop: 8 }}>{syraMealNote}</div> : null}
+                  </div>
+
                   <div className="nutri-grid2" style={{ marginTop: 12 }}>
                     <div className="nutri-field">
                       <label className="nutri-fieldLabel">Supplement</label>

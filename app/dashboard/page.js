@@ -500,7 +500,7 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/coach", {
+      const res = await fetch("/api/syra", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -530,15 +530,21 @@ export default function Dashboard() {
 
       const payload = await res.json();
       if (!res.ok)
-        throw new Error(payload?.error || "Could not get coach response.");
+        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: payload?.reply || "One small action now. You’ve got this.",
-          focus: payload?.focus || "",
-          plan: Array.isArray(payload?.plan) ? payload.plan : [],
+          text: payload?.reply || payload?.headline || "One small action now. You’ve got this.",
+          focus: payload?.focus || payload?.kind || "",
+          plan: Array.isArray(payload?.plan)
+            ? payload.plan
+            : Array.isArray(payload?.actions)
+              ? payload.actions
+              : Array.isArray(payload?.nextSteps)
+                ? payload.nextSteps
+                : [],
           checkInMin: payload?.checkInMin || null,
           nextPrompt: payload?.nextPrompt || "",
           keyMessages: Array.isArray(payload?.keyMessages) ? payload.keyMessages : [],
