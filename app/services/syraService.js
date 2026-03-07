@@ -1,16 +1,13 @@
-async function parseApiResponse(res, fallbackMessage) {
-  const json = await res.json();
-  if (!res.ok) throw new Error(json?.error || fallbackMessage);
-  return json;
-}
+import { requestJson } from "./apiClient";
 
 export async function requestSyra({ message, mode = "general", history, context } = {}) {
-  const res = await fetch("/api/syra", {
+  return requestJson("/api/syra", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, mode, history, context }),
+    retries: 1,
+    fallbackError: "Syra is unavailable right now.",
   });
-  return parseApiResponse(res, "Syra is unavailable right now.");
 }
 
 export async function rewriteTaskWithSyra(message) {

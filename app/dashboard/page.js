@@ -950,7 +950,18 @@ export default function Dashboard() {
                 <span className="insight-status">{insightStatus}</span>
               ) : null}
               {insightError ? (
-                <span className="insight-status">{insightError}</span>
+                <span className="insight-status">
+                  {insightError}
+                  <button
+                    type="button"
+                    className="insight-link"
+                    style={{ marginLeft: 8 }}
+                    onClick={() => loadInsights(true)}
+                    disabled={insightLoading}
+                  >
+                    Retry
+                  </button>
+                </span>
               ) : null}
             </div>
           </section>
