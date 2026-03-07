@@ -1,7 +1,6 @@
 import "./globals.css";
 import { OnboardingProvider } from "./context/OnboardingContext";
 import ThemeProvider from "./components/ThemeProvider";
-import SyraAssistant from "./components/SyraAssistant";
 
 export const metadata = {
   title: "Synera",
@@ -13,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <ThemeProvider>
-          <OnboardingProvider>{children}<SyraAssistant /></OnboardingProvider>
+          <OnboardingProvider>{children}</OnboardingProvider>
         </ThemeProvider>
       </body>
     </html>
