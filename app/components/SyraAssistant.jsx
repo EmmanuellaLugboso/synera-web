@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
 
@@ -171,7 +171,9 @@ export default function SyraAssistant() {
     };
   }, []);
 
-  async function askSyra(prompt, mode = "general") {
+  const context = useMemo(() => formatContextFromData(data), [data]);
+
+  const askSyra = useCallback(async (prompt, mode = "general") => {
     const message = String(prompt || input).trim();
     if (!message) return;
     if (!prompt) {
@@ -185,7 +187,7 @@ export default function SyraAssistant() {
       const res = await fetch("/api/syra", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, mode, context: formatContextFromData(data) }),
+        body: JSON.stringify({ message, mode, context }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Syra is unavailable right now.");
@@ -195,7 +197,14 @@ export default function SyraAssistant() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [context, input]);
+
+  const handleSend = useCallback(() => {
+    if (!input.trim()) return;
+    const nextMessage = input.trim();
+    setMessages((prev) => [...prev, { role: "user", text: nextMessage }]);
+    askSyra(nextMessage, "general");
+  }, [askSyra, input]);
 
   if (hidden) return null;
 
@@ -241,11 +250,7 @@ export default function SyraAssistant() {
 
           <div className="syra-inputrow">
             <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Syra anything…" className="syra-input" />
-            <button type="button" className="syra-send" onClick={() => {
-              if (!input.trim()) return;
-              setMessages((prev) => [...prev, { role: "user", text: input.trim() }]);
-              askSyra(input.trim(), "general");
-            }}>Send</button>
+            <button type="button" className="syra-send" onClick={handleSend}>Send</button>
           </div>
         </aside>
       </div>

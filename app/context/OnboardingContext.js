@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useCallback,
 } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
@@ -254,23 +255,23 @@ export function OnboardingProvider({ children }) {
     };
   }, [data, user, isE2EMode]);
 
-  function updateField(key, value) {
+  const updateField = useCallback((key, value) => {
     setData((prev) => ({ ...prev, [key]: value }));
-  }
+  }, []);
 
-  function updateAll(newData) {
+  const updateAll = useCallback((newData) => {
     setData((prev) => ({ ...prev, ...(newData || {}) }));
-  }
+  }, []);
 
-  function updateMany(patch) {
+  const updateMany = useCallback((patch) => {
     setData((prev) => ({ ...prev, ...(patch || {}) }));
-  }
+  }, []);
 
-  function resetAll() {
+  const resetAll = useCallback(() => {
     setData(DEFAULT_DATA);
     // also reset lastSavedJSON so it actually saves the reset
     lastSavedJSON.current = "";
-  }
+  }, []);
 
 
   // ---- Best-effort flush on tab hide / unload to reduce data-loss on fast logout or close
@@ -307,7 +308,7 @@ export function OnboardingProvider({ children }) {
 
   const value = useMemo(
     () => ({ data, user, ready, updateField, updateAll, updateMany, resetAll }),
-    [data, user, ready]
+    [data, user, ready, updateField, updateAll, updateMany, resetAll]
   );
 
   return (
