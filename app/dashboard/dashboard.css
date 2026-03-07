@@ -382,7 +382,19 @@
   justify-self: end;
 }
 
-.mini-user-gear,
+.mini-user-gear {
+  text-decoration: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  font-size: 18px;
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--text) 7%, transparent);
+}
 
 .mini-user-gear:hover {
   transform: translateY(-1px);

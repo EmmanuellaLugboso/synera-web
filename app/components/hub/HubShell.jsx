@@ -1,7 +1,7 @@
 import BackButton from "../BackButton";
 import "./hub-shell.css";
 
-export default function HubShell({ title, subtitle, emoji, rightMeta, topActions, children, className = "" }) {
+export default function HubShell({ title, subtitle, emoji, topActions, children, className = "" }) {
   return (
     <div className={`hub-shell ${className}`.trim()}>
       <div className="hub-shell__topbar">
@@ -17,7 +17,6 @@ export default function HubShell({ title, subtitle, emoji, rightMeta, topActions
           </h1>
           {subtitle ? <p className="hub-shell__subtitle body-text">{subtitle}</p> : null}
         </div>
-        {rightMeta ? <div className="hub-shell__meta">{rightMeta}</div> : null}
       </div>
 
       <div className="hub-shell__content">{children}</div>

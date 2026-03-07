@@ -150,7 +150,7 @@ export default function Dashboard() {
   const [coachMessages, setCoachMessages] = useState([
     {
       role: "assistant",
-      text: "Hey — I’m your Synera Assistant. I can help with tasks, habits, goals, planning, and progress.",
+      text: "Hey — I’m Syra. I can help with tasks, habits, goals, planning, and progress.",
       focus: "daily alignment",
       plan: ["Check open tasks", "Close one quick win", "Plan your next check-in"],
       keyMessages: ["Ask: What should I focus on today?", "Ask: Where am I falling behind this week?"],
@@ -551,7 +551,7 @@ export default function Dashboard() {
         },
       ]);
     } catch (e) {
-      setCoachError(e?.message || "Synera Assistant is unavailable right now.");
+      setCoachError(e?.message || "Syra is unavailable right now.");
     } finally {
       setCoachTyping(false);
     }
@@ -647,7 +647,7 @@ export default function Dashboard() {
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              Synera Assistant
+              Syra
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
               Log food
@@ -737,14 +737,14 @@ export default function Dashboard() {
                 type="button"
                 onClick={() => addWater(250)}
               >
-                + 250ml water
+                Log a glass
               </button>
               <button
                 className="pill-btn primary"
                 type="button"
                 onClick={() => addWater(500)}
               >
-                + 500ml
+                Log a bottle
               </button>
             </div>
 
@@ -1075,7 +1075,7 @@ export default function Dashboard() {
           <div className="coach-modal" onClick={() => setCoachOpen(false)}>
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
-                <div className="coach-title">Synera Assistant</div>
+                <div className="coach-title">Syra</div>
                 <button
                   className="pill-btn"
                   type="button"
