@@ -1776,22 +1776,35 @@ body {
 /* SYRA floating assistant */
 .syra-dock {
   position: relative;
-  z-index: 70;
+  z-index: 90;
+}
+
+.syra-overlay {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, #050507 32%, transparent);
+  z-index: 95;
 }
 
 .syra-fab {
   position: fixed;
-  z-index: 80;
+  z-index: 110;
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
-  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, #fff 20%, var(--accent)), var(--accent));
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, #fff 22%, var(--accent)), var(--accent));
   color: var(--color-accent-contrast);
   display: grid;
   place-items: center;
   font-size: 22px;
   box-shadow: 0 16px 28px color-mix(in srgb, var(--accent) 24%, transparent);
+  cursor: grab;
+}
+
+.syra-fab:active {
+  cursor: grabbing;
 }
 
 .syra-panel {
@@ -1809,6 +1822,7 @@ body {
   overflow: hidden;
   transform: translateY(8px) scale(0.99);
   opacity: 0;
+  z-index: 100;
   animation: syra-in 180ms ease-out forwards;
 }
 

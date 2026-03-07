@@ -216,6 +216,7 @@ export default function Page() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Could not improve task.");
+      if (json?.kind !== "task") throw new Error("Unexpected SYRA response for task rewrite.");
       const task = json?.task || {};
       setTaskTitle(task.title || taskTitle);
       setTaskCategory(task.category || taskCategory);

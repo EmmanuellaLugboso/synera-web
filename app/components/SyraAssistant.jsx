@@ -104,26 +104,53 @@ export default function SyraAssistant() {
     },
   ]);
   const [pos, setPos] = useState({ x: 24, y: 24 });
-  const drag = useRef(null);
+
+  const drag = useRef({
+    active: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    startRight: 24,
+    startBottom: 24,
+    moved: false,
+  });
 
   const hidden = useMemo(() => pathname?.startsWith("/login") || pathname?.startsWith("/signup"), [pathname]);
 
   useEffect(() => {
-    function onMove(e) {
-      if (!drag.current) return;
-      setPos((prev) => ({
-        x: Math.max(12, prev.x - (e.movementX || 0)),
-        y: Math.max(12, prev.y - (e.movementY || 0)),
-      }));
+    function onPointerMove(e) {
+      if (!drag.current.active) return;
+      const deltaX = e.clientX - drag.current.startX;
+      const deltaY = e.clientY - drag.current.startY;
+
+      if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+        drag.current.moved = true;
+      }
+
+      const nextRight = drag.current.startRight - deltaX;
+      const nextBottom = drag.current.startBottom - deltaY;
+      const maxRight = Math.max(12, window.innerWidth - 72);
+      const maxBottom = Math.max(12, window.innerHeight - 72);
+
+      setPos({
+        x: Math.min(Math.max(12, nextRight), maxRight),
+        y: Math.min(Math.max(12, nextBottom), maxBottom),
+      });
     }
-    function onUp() {
-      drag.current = false;
+
+    function onPointerUp() {
+      drag.current.active = false;
+      drag.current.pointerId = null;
+      window.setTimeout(() => {
+        drag.current.moved = false;
+      }, 0);
     }
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
     return () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
     };
   }, []);
 
@@ -168,72 +195,81 @@ export default function SyraAssistant() {
   if (hidden) return null;
 
   return (
-    <>
-      <div className={`syra-dock ${open ? "open" : ""}`}>
-        {open ? (
-          <aside className="syra-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="syra-head">
-              <div>
-                <div className="syra-title">SYRA</div>
-                <div className="syra-sub">Calm support for meals, tasks, reflection, and resets.</div>
+    <div className="syra-dock">
+      {open ? <button type="button" className="syra-overlay" aria-label="Close Syra" onClick={() => setOpen(false)} /> : null}
+
+      {open ? (
+        <aside className="syra-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="syra-head">
+            <div>
+              <div className="syra-title">SYRA</div>
+              <div className="syra-sub">Calm support for meals, tasks, reflection, and resets.</div>
+            </div>
+            <button className="syra-close" onClick={() => setOpen(false)} type="button">Close</button>
+          </div>
+
+          <div className="syra-toolbar">
+            <button type="button" className={`syra-chip ${useDemoData ? "active" : ""}`} onClick={() => setUseDemoData(true)}>Demo week data</button>
+            <button type="button" className={`syra-chip ${!useDemoData ? "active" : ""}`} onClick={() => setUseDemoData(false)}>Live data</button>
+          </div>
+
+          <div className="syra-chips">
+            {QUICK_ACTIONS.map((chip) => (
+              <button key={chip.label} type="button" className="syra-chip" onClick={() => askSyra(chip.prompt, chip.mode)}>{chip.label}</button>
+            ))}
+          </div>
+
+          <div className="syra-chips syra-chips--subtle">
+            {TASK_REWRITE_ACTIONS.map((chip) => (
+              <button key={chip.label} type="button" className="syra-chip syra-chip--small" onClick={() => askSyra(input || "need help moving some stuff tomorrow", chip.mode)}>{chip.label}</button>
+            ))}
+          </div>
+
+          <div className="syra-thread">
+            {messages.map((m, i) => (
+              <div key={`${m.role}-${i}`} className={`syra-msg ${m.role}`}>
+                <pre>{m.text}</pre>
               </div>
-              <button className="syra-close" onClick={() => setOpen(false)} type="button">Close</button>
-            </div>
+            ))}
+            {loading ? <div className="syra-msg assistant"><pre>Syra is thinking…</pre></div> : null}
+          </div>
 
-            <div className="syra-toolbar">
-              <button type="button" className={`syra-chip ${useDemoData ? "active" : ""}`} onClick={() => setUseDemoData(true)}>Demo week data</button>
-              <button type="button" className={`syra-chip ${!useDemoData ? "active" : ""}`} onClick={() => setUseDemoData(false)}>Live data</button>
-            </div>
+          <div className="syra-inputrow">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask Syra anything…"
+              className="syra-input"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") askSyra(input, "general");
+              }}
+            />
+            <button type="button" className="syra-send" onClick={() => askSyra(input, "general")}>Send</button>
+          </div>
+        </aside>
+      ) : null}
 
-            <div className="syra-chips">
-              {QUICK_ACTIONS.map((chip) => (
-                <button key={chip.label} type="button" className="syra-chip" onClick={() => askSyra(chip.prompt, chip.mode)}>{chip.label}</button>
-              ))}
-            </div>
-
-            <div className="syra-chips syra-chips--subtle">
-              {TASK_REWRITE_ACTIONS.map((chip) => (
-                <button key={chip.label} type="button" className="syra-chip syra-chip--small" onClick={() => askSyra(input || "need help moving some stuff tomorrow", chip.mode)}>{chip.label}</button>
-              ))}
-            </div>
-
-            <div className="syra-thread">
-              {messages.map((m, i) => (
-                <div key={`${m.role}-${i}`} className={`syra-msg ${m.role}`}>
-                  <pre>{m.text}</pre>
-                </div>
-              ))}
-              {loading ? <div className="syra-msg assistant"><pre>Syra is thinking…</pre></div> : null}
-            </div>
-
-            <div className="syra-inputrow">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Syra anything…"
-                className="syra-input"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") askSyra(input, "general");
-                }}
-              />
-              <button type="button" className="syra-send" onClick={() => askSyra(input, "general")}>Send</button>
-            </div>
-          </aside>
-        ) : null}
-
-        <button
-          type="button"
-          className="syra-fab"
-          style={{ right: `${pos.x}px`, bottom: `${pos.y}px` }}
-          onPointerDown={() => {
-            drag.current = true;
-          }}
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Open Syra"
-        >
-          ✦
-        </button>
-      </div>
-    </>
+      <button
+        type="button"
+        className="syra-fab"
+        style={{ right: `${pos.x}px`, bottom: `${pos.y}px` }}
+        onPointerDown={(e) => {
+          drag.current.active = true;
+          drag.current.pointerId = e.pointerId;
+          drag.current.startX = e.clientX;
+          drag.current.startY = e.clientY;
+          drag.current.startRight = pos.x;
+          drag.current.startBottom = pos.y;
+          drag.current.moved = false;
+        }}
+        onClick={() => {
+          if (drag.current.moved) return;
+          setOpen((prev) => !prev);
+        }}
+        aria-label="Open Syra"
+      >
+        ✦
+      </button>
+    </div>
   );
 }
