@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
+import { requestSyra } from "../services/syraService";
 
 const QUICK_ACTIONS = [
   { label: "Describe meal", mode: "meal", prompt: "chicken wrap and iced coffee" },
@@ -67,7 +68,7 @@ function TaskCard({ data, onAction }) {
       <p>{data.description}</p>
       <div className="syra-meta">Category: {data.category} · Estimated time: {data.durationMin} min</div>
       <div className="syra-inlineActions">
-        <button type="button" className="syra-minibtn" onClick={() => onAction("task_rewrite")}>Improve with Syra</button>
+        <button type="button" className="syra-minibtn syra-minibtn--premium" onClick={() => onAction("task_rewrite")}>Improve with Syra</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_shorten")}>Shorten</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_organize")}>Organize details</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_clearer")}>Make clearer</button>
@@ -171,7 +172,9 @@ export default function SyraAssistant() {
     };
   }, []);
 
-  async function askSyra(prompt, mode = "general") {
+  const context = useMemo(() => formatContextFromData(data), [data]);
+
+  const askSyra = useCallback(async (prompt, mode = "general") => {
     const message = String(prompt || input).trim();
     if (!message) return;
     if (!prompt) {
@@ -182,20 +185,21 @@ export default function SyraAssistant() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/syra", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, mode, context: formatContextFromData(data) }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Syra is unavailable right now.");
+      const json = await requestSyra({ message, mode, context });
       setMessages((prev) => [...prev, { role: "assistant", text: json.headline || "Done.", raw: json }]);
     } catch (error) {
       setMessages((prev) => [...prev, { role: "assistant", text: error.message || "Syra is unavailable right now." }]);
     } finally {
       setLoading(false);
     }
-  }
+  }, [context, input]);
+
+  const handleSend = useCallback(() => {
+    if (!input.trim()) return;
+    const nextMessage = input.trim();
+    setMessages((prev) => [...prev, { role: "user", text: nextMessage }]);
+    askSyra(nextMessage, "general");
+  }, [askSyra, input]);
 
   if (hidden) return null;
 
@@ -241,11 +245,7 @@ export default function SyraAssistant() {
 
           <div className="syra-inputrow">
             <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Syra anything…" className="syra-input" />
-            <button type="button" className="syra-send" onClick={() => {
-              if (!input.trim()) return;
-              setMessages((prev) => [...prev, { role: "user", text: input.trim() }]);
-              askSyra(input.trim(), "general");
-            }}>Send</button>
+            <button type="button" className="syra-send" onClick={handleSend}>Send</button>
           </div>
         </aside>
       </div>

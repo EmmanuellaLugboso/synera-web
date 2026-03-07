@@ -10,24 +10,12 @@ import { useRouter } from "next/navigation";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { buildMindSleepDailyPayload } from "../../services/dailySync";
+import { todayISO } from "../../utils/date";
+import { uid } from "../../utils/id";
+import { clampNumber } from "../../utils/number";
 
 /* ---------------- Utilities ---------------- */
 
-function todayISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-function uid() {
-  return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-function clampNumber(v) {
-  const n = Number(v);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
 function fmtDuration(mins) {
   const m = clampNumber(mins);
   if (!m) return "--";

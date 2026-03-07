@@ -10,6 +10,7 @@ import {
   orderBy,
   query,
   where,
+  limit,
 } from "firebase/firestore";
 import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
@@ -32,6 +33,7 @@ function buildDailyQuery(uid) {
     collection(db, "users", uid, "daily"),
     where("date", ">=", startDate),
     orderBy("date", "asc"),
+    limit(30),
   );
 }
 
@@ -202,10 +204,10 @@ export default function InsightsPage() {
   }, [days, stepGoal, calorieGoal, waterGoal, proteinGoal]);
 
   const weeklySlice = useMemo(() => model.base.slice(-7), [model.base]);
-  const weekdayLabels = weeklySlice.map((d) => {
+  const weekdayLabels = useMemo(() => weeklySlice.map((d) => {
     const dt = new Date(`${d.dateISO}T00:00:00`);
     return dt.toLocaleDateString([], { weekday: "short" });
-  });
+  }), [weeklySlice]);
 
   const dailyInsight = useMemo(() => {
     const today = model.base[model.base.length - 1] || {};

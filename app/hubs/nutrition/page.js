@@ -11,52 +11,16 @@ import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { todayISO, shiftISODate } from "../../utils/date";
+import { uid } from "../../utils/id";
+import { clampNumber, pct } from "../../utils/number";
+import { requestJson } from "../../services/apiClient";
 
 /* ------------------------
    utils
 ------------------------ */
-function todayISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function parseISODate(value) {
-  const [y, m, d] = String(value || "").split("-").map(Number);
-  if (!y || !m || !d) return new Date();
-  return new Date(y, m - 1, d);
-}
-
-function shiftISODate(baseISO, deltaDays) {
-  const d = parseISODate(baseISO);
-  d.setDate(d.getDate() + deltaDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function uid() {
-  return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-
-function clampNumber(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-
 function round1(n) {
   return Math.round(n * 10) / 10;
-}
-
-function pct(val, goal) {
-  const v = clampNumber(val);
-  const g = clampNumber(goal);
-  if (!g) return 0;
-  return Math.max(0, Math.min(100, Math.round((v / g) * 100)));
 }
 
 /* =========================
@@ -468,16 +432,18 @@ export default function Page() {
     setFoodSearchLoading(true);
     setFoodSearchError("");
     try {
-      const res = await fetch(`/api/food/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error?.message || json?.error || "Food search failed");
+      const json = await requestJson(`/api/food/search?q=${encodeURIComponent(q)}`, {
+        cache: "no-store",
+        retries: 1,
+        fallbackError: "Food search failed",
+      });
       const results = Array.isArray(json?.data?.results)
         ? json.data.results
         : Array.isArray(json?.results)
           ? json.results
           : [];
       setFoodSearchResults(results);
-      setFoodSearchSource(String(payload?.source || ""));
+      setFoodSearchSource(String(json?.source || ""));
       if (!results.length) setFoodSearchError("No foods found for this search.");
     } catch (e) {
       setFoodSearchError(e?.message || "Food search failed");
@@ -664,6 +630,8 @@ export default function Page() {
   const [recipeResults, setRecipeResults] = useState([]);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeErr, setRecipeErr] = useState("");
+  // Manual trigger to re-run recipe search effect when user clicks Retry.
+  const [recipeRetryKey, setRecipeRetryKey] = useState(0);
 
   const [recipeOpen, setRecipeOpen] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
@@ -699,15 +667,14 @@ export default function Page() {
         setRecipeLoading(true);
         setRecipeErr("");
 
-        const res = await fetch(
+        const json = await requestJson(
           `/api/recipes/search?q=${encodeURIComponent(q)}`,
           {
             cache: "no-store",
+            retries: 1,
+            fallbackError: "Recipe search failed",
           },
         );
-
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error?.message || json?.error || "Recipe search failed");
 
         const recipeResults = json?.data?.results || json?.results;
         const normalized = Array.isArray(recipeResults)
@@ -724,7 +691,7 @@ export default function Page() {
     }, 250);
 
     return () => clearTimeout(t);
-  }, [recipeQuery, tab]);
+  }, [recipeQuery, tab, recipeRetryKey]);
 
   async function openRecipeModal(recipeCard) {
     const id = recipeCard?.id ?? recipeCard?.idMeal ?? recipeCard?.recipeId;
@@ -748,12 +715,11 @@ export default function Page() {
 
     setRecipeDetailLoading(true);
     try {
-      const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+      const json = await requestJson(`/api/recipes/${encodeURIComponent(id)}`, {
         cache: "no-store",
+        retries: 1,
+        fallbackError: "Failed to load recipe details",
       });
-      const json = await res.json();
-      if (!res.ok)
-        throw new Error(json?.error?.message || json?.error || "Failed to load recipe details");
       setSelectedRecipe(json?.data?.recipe || json?.recipe || null);
     } catch (e) {
       setRecipeDetailErr(e?.message || "Failed to load recipe details");
@@ -837,6 +803,8 @@ export default function Page() {
   const [suppResults, setSuppResults] = useState([]);
   const [suppLoading, setSuppLoading] = useState(false);
   const [suppErr, setSuppErr] = useState("");
+  // Manual trigger to re-run supplement lookup effect when user clicks Retry.
+  const [suppRetryKey, setSuppRetryKey] = useState(0);
 
   const [selectedSuppInfo, setSelectedSuppInfo] = useState(null);
   const [suppName, setSuppName] = useState("");
@@ -853,16 +821,15 @@ export default function Page() {
         setSuppLoading(true);
         setSuppErr("");
 
-        const res = await fetch(
+        const json = await requestJson(
           `/api/supplements?q=${encodeURIComponent(suppSearch)}`,
           {
             method: "GET",
             cache: "no-store",
+            retries: 1,
+            fallbackError: "Supp request failed",
           },
         );
-
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error?.message || json?.error || "Supp request failed");
         const suppResults = json?.data?.results || json?.results;
         setSuppResults(Array.isArray(suppResults) ? suppResults : []);
       } catch (e) {
@@ -877,7 +844,7 @@ export default function Page() {
     }, 200);
 
     return () => clearTimeout(t);
-  }, [suppSearch, suppPickerOpen]);
+  }, [suppSearch, suppPickerOpen, suppRetryKey]);
 
   function pickSupplement(s) {
     setSelectedSuppInfo(s);
@@ -1439,7 +1406,14 @@ export default function Page() {
                       </button>
                     </div>
                     {foodSearchLoading ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Searching…</div> : null}
-                    {foodSearchError ? <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>{foodSearchError}</div> : null}
+                    {foodSearchError ? (
+                      <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>
+                        {foodSearchError}
+                        <button className="nutri-pillBtn" type="button" onClick={searchFoodDatabase} style={{ marginLeft: 8 }}>
+                          Retry
+                        </button>
+                      </div>
+                    ) : null}
                     {foodSearchSource ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Data source: {foodSearchSource === "usda" ? "USDA FoodData Central" : "OpenFoodFacts fallback"}</div> : null}
                     {foodSearchResults.length ? (
                       <div className="nutri-list" style={{ marginTop: 10, maxHeight: 200, overflow: 'auto' }}>
@@ -1577,6 +1551,15 @@ export default function Page() {
                       style={{ marginTop: 12 }}
                     >
                       {recipeErr}
+                      <div style={{ marginTop: 8 }}>
+                        <button
+                          className="nutri-pillBtn"
+                          type="button"
+                          onClick={() => setRecipeRetryKey((k) => k + 1)}
+                        >
+                          Retry
+                        </button>
+                      </div>
                     </div>
                   ) : recipeQuery.trim() && recipeResults.length === 0 ? (
                     <div className="nutri-mutedBox" style={{ marginTop: 12 }}>
@@ -1625,6 +1608,16 @@ export default function Page() {
                   ) : recipeDetailErr ? (
                     <div className="nutri-mutedBox nutri-danger">
                       {recipeDetailErr}
+                      <div style={{ marginTop: 8 }}>
+                        <button
+                          className="nutri-pillBtn"
+                          type="button"
+                          onClick={() => openRecipeModal({ id: selectedRecipeId })}
+                          disabled={!selectedRecipeId}
+                        >
+                          Retry
+                        </button>
+                      </div>
                     </div>
                   ) : selectedRecipe ? (
                     <>
@@ -2046,6 +2039,15 @@ export default function Page() {
                       style={{ marginTop: 12 }}
                     >
                       {suppErr}
+                      <div style={{ marginTop: 8 }}>
+                        <button
+                          className="nutri-pillBtn"
+                          type="button"
+                          onClick={() => setSuppRetryKey((k) => k + 1)}
+                        >
+                          Retry
+                        </button>
+                      </div>
                     </div>
                   ) : suppResults.length === 0 ? (
                     <div className="nutri-mutedBox" style={{ marginTop: 12 }}>

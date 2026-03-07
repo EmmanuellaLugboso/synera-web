@@ -1,0 +1,229 @@
+/* Lifestyle hub-specific styles restored after shared hub baseline refactor */
+
+.fit2-mutedbox{
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card2) 85%, transparent);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mini-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mini-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: var(--card2);
+}
+
+.life-tabs{
+  display:flex;
+  gap:10px;
+  margin: 6px 0 14px;
+  flex-wrap: wrap;
+}
+
+.life-tab{
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--border);
+  background:var(--card);
+  padding: 12px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor:pointer;
+  box-shadow: var(--shadow-soft);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.life-tab.active{
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
+}
+
+.life-tabmeta{
+  font-size: 12px;
+  font-weight: 600;
+  color:var(--muted);
+}
+
+.life-tab.active .life-tabmeta{ color:var(--accent); }
+
+.life-formgrid{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 12px;
+}
+
+.life-select{
+  border: 1px solid var(--border);
+  background:var(--card);
+  border-radius: 14px;
+  padding: 12px;
+  font-weight: 600;
+  outline:none;
+}
+
+.life-list,.life-goallist,.life-habitlist{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+.life-row{
+  border: 1px solid var(--border);
+  background:var(--card);
+  border-radius: 16px;
+  padding: 12px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
+.life-row.overdue{
+  border-color:color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:var(--card2);
+}
+
+.life-check,.life-del{
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background:var(--card);
+  cursor:pointer;
+  font-weight: 700;
+  flex:0 0 auto;
+}
+
+.life-check.on{
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
+}
+
+.life-del:hover{
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--border));
+  background:var(--card2);
+  color:var(--accent);
+}
+
+.life-main{ flex: 1; }
+
+.life-titleline{ display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
+.life-title{ font-weight: 700; font-size: 14px; color:var(--text); }
+.life-title.done{ text-decoration: line-through; opacity: 0.65; }
+.life-sub{ margin-top: 6px; font-size: 12px; color:var(--muted); font-weight: 600; line-height: 1.35; }
+.life-sub.small{ font-size: 11px; }
+.life-dot{ margin: 0 6px; color:#bbb; font-weight: 600; }
+
+.life-badge,.life-pill{
+  display:inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.life-badge{
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  color:var(--accent);
+}
+
+.life-pill{ background:var(--card2); color:var(--text); }
+
+.life-focus{ display:flex; gap: 10px; margin-top: 10px; }
+.life-focusinput{ flex:1; border-radius: 16px; border: 1px solid var(--border); padding: 12px 14px; font-weight: 600; background:var(--card2); }
+
+.life-goalcard,.life-habitcard,.life-scorecard,.life-routinecard{
+  border: 1px solid var(--border);
+  background:var(--card);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--shadow-soft);
+}
+
+.life-goalhead,.life-habithead,.life-routinehead,.life-scoretop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.life-goaltitle,.life-routinetitle{ font-weight: 700; font-size: 15px; color: var(--text); }
+.life-goalright{ display:flex; align-items:center; gap: 8px; }
+
+.life-progress,.life-habitbars{ margin-top: 12px; }
+.life-progtrack{ height: 10px; border-radius: 999px; background:var(--card2); overflow:hidden; border:1px solid var(--border); }
+.life-progtrack.small{ height: 8px; }
+.life-progfill{ height:100%; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 82%, #fff), var(--accent)); border-radius: 999px; }
+.life-progmeta{ margin-top: 8px; font-size: 12px; color:var(--muted); font-weight: 600; }
+
+.life-inline{ display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
+.life-habitmain{ flex:1; }
+.life-miniweek{ display:grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+.life-mini{ height: 10px; border-radius: 99px; border:1px solid var(--border); background: var(--card2); }
+.life-mini.on{ background: color-mix(in srgb, var(--accent) 20%, var(--card2)); border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); }
+.life-weekprog{ margin-top: 8px; }
+
+.life-kicker{ font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.life-score{ margin-top: 4px; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+.life-scorepill{ padding: 7px 12px; border-radius: 999px; background:var(--card2); border:1px solid var(--border); font-size: 12px; font-weight: 700; color:var(--muted); }
+.life-scoregrid{ margin-top: 12px; display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.life-scorefield{ display:flex; flex-direction:column; gap: 6px; }
+.life-toggle{ min-width: 72px; height: 42px; border-radius: 12px; border: 1px solid var(--border); background:var(--card); font-weight:700; cursor:pointer; }
+.life-toggle.on{ border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); background:var(--card2); color:var(--accent); }
+
+.life-routinegrid{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.life-routinecard.active{ border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); box-shadow: var(--shadow-md); }
+.life-routinebtn{ all: unset; cursor: pointer; display: block; }
+
+.life-additem{ display:grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 10px; margin-top: 12px; }
+.life-iteminput,.life-itemest{ border-radius: 14px; border: 1px solid var(--border); padding: 12px; background: var(--card2); font-weight: 600; }
+
+@media (max-width: 860px){
+  .life-formgrid,
+  .life-routinegrid,
+  .life-scoregrid{ grid-template-columns: 1fr; }
+
+  .life-additem{ grid-template-columns: 1fr; }
+}
+
+.life-syra-premium-btn {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, #fff), color-mix(in srgb, var(--accent) 12%, var(--card)));
+  color: var(--accent);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.life-syra-premium-btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+  box-shadow: 0 14px 24px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.life-syra-premium-btn::after {
+  content: "★";
+  margin-left: 8px;
+  font-size: 12px;
+  vertical-align: middle;
+  opacity: 0.92;
+}
