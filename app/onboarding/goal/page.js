@@ -60,7 +60,7 @@ export default function GoalPage() {
     <div className="onboard-container">
       <div className="onboard-card">
         <h1 className="onboard-title">What are your wellness goals?</h1>
-        <p className="onboard-subtitle">Choose all that apply ✨</p>
+        <p className="onboard-subtitle">Choose all that apply.</p>
 
         <div className="goal-section">
           {GOALS.map((g) => (

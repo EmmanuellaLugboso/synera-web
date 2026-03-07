@@ -56,7 +56,7 @@ export default function MealFrequencyPage() {
       <div className="onboard-card">
         
         <h1 className="onboard-title">How Many Meals Do You Prefer?</h1>
-        <p className="onboard-subtitle">Choose the style that fits your routine 🍴</p>
+        <p className="onboard-subtitle">Choose the style that fits your routine.</p>
 
         <div className="meal-cards">
           {FREQUENCY.map((item) => (

@@ -61,7 +61,7 @@ export default function WorkoutEnvPage() {
         <h1 className="onboard-title">Where Do You Prefer Training?</h1>
 
         <p className="onboard-subtitle">Pick all that apply</p>
-        <p className="small-note">You can choose multiple ✨</p>
+        <p className="small-note">You can choose multiple.</p>
 
         <div className="env-grid">
           {OPTIONS.map((o) => (

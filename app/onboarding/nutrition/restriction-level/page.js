@@ -1,16 +1,13 @@
 "use client";
-import "../../shared.css"; /* styling now comes from shared.css */
+import "../../shared.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "../../../context/OnboardingContext";
-import { saveOnboardingData } from "../../saveOnboarding";
-
-
 
 const OPTIONS = [
   {
     label: "Structured",
-    desc: "I like clear plans & routines",
+    desc: "I like clear plans and routines",
     icon: "📘",
   },
   {
@@ -20,7 +17,7 @@ const OPTIONS = [
   },
   {
     label: "Easygoing",
-    desc: "I don’t track much & prefer freedom",
+    desc: "I don’t track much and prefer freedom",
     icon: "🌿",
   },
 ];
@@ -29,21 +26,11 @@ export default function RestrictionLevelPage() {
   const router = useRouter();
   const { data, updateField } = useOnboarding();
 
-  // preload in case the user goes back
   const [selected, setSelected] = useState(data.restrictionLevel || "");
 
-  async function finishOnboarding() {
-    // save selection into context
+  function handleNext() {
     updateField("restrictionLevel", selected);
-
-    // save everything to Firebase
-    await saveOnboardingData({
-      ...data,
-      restrictionLevel: selected,
-    });
-
-    // go to dashboard
-    router.push("/dashboard");
+    router.push("/onboarding/finish");
   }
 
   return (
@@ -51,7 +38,7 @@ export default function RestrictionLevelPage() {
       <div className="onboard-card">
         <h1 className="onboard-title">How do you prefer to eat?</h1>
         <p className="onboard-subtitle">
-          This helps us tailor your plan to your lifestyle.
+          This helps us tailor your nutrition plan to your day-to-day lifestyle.
         </p>
 
         <div className="choice-grid">
@@ -73,9 +60,9 @@ export default function RestrictionLevelPage() {
         <button
           className="onboard-button"
           disabled={!selected}
-          onClick={finishOnboarding}
+          onClick={handleNext}
         >
-          Finish Nutrition
+          Continue
         </button>
       </div>
     </div>

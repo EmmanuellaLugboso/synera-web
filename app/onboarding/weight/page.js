@@ -17,7 +17,7 @@ export default function WeightPage() {
     <div className="onboard-container">
       <div className="onboard-card">
         <h1 className="onboard-title">What&apos;s your current weight?</h1>
-        <p className="onboard-subtitle">This helps us personalise your plan ✨</p>
+        <p className="onboard-subtitle">This helps us personalize your plan.</p>
 
         {/* Unit Toggle */}
         <div className="unit-toggle">
