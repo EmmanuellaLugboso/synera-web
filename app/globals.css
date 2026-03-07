@@ -1999,6 +1999,19 @@ body {
   font-size: 11px;
 }
 
+.syra-minibtn--premium {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, #fff), color-mix(in srgb, var(--accent) 12%, var(--card)));
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.syra-minibtn--premium:hover {
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--border));
+  box-shadow: 0 12px 20px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 .syra-inputrow {
   display: flex;
   gap: 8px;

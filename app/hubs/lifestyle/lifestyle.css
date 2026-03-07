@@ -206,3 +206,24 @@
 
   .life-additem{ grid-template-columns: 1fr; }
 }
+
+.life-syra-premium-btn {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, #fff), color-mix(in srgb, var(--accent) 12%, var(--card)));
+  color: var(--accent);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.life-syra-premium-btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+  box-shadow: 0 14px 24px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.life-syra-premium-btn::after {
+  content: "★";
+  margin-left: 8px;
+  font-size: 12px;
+  vertical-align: middle;
+  opacity: 0.92;
+}

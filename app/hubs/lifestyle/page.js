@@ -810,7 +810,7 @@ export default function Page() {
               <button className="primary-btn" onClick={addTask} type="button">
                 Add
               </button>
-              <button className="ghost-btn" onClick={improveTaskWithSyra} type="button">
+              <button className="ghost-btn life-syra-premium-btn" onClick={improveTaskWithSyra} type="button">
                 {syraTaskLoading ? "SYRA refining…" : "Improve with SYRA"}
               </button>
             </div>

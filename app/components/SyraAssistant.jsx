@@ -67,7 +67,7 @@ function TaskCard({ data, onAction }) {
       <p>{data.description}</p>
       <div className="syra-meta">Category: {data.category} · Estimated time: {data.durationMin} min</div>
       <div className="syra-inlineActions">
-        <button type="button" className="syra-minibtn" onClick={() => onAction("task_rewrite")}>Improve with Syra</button>
+        <button type="button" className="syra-minibtn syra-minibtn--premium" onClick={() => onAction("task_rewrite")}>Improve with Syra</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_shorten")}>Shorten</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_organize")}>Organize details</button>
         <button type="button" className="syra-minibtn" onClick={() => onAction("task_clearer")}>Make clearer</button>
