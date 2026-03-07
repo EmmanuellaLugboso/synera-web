@@ -3,7 +3,14 @@
 import BackButton from "../components/BackButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
 import { buildCoachSummary, buildPillarAnalytics, clampNumber, normalizeDailyTimeline } from "./analytics";
@@ -18,14 +25,20 @@ function getLastNDatesISO(n = 30) {
   });
 }
 
-async function fetchDaily(uid) {
+function buildDailyQuery(uid) {
   const dates = getLastNDatesISO(30);
-  const docs = await Promise.all(
-    dates.map(async (dateISO) => {
-      const snap = await getDoc(doc(db, "users", uid, "daily", dateISO));
-      return { dateISO, ...(snap.exists() ? snap.data() : {}) };
-    }),
+  const startDate = dates[0];
+  return query(
+    collection(db, "users", uid, "daily"),
+    where("date", ">=", startDate),
+    orderBy("date", "asc"),
   );
+}
+
+async function fetchDaily(uid) {
+  const q = buildDailyQuery(uid);
+  const snap = await getDocs(q);
+  const docs = snap.docs.map((d) => d.data());
   return normalizeDailyTimeline(docs, 30);
 }
 
@@ -136,8 +149,40 @@ export default function InsightsPage() {
   }, [user?.uid]);
 
   useEffect(() => {
-    if (ready && user?.uid) refresh();
-  }, [ready, user?.uid, refresh]);
+    if (!ready || !user?.uid) return;
+
+    if (user.uid === "e2e-user") {
+      setDays(buildMockWeekTimeline());
+      setError("");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    const q = buildDailyQuery(user.uid);
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const docs = snap.docs.map((d) => d.data());
+        setDays(normalizeDailyTimeline(docs, 30));
+        setLoading(false);
+      },
+      (e) => {
+        const errorMsg = e?.message || "";
+        if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
+          setError("Insights are still syncing. Please try again in a moment.");
+        } else {
+          setError("Couldn't load insights. Please refresh.");
+        }
+        setDays(normalizeDailyTimeline([], 30));
+        setLoading(false);
+      },
+    );
+
+    return () => unsub();
+  }, [ready, user?.uid]);
 
   const stepGoal = clampNumber(data?.stepGoal) || 8000;
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
@@ -191,7 +236,7 @@ export default function InsightsPage() {
           <BackButton href="/dashboard" label="Dashboard" className="ins-back" />
           <div className="ins-top-actions">
             <button className="ins-ghost" type="button" onClick={refresh}>Refresh</button>
-            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>Synera Assistant</button>
+            <button className="ins-ghost" type="button" onClick={() => setCoachOpen(true)}>Syra</button>
           </div>
         </header>
 
@@ -268,7 +313,7 @@ export default function InsightsPage() {
           </section>
         </div>
 
-        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">Synera Assistant</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask Synera Assistant in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
+        {coachOpen ? <div className="coach-modal" onClick={() => setCoachOpen(false)}><div className="coach-card" onClick={(e) => e.stopPropagation()}><div className="coach-top"><div className="coach-title">Syra</div><button className="ins-ghost" onClick={() => setCoachOpen(false)}>Close</button></div><div className="coach-bubble bot">{model.coach.headline} {model.coach.topLeverWhy} Next best action: {model.coach.action}. Ask Syra in Dashboard for tasks, daily focus, and weekly progress coaching.</div></div></div> : null}
       </div>
     </div>
   );

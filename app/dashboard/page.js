@@ -16,6 +16,7 @@ import {
   updateDoc,
   serverTimestamp,
   increment,
+  onSnapshot,
 } from "firebase/firestore";
 
 /* ------------------------
@@ -41,6 +42,32 @@ function formatTimeShort(d) {
   if (!(d instanceof Date)) return "";
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
+function normalizeDailyDoc(raw = {}) {
+  return {
+    ...raw,
+    workouts: Number(raw?.workouts || 0),
+    cardioMinutes: Number(raw?.cardioMinutes || 0),
+    mood: {
+      rating: Number(raw?.mood?.rating || 0),
+      stress: Number(raw?.mood?.stress || 0),
+      note: String(raw?.mood?.note || ""),
+    },
+    sleep: {
+      hours: Number(raw?.sleep?.hours || 0),
+      quality: Number(raw?.sleep?.quality || 0),
+      bedtime: String(raw?.sleep?.bedtime || ""),
+    },
+    habits: {
+      completed: Number(raw?.habits?.completed || 0),
+      total: Number(raw?.habits?.total || 0),
+    },
+    lifestyle: {
+      focusMinutes: Number(raw?.lifestyle?.focusMinutes || 0),
+      screenTimeMinutes: Number(raw?.lifestyle?.screenTimeMinutes || 0),
+    },
+  };
+}
+
 /* ------------------------
    Simple inline SVG icons
 ------------------------ */
@@ -193,15 +220,16 @@ export default function Dashboard() {
   }, [ready, authUser?.uid, isE2EMode]);
 
   useEffect(() => {
-    async function ensureDailyDoc() {
-      if (isE2EMode) {
-        setDailyLoading(false);
-        return;
-      }
-      if (!ready || !authUser || !date) return;
+    if (isE2EMode) {
+      setDailyLoading(false);
+      return;
+    }
+    if (!ready || !authUser?.uid || !date) return;
 
+    let unsub = null;
+
+    async function initAndSubscribeDaily() {
       setDailyLoading(true);
-
       const ref = doc(db, "users", authUser.uid, "daily", date);
       const snap = await getDoc(ref);
 
@@ -235,70 +263,25 @@ export default function Dashboard() {
         });
       }
 
-      const snap2 = await getDoc(ref);
-      const d2 = snap2.data() || {};
-
-      await setDoc(
+      unsub = onSnapshot(
         ref,
-        {
-          workouts: d2.workouts || 0,
-          cardioMinutes: d2.cardioMinutes || 0,
-          macros: {
-            proteinG: Number(d2?.macros?.proteinG || 0),
-            carbsG: Number(d2?.macros?.carbsG || 0),
-            fatG: Number(d2?.macros?.fatG || 0),
-          },
-          mood: {
-            rating: Number(d2?.mood?.rating || 0),
-            stress: Number(d2?.mood?.stress || 0),
-            note: String(d2?.mood?.note || ""),
-          },
-          sleep: {
-            hours: Number(d2?.sleep?.hours || 0),
-            quality: Number(d2?.sleep?.quality || 0),
-            bedtime: String(d2?.sleep?.bedtime || ""),
-          },
-          habits: {
-            completed: Number(d2?.habits?.completed || 0),
-            total: Number(d2?.habits?.total || 0),
-          },
-          lifestyle: {
-            focusMinutes: Number(d2?.lifestyle?.focusMinutes || 0),
-            screenTimeMinutes: Number(d2?.lifestyle?.screenTimeMinutes || 0),
-          },
-          updatedAt: serverTimestamp(),
+        (nextSnap) => {
+          const nextData = nextSnap.exists() ? nextSnap.data() : {};
+          setDaily(normalizeDailyDoc(nextData));
+          setDailyLoading(false);
         },
-        { merge: true },
+        () => {
+          setDailyLoading(false);
+        },
       );
-
-      setDaily({
-        ...d2,
-        workouts: Number(d2.workouts || 0),
-        cardioMinutes: Number(d2.cardioMinutes || 0),
-        mood: {
-          rating: Number(d2?.mood?.rating || 0),
-          stress: Number(d2?.mood?.stress || 0),
-          note: String(d2?.mood?.note || ""),
-        },
-        sleep: {
-          hours: Number(d2?.sleep?.hours || 0),
-          quality: Number(d2?.sleep?.quality || 0),
-          bedtime: String(d2?.sleep?.bedtime || ""),
-        },
-        habits: {
-          completed: Number(d2?.habits?.completed || 0),
-          total: Number(d2?.habits?.total || 0),
-        },
-        lifestyle: {
-          focusMinutes: Number(d2?.lifestyle?.focusMinutes || 0),
-          screenTimeMinutes: Number(d2?.lifestyle?.screenTimeMinutes || 0),
-        },
-      });
-      setDailyLoading(false);
     }
 
-    ensureDailyDoc();
-  }, [ready, authUser, date, isE2EMode]);
+    initAndSubscribeDaily();
+
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
+  }, [ready, authUser?.uid, date, isE2EMode]);
 
   async function addWater(ml) {
     if (!authUser || !date) return;
