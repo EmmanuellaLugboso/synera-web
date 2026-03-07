@@ -11,11 +11,20 @@ function progress(current, goal) {
   return Math.max(0, Math.min(100, Math.round((current / goal) * 100)));
 }
 
+const AREA_LABELS = {
+  hydration: "hydration",
+  movement: "movement",
+  nutrition: "meal logging",
+  habits: "habit consistency",
+  tasks: "open tasks",
+  sleep: "sleep recovery",
+};
+
 function pressurePoints(context) {
   const points = [
     { key: "hydration", deficit: 100 - progress(context.waterLitres, context.waterGoal) },
     { key: "movement", deficit: 100 - progress(context.steps, context.stepGoal) },
-    { key: "fuel", deficit: 100 - progress(context.calories, context.calorieGoal) },
+    { key: "nutrition", deficit: 100 - progress(context.calories, context.calorieGoal) },
     { key: "habits", deficit: 100 - clamp(context.habitsRate) },
     { key: "tasks", deficit: Math.min(100, ((context.openTasks || 0) / Math.max(1, (context.totalTasks || 1))) * 100) },
   ];
@@ -27,129 +36,197 @@ function pressurePoints(context) {
   return points.sort((a, b) => b.deficit - a.deficit);
 }
 
-const foodDb = {
-  chicken: { calories: 220, protein: 34, carbs: 0, fat: 8 },
-  rice: { calories: 205, protein: 4, carbs: 45, fat: 1 },
-  plantain: { calories: 180, protein: 2, carbs: 47, fat: 0.5 },
-  wrap: { calories: 210, protein: 6, carbs: 36, fat: 5 },
-  coffee: { calories: 5, protein: 0, carbs: 0, fat: 0 },
-  iced: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-  coke: { calories: 140, protein: 0, carbs: 39, fat: 0 },
-  yogurt: { calories: 150, protein: 15, carbs: 12, fat: 4 },
-  banana: { calories: 105, protein: 1.3, carbs: 27, fat: 0.4 },
-  toast: { calories: 95, protein: 3, carbs: 17, fat: 1.2 },
-  eggs: { calories: 140, protein: 12, carbs: 1, fat: 10 },
-  tea: { calories: 2, protein: 0, carbs: 0, fat: 0 },
-  spice: { calories: 380, protein: 12, carbs: 42, fat: 18 },
-  bag: { calories: 220, protein: 6, carbs: 28, fat: 9 },
-  protein: { calories: 120, protein: 24, carbs: 3, fat: 2 },
+const FOOD_LIBRARY = {
+  chicken: { label: "Chicken", calories: 220, protein: 34, carbs: 0, fat: 8 },
+  rice: { label: "Rice", calories: 205, protein: 4, carbs: 45, fat: 1 },
+  plantain: { label: "Plantain", calories: 180, protein: 2, carbs: 47, fat: 1 },
+  wrap: { label: "Wrap", calories: 210, protein: 6, carbs: 36, fat: 5 },
+  coffee: { label: "Coffee", calories: 5, protein: 0, carbs: 0, fat: 0 },
+  iced: { label: "Iced coffee add-on", calories: 40, protein: 1, carbs: 6, fat: 2 },
+  yogurt: { label: "Yogurt", calories: 150, protein: 15, carbs: 12, fat: 4 },
+  banana: { label: "Banana", calories: 105, protein: 1, carbs: 27, fat: 0 },
+  toast: { label: "Toast", calories: 95, protein: 3, carbs: 17, fat: 1 },
+  egg: { label: "Eggs", calories: 140, protein: 12, carbs: 1, fat: 10 },
+  eggs: { label: "Eggs", calories: 140, protein: 12, carbs: 1, fat: 10 },
+  tea: { label: "Tea", calories: 2, protein: 0, carbs: 0, fat: 0 },
+  salmon: { label: "Salmon", calories: 240, protein: 25, carbs: 0, fat: 15 },
+  oats: { label: "Oats", calories: 160, protein: 6, carbs: 27, fat: 3 },
+  avocado: { label: "Avocado", calories: 120, protein: 2, carbs: 6, fat: 11 },
 };
 
 export function estimateMealFromText(text = "") {
-  const input = text.toLowerCase();
-  const tokens = input
+  const tokens = String(text)
+    .toLowerCase()
     .split(/[^a-zA-Z]+/)
     .map((x) => x.trim())
     .filter(Boolean);
 
+  const itemMap = new Map();
   let totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-  const matchedFoods = [];
 
   tokens.forEach((token) => {
-    const match = foodDb[token];
-    if (match) {
-      matchedFoods.push(token);
-      totals = {
-        calories: totals.calories + match.calories,
-        protein: totals.protein + match.protein,
-        carbs: totals.carbs + match.carbs,
-        fat: totals.fat + match.fat,
-      };
-    }
+    const match = FOOD_LIBRARY[token];
+    if (!match) return;
+    if (!itemMap.has(match.label)) itemMap.set(match.label, match);
+    totals = {
+      calories: totals.calories + match.calories,
+      protein: totals.protein + match.protein,
+      carbs: totals.carbs + match.carbs,
+      fat: totals.fat + match.fat,
+    };
   });
 
-  if (!matchedFoods.length) {
+  if (!itemMap.size) {
+    itemMap.set("Mixed meal", { label: "Mixed meal", calories: 380, protein: 18, carbs: 35, fat: 14 });
     totals = { calories: 380, protein: 18, carbs: 35, fat: 14 };
   }
 
+  const items = Array.from(itemMap.values()).map((item) => ({
+    name: item.label,
+    calories: Math.round(item.calories),
+    protein: Math.round(item.protein),
+    carbs: Math.round(item.carbs),
+    fat: Math.round(item.fat),
+  }));
+
   return {
-    matchedFoods: matchedFoods.length ? Array.from(new Set(matchedFoods)) : ["mixed meal"],
+    items,
     totals: {
       calories: Math.round(totals.calories),
       protein: Math.round(totals.protein),
       carbs: Math.round(totals.carbs),
       fat: Math.round(totals.fat),
     },
-    note: "Approximate nutrition estimate from your description.",
+    note: "Nutrition values are estimates, not exact measurements.",
+    saveTargets: ["Breakfast", "Lunch", "Dinner", "Snacks"],
   };
 }
 
-export function rewriteTaskText(text = "") {
-  const trimmed = String(text).trim();
-  if (!trimmed) {
-    return {
-      title: "Task support needed",
-      category: "General",
-      durationMin: 60,
-      urgency: "Medium",
-      description: "I need support with a practical task and can share details after matching.",
-    };
-  }
+function titleCase(text = "") {
+  return text
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
+export function rewriteTaskText(text = "", style = "improve") {
+  const trimmed = String(text).trim();
   const normalized = trimmed.replace(/\s+/g, " ");
   const lower = normalized.toLowerCase();
 
-  const category = lower.includes("shop") || lower.includes("pharmacy") ? "Errands" : lower.includes("move") ? "Moving" : "General";
-  const urgency = lower.includes("today") || lower.includes("urgent") ? "High" : lower.includes("tomorrow") ? "Medium" : "Low";
+  const isMoving = lower.includes("move") || lower.includes("moving");
+  const category = lower.includes("shop") || lower.includes("pharmacy")
+    ? "Errands"
+    : isMoving
+      ? "Moving"
+      : lower.includes("clean")
+        ? "Home"
+        : "General";
+
+  const urgency = lower.includes("today") || lower.includes("urgent")
+    ? "High"
+    : lower.includes("tomorrow")
+      ? "Medium"
+      : "Low";
+
   const durationMin = lower.includes("quick") ? 30 : lower.includes("hour") ? 60 : 45;
 
-  const title = normalized.length > 44 ? `${normalized.slice(0, 41)}...` : normalized;
-  const description = `I need help with: ${normalized}. Expected duration is around ${durationMin} minutes. Please message to confirm availability.`;
+  if (!normalized) {
+    return {
+      title: "Task support needed",
+      category: "General",
+      durationMin: 45,
+      urgency: "Medium",
+      description: "I need support with a practical task and can share details after matching.",
+      style,
+    };
+  }
 
-  return { title, category, durationMin, urgency, description };
+  let title;
+  if (isMoving) {
+    title = "Help moving household items";
+  } else if (lower.includes("shop") || lower.includes("buy")) {
+    title = "Help with a shopping errand";
+  } else {
+    title = titleCase(normalized.length > 42 ? normalized.slice(0, 42) : normalized);
+  }
+
+  const baseDescription = `I need help with ${normalized}. The task should take around ${durationMin} minutes.`;
+
+  const descriptions = {
+    improve: `${baseDescription} Please message to confirm availability and timing.`,
+    shorten: `Need help with ${normalized}. Around ${durationMin} minutes.`,
+    organize: `${baseDescription}\nWhen: ${urgency === "High" ? "Today" : urgency === "Medium" ? "Tomorrow" : "Flexible this week"}.\nCategory: ${category}.`,
+    clarify: `${baseDescription} It does not require specialist equipment, and details can be confirmed in chat.`,
+  };
+
+  return {
+    title,
+    category,
+    durationMin,
+    urgency,
+    description: descriptions[style] || descriptions.improve,
+    style,
+  };
 }
 
 export function buildResetPlan(type = "day", context = {}) {
   const points = pressurePoints(context);
-  const top = points.slice(0, 2).map((p) => p.key);
+  const top = points[0]?.key || "tasks";
+  const second = points[1]?.key || "hydration";
 
   if (type === "week") {
     return {
-      headline: "Weekly reset prepared.",
-      summary: `This week slipped most on ${top.join(" and ") || "consistency"}.`,
+      headline: "Your week is recoverable.",
+      summary: `The biggest slip was ${AREA_LABELS[top]}. A smaller gap showed up in ${AREA_LABELS[second]}.`,
+      wins: "You still kept some momentum, which means the system is working — it just needs a lighter structure.",
       actions: [
-        "Set 3 non-negotiables for next week: hydration, one movement block, one key task.",
-        "Front-load one easy win each morning to rebuild momentum.",
-        "Review your week on Sunday and pre-plan meals + top tasks.",
+        "Log breakfast each morning before 10am.",
+        "Finish one priority task before lunch on weekdays.",
+        "Schedule two short movement blocks (10–20 min).",
       ],
-      encouragement: "Progress comes from steady systems, not perfect days.",
+      encouragement: "You do not need a perfect week — just a steadier next one.",
     };
   }
 
   return {
-    headline: "Day reset ready.",
-    summary: `Top pressure points right now: ${top.join(" and ") || "general overload"}.`,
-    actions: [
-      "Complete one quick task within 20 minutes.",
-      "Log your next meal and drink water now.",
-      "Take a 10-minute walk to clear mental load.",
-    ],
-    encouragement: "A small reset now will make tonight feel much lighter.",
+    headline: "Let’s reset the rest of today.",
+    topPriorityTask: "Close one easy open task in the next 20 minutes.",
+    wellnessAction: context.waterLitres < context.waterGoal ? "Drink water now and refill your bottle." : "Take a 10-minute walk to clear your head.",
+    nutritionAction: "Log your next meal, even if it is approximate.",
+    encouragement: "A short reset now will reduce the pressure tonight.",
   };
 }
 
 export function buildReflection(message, context = {}) {
   const points = pressurePoints(context);
-  const top = points.slice(0, 3).map((p) => p.key);
+  const top = points.slice(0, 2).map((p) => AREA_LABELS[p.key]);
   return {
-    headline: "It sounds like things feel heavy right now.",
-    reflection: `You are likely carrying pressure around ${top.join(", ") || "a few competing priorities"}.`,
+    headline: "It makes sense that this feels heavy.",
+    reflection: `Right now the clearest gaps look like ${top.join(" and ") || "competing priorities"}.`,
     nextSteps: [
-      "Pick one easy task and close it before starting anything else.",
-      "Do one health anchor now: water + a simple meal log.",
-      "Set a 25-minute focus block and ignore non-urgent noise.",
+      "Log one meal so your day has a clear nutrition anchor.",
+      "Complete one simple open task before starting anything new.",
+      "Take a short pause: water first, then a 25-minute focus block.",
     ],
-    closing: "You don’t need to fix everything at once — just create traction.",
+    closing: "You only need one calm step at a time.",
+  };
+}
+
+export function buildGeneralFocus(context = {}) {
+  const points = pressurePoints(context);
+  const focusAreas = points.slice(0, 3).map((p) => AREA_LABELS[p.key]);
+  return {
+    kind: "general",
+    headline: "Here’s your grounded focus snapshot.",
+    focusAreas,
+    nextSteps: [
+      "Pick one open task and finish it before checking messages.",
+      "Close your hydration gap and log your next meal.",
+      "Add a short movement block before evening.",
+    ],
+    prompt: "Quick actions: Describe meal, Improve task, Reset day, Reset week.",
   };
 }
 
@@ -160,8 +237,9 @@ export function respondWithSyra({ message, context = {}, mode = "general" }) {
     return { kind: "meal", ...estimateMealFromText(message) };
   }
 
-  if (mode === "task_rewrite" || text.includes("improve my task") || text.includes("rewrite task")) {
-    return { kind: "task", task: rewriteTaskText(message) };
+  if (["task_rewrite", "task_shorten", "task_organize", "task_clarify"].includes(mode) || text.includes("improve my task") || text.includes("rewrite task")) {
+    const style = mode === "task_shorten" ? "shorten" : mode === "task_organize" ? "organize" : mode === "task_clarify" ? "clarify" : "improve";
+    return { kind: "task", task: rewriteTaskText(message, style) };
   }
 
   if (mode === "reset_day" || text.includes("reset my day")) {
@@ -176,16 +254,5 @@ export function respondWithSyra({ message, context = {}, mode = "general" }) {
     return { kind: "reflection", ...buildReflection(message, context) };
   }
 
-  const points = pressurePoints(context);
-  return {
-    kind: "general",
-    headline: "Here’s your grounded focus snapshot.",
-    focusAreas: points.slice(0, 3).map((p) => p.key),
-    nextSteps: [
-      "Complete one practical task from your open list.",
-      "Close your hydration gap and log your next meal.",
-      "Finish with a short movement block before evening.",
-    ],
-    prompt: "Ask me for: Describe meal, Improve task, Reset day, or Reset week.",
-  };
+  return buildGeneralFocus(context);
 }

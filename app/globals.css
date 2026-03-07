@@ -1772,3 +1772,86 @@ body {
   background: var(--color-hover);
   border-color: var(--color-border-strong);
 }
+
+/* SYRA floating assistant */
+.syra-dock {
+  position: relative;
+  z-index: 70;
+}
+
+.syra-fab {
+  position: fixed;
+  z-index: 80;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, #fff 20%, var(--accent)), var(--accent));
+  color: var(--color-accent-contrast);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  box-shadow: 0 16px 28px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.syra-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  width: min(460px, calc(100vw - 24px));
+  max-height: min(80vh, 760px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  overflow: hidden;
+  transform: translateY(8px) scale(0.99);
+  opacity: 0;
+  animation: syra-in 180ms ease-out forwards;
+}
+
+@keyframes syra-in {
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.syra-head { padding: 14px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.syra-title { font-size: 19px; font-weight: 700; letter-spacing: 0.04em; }
+.syra-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.syra-close { border: 1px solid var(--border); background: var(--card2); border-radius: 999px; min-height: 36px; padding: 0 12px; }
+.syra-toolbar,
+.syra-chips { padding: 10px 14px; display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); }
+.syra-chips--subtle { gap: 6px; }
+.syra-chip {
+  border: 1px solid var(--border);
+  background: var(--card2);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+.syra-chip.active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--card2));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+.syra-chip--small { font-size: 11px; padding: 6px 10px; }
+.syra-thread { padding: 12px 14px; overflow:auto; display:grid; gap:10px; min-height: 220px; }
+.syra-msg { max-width: 94%; border-radius: 14px; padding: 10px 12px; }
+.syra-msg pre { margin:0; white-space: pre-wrap; font-family: inherit; font-size: 13px; line-height: 1.45; }
+.syra-msg.assistant { background: color-mix(in srgb, var(--accent) 8%, var(--card2)); border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border)); }
+.syra-msg.user { margin-left: auto; background: var(--card2); border:1px solid var(--border); }
+.syra-inputrow { padding: 12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; }
+.syra-input { flex:1; min-height: 42px; border-radius: 12px; border:1px solid var(--border); background: var(--card2); padding: 0 12px; color: var(--text); }
+.syra-send { min-height: 42px; border:none; border-radius: 12px; padding: 0 14px; color: var(--color-accent-contrast); background: var(--accent); font-weight: 600; }
+
+@media (max-width: 700px) {
+  .syra-panel {
+    right: 12px;
+    bottom: 78px;
+    width: calc(100vw - 24px);
+  }
+}
