@@ -659,12 +659,6 @@ export default function Page() {
       title="Lifestyle"
       emoji="✨"
       subtitle="Build routines that move life forward."
-      rightMeta={(
-        <>
-          <div className="hub-badge-label">Today</div>
-          <div className="hub-badge-value">{fmtDateLabel(dateISO)}</div>
-        </>
-      )}
     >
       {/* Lifestyle tabs */}
       <HubTabs className="life-tabs">

@@ -1588,7 +1588,7 @@ export default function Page() {
                     <div className="nutri-recipeGrid">
                       {recipeResults.map((r) => (
                         <button
-                          key={r.id} // ✅ normalized id (never missing)
+                          key={r.id}
                           type="button"
                           className="nutri-recipeCard"
                           onClick={() => openRecipeModal(r)}
@@ -2055,7 +2055,7 @@ export default function Page() {
                     <div className="nutri-list" style={{ marginTop: 12 }}>
                       {suppResults.map((s) => (
                         <button
-                          key={s.slug} // ✅ key exists
+                          key={s.slug}
                           type="button"
                           className="nutri-listRow"
                           onClick={() => pickSupplement(s)}

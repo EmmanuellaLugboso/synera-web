@@ -11,7 +11,7 @@ export async function POST(req) {
   try {
     if (isRateLimited(req)) {
       return NextResponse.json(
-        { error: "Too many assistant requests. Please wait a minute and retry." },
+        { error: "Too many Syra requests. Please wait a minute and retry." },
         { status: 429 },
       );
     }
@@ -62,7 +62,7 @@ export async function POST(req) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error?.message || "Failed to generate assistant reply" },
+      { error: error?.message || "Failed to generate Syra reply" },
       { status: 500 },
     );
   }

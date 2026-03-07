@@ -16,6 +16,7 @@ import {
   updateDoc,
   serverTimestamp,
   increment,
+  onSnapshot,
 } from "firebase/firestore";
 
 /* ------------------------
@@ -41,6 +42,32 @@ function formatTimeShort(d) {
   if (!(d instanceof Date)) return "";
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
+function normalizeDailyDoc(raw = {}) {
+  return {
+    ...raw,
+    workouts: Number(raw?.workouts || 0),
+    cardioMinutes: Number(raw?.cardioMinutes || 0),
+    mood: {
+      rating: Number(raw?.mood?.rating || 0),
+      stress: Number(raw?.mood?.stress || 0),
+      note: String(raw?.mood?.note || ""),
+    },
+    sleep: {
+      hours: Number(raw?.sleep?.hours || 0),
+      quality: Number(raw?.sleep?.quality || 0),
+      bedtime: String(raw?.sleep?.bedtime || ""),
+    },
+    habits: {
+      completed: Number(raw?.habits?.completed || 0),
+      total: Number(raw?.habits?.total || 0),
+    },
+    lifestyle: {
+      focusMinutes: Number(raw?.lifestyle?.focusMinutes || 0),
+      screenTimeMinutes: Number(raw?.lifestyle?.screenTimeMinutes || 0),
+    },
+  };
+}
+
 /* ------------------------
    Simple inline SVG icons
 ------------------------ */
@@ -150,7 +177,7 @@ export default function Dashboard() {
   const [coachMessages, setCoachMessages] = useState([
     {
       role: "assistant",
-      text: "Hey — I’m your Synera Assistant. I can help with tasks, habits, goals, planning, and progress.",
+      text: "Hey — I’m Syra. I can help with tasks, habits, goals, planning, and progress.",
       focus: "daily alignment",
       plan: ["Check open tasks", "Close one quick win", "Plan your next check-in"],
       keyMessages: ["Ask: What should I focus on today?", "Ask: Where am I falling behind this week?"],
@@ -193,21 +220,21 @@ export default function Dashboard() {
   }, [ready, authUser?.uid, isE2EMode]);
 
   useEffect(() => {
-    async function ensureDailyDoc() {
-      if (isE2EMode) {
-        setDailyLoading(false);
-        return;
-      }
-      if (!ready || !authUser || !date) return;
+    if (isE2EMode) {
+      setDailyLoading(false);
+      return;
+    }
+    if (!ready || !authUser?.uid || !date) return;
 
+    let unsub = null;
+
+    async function initAndSubscribeDaily() {
       setDailyLoading(true);
-
       const ref = doc(db, "users", authUser.uid, "daily", date);
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        // starter plan items should include a category for UI tagging
-      const starterPlan = [
+        const starterPlan = [
           { id: "water500", text: "Drink 500ml water now.", done: false, category: "Fuel" },
           {
             id: "logmeal1",
@@ -236,70 +263,25 @@ export default function Dashboard() {
         });
       }
 
-      const snap2 = await getDoc(ref);
-      const d2 = snap2.data() || {};
-
-      await setDoc(
+      unsub = onSnapshot(
         ref,
-        {
-          workouts: d2.workouts || 0,
-          cardioMinutes: d2.cardioMinutes || 0,
-          macros: {
-            proteinG: Number(d2?.macros?.proteinG || 0),
-            carbsG: Number(d2?.macros?.carbsG || 0),
-            fatG: Number(d2?.macros?.fatG || 0),
-          },
-          mood: {
-            rating: Number(d2?.mood?.rating || 0),
-            stress: Number(d2?.mood?.stress || 0),
-            note: String(d2?.mood?.note || ""),
-          },
-          sleep: {
-            hours: Number(d2?.sleep?.hours || 0),
-            quality: Number(d2?.sleep?.quality || 0),
-            bedtime: String(d2?.sleep?.bedtime || ""),
-          },
-          habits: {
-            completed: Number(d2?.habits?.completed || 0),
-            total: Number(d2?.habits?.total || 0),
-          },
-          lifestyle: {
-            focusMinutes: Number(d2?.lifestyle?.focusMinutes || 0),
-            screenTimeMinutes: Number(d2?.lifestyle?.screenTimeMinutes || 0),
-          },
-          updatedAt: serverTimestamp(),
+        (nextSnap) => {
+          const nextData = nextSnap.exists() ? nextSnap.data() : {};
+          setDaily(normalizeDailyDoc(nextData));
+          setDailyLoading(false);
         },
-        { merge: true },
+        () => {
+          setDailyLoading(false);
+        },
       );
-
-      setDaily({
-        ...d2,
-        workouts: Number(d2.workouts || 0),
-        cardioMinutes: Number(d2.cardioMinutes || 0),
-        mood: {
-          rating: Number(d2?.mood?.rating || 0),
-          stress: Number(d2?.mood?.stress || 0),
-          note: String(d2?.mood?.note || ""),
-        },
-        sleep: {
-          hours: Number(d2?.sleep?.hours || 0),
-          quality: Number(d2?.sleep?.quality || 0),
-          bedtime: String(d2?.sleep?.bedtime || ""),
-        },
-        habits: {
-          completed: Number(d2?.habits?.completed || 0),
-          total: Number(d2?.habits?.total || 0),
-        },
-        lifestyle: {
-          focusMinutes: Number(d2?.lifestyle?.focusMinutes || 0),
-          screenTimeMinutes: Number(d2?.lifestyle?.screenTimeMinutes || 0),
-        },
-      });
-      setDailyLoading(false);
     }
 
-    ensureDailyDoc();
-  }, [ready, authUser, date, isE2EMode]);
+    initAndSubscribeDaily();
+
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
+  }, [ready, authUser?.uid, date, isE2EMode]);
 
   async function addWater(ml) {
     if (!authUser || !date) return;
@@ -372,7 +354,7 @@ export default function Dashboard() {
   const waterPct = pct(waterLitres, waterGoal);
 
   const rawPlanItems = Array.isArray(daily?.plan) ? daily.plan : [];
-  // derive a category tag if missing (fallback based on id heuristics)
+  // Add a fallback category when older plan items are missing one.
   const planItems = rawPlanItems.map((p) => {
     if (p.category) return p;
     const id = String(p.id || "").toLowerCase();
@@ -421,7 +403,7 @@ export default function Dashboard() {
         const payload = await res.json();
         if (!res.ok) {
           const errorMsg = payload?.error || "Failed to load insights";
-          // ✅ Catch Firestore index errors and show friendly message
+          // Show a friendly message when Firestore indexes are still building.
           if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
             throw new Error("Insights are still syncing. Try again shortly.");
           }
@@ -551,7 +533,7 @@ export default function Dashboard() {
         },
       ]);
     } catch (e) {
-      setCoachError(e?.message || "Synera Assistant is unavailable right now.");
+      setCoachError(e?.message || "Syra is unavailable right now.");
     } finally {
       setCoachTyping(false);
     }
@@ -647,7 +629,7 @@ export default function Dashboard() {
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              Synera Assistant
+              Syra
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
               Log food
@@ -737,14 +719,14 @@ export default function Dashboard() {
                 type="button"
                 onClick={() => addWater(250)}
               >
-                + 250ml water
+                Log a glass
               </button>
               <button
                 className="pill-btn primary"
                 type="button"
                 onClick={() => addWater(500)}
               >
-                + 500ml
+                Log a bottle
               </button>
             </div>
 
@@ -1075,7 +1057,7 @@ export default function Dashboard() {
           <div className="coach-modal" onClick={() => setCoachOpen(false)}>
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
-                <div className="coach-title">Synera Assistant</div>
+                <div className="coach-title">Syra</div>
                 <button
                   className="pill-btn"
                   type="button"
