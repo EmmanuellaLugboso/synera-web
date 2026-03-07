@@ -1,11 +1,8 @@
-// app/firebase/config.js
-
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCN-gwZsHOhjyxMtfdbpsQbxzFX_rAeo5Q",
   authDomain: "synera-fyp.firebaseapp.com",
@@ -16,13 +13,12 @@ const firebaseConfig = {
   measurementId: "G-K06XXQNPL2"
 };
 
-// Prevent Firebase from reinitialising in Next.js (VERY IMPORTANT)
+// Prevent re-initializing Firebase during Next.js reloads.
 const app =
   getApps().length === 0
     ? initializeApp(firebaseConfig)
     : getApp();
 
-// Export services
 export const auth = getAuth(app);
 export const db = (() => {
   try {

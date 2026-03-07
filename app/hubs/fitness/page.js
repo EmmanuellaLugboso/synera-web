@@ -384,7 +384,6 @@ export default function FitnessHub() {
   const [templateOpen, setTemplateOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [templateExercisesInput, setTemplateExercisesInput] = useState("");
-  const [syncStatus, setSyncStatus] = useState("synced");
 
   const stepGoal = Number(d.stepGoal) || 8000;
   const stepsLog = useMemo(
@@ -896,11 +895,8 @@ export default function FitnessHub() {
 
 
   useEffect(() => {
-    let cancelled = false;
-
     async function syncDailyFitness() {
       if (!ready || !user?.uid) return;
-      setSyncStatus("syncing");
       const ref = doc(db, "users", user.uid, "daily", todayIso);
 
       for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -916,19 +912,14 @@ export default function FitnessHub() {
             },
             { merge: true },
           );
-          if (!cancelled) setSyncStatus("synced");
           return;
         } catch {
-          if (attempt === 2 && !cancelled) setSyncStatus("offline");
           await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
         }
       }
     }
 
     syncDailyFitness();
-    return () => {
-      cancelled = true;
-    };
   }, [
     ready,
     user?.uid,
@@ -979,7 +970,6 @@ export default function FitnessHub() {
       className="fit2-page"
       title="Fitness"
       subtitle="Train smarter. Track progress."
-      rightMeta={<div className={`fit2-syncStatus fit2-sync-${syncStatus}`}>Sync: {syncStatus}</div>}
     >
       {/* ========== HUB TILES ========== */}
       {screen === "hub" && (

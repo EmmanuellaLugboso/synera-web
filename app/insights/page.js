@@ -122,7 +122,7 @@ export default function InsightsPage() {
     try {
       setDays(await fetchDaily(user.uid));
     } catch (e) {
-      // ✅ Catch Firestore index errors and show friendly message
+      // Show a friendly message when indexes are still building.
       const errorMsg = e?.message || "";
       if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
         setError("Insights are still syncing. Please try again in a moment.");

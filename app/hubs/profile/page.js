@@ -165,12 +165,6 @@ export default function ProfileHub() {
           {editMode ? "Close" : "Edit"}
         </button>
       }
-      rightMeta={(
-        <>
-          <div className="hub-badge-label">Profile</div>
-          <div className="hub-badge-value">Active</div>
-        </>
-      )}
     >
       <div className="pro-card">
         <div className="pro-row">

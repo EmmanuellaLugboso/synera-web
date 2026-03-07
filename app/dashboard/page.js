@@ -206,8 +206,7 @@ export default function Dashboard() {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        // starter plan items should include a category for UI tagging
-      const starterPlan = [
+        const starterPlan = [
           { id: "water500", text: "Drink 500ml water now.", done: false, category: "Fuel" },
           {
             id: "logmeal1",
@@ -372,7 +371,7 @@ export default function Dashboard() {
   const waterPct = pct(waterLitres, waterGoal);
 
   const rawPlanItems = Array.isArray(daily?.plan) ? daily.plan : [];
-  // derive a category tag if missing (fallback based on id heuristics)
+  // Add a fallback category when older plan items are missing one.
   const planItems = rawPlanItems.map((p) => {
     if (p.category) return p;
     const id = String(p.id || "").toLowerCase();
@@ -421,7 +420,7 @@ export default function Dashboard() {
         const payload = await res.json();
         if (!res.ok) {
           const errorMsg = payload?.error || "Failed to load insights";
-          // ✅ Catch Firestore index errors and show friendly message
+          // Show a friendly message when Firestore indexes are still building.
           if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
             throw new Error("Insights are still syncing. Try again shortly.");
           }

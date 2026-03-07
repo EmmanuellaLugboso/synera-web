@@ -1027,25 +1027,6 @@
 }
 
 
-.fit2-syncStatus {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.fit2-sync-syncing {
-  color: color-mix(in srgb, #f59e0b 75%, var(--text));
-}
-
-.fit2-sync-synced {
-  color: color-mix(in srgb, #10b981 70%, var(--text));
-}
-
-.fit2-sync-offline {
-  color: color-mix(in srgb, #ef4444 80%, var(--text));
-}
-
 .fit2-weeklyRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

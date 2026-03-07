@@ -727,12 +727,6 @@ export default function Page() {
       title="Wellness"
       emoji="🫧"
       subtitle="Recover better. Stay emotionally aligned."
-      rightMeta={(
-        <>
-          <div className="hub-badge-label">Today</div>
-          <div className="hub-badge-value">{date}</div>
-        </>
-      )}
     >
       {/* Tabs */}
       <HubTabs className="ms3-tabs">

@@ -24,7 +24,7 @@ export async function saveOnboardingData(data) {
         onboardingComplete: true,
         updatedAt: serverTimestamp(),
 
-        // ✅ single source of truth
+        // Save a final onboarding snapshot for the dashboard and hubs.
         data: {
           ...clean,
           completedAt: new Date().toISOString(),
