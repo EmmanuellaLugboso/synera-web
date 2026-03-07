@@ -150,7 +150,7 @@ export default function Dashboard() {
   const [coachMessages, setCoachMessages] = useState([
     {
       role: "assistant",
-      text: "Hey — I’m your SYRA. I can help with tasks, habits, goals, planning, and progress.",
+      text: "Hey — I’m your Synera Assistant. I can help with tasks, habits, goals, planning, and progress.",
       focus: "daily alignment",
       plan: ["Check open tasks", "Close one quick win", "Plan your next check-in"],
       keyMessages: ["Ask: What should I focus on today?", "Ask: Where am I falling behind this week?"],
@@ -523,8 +523,7 @@ export default function Dashboard() {
                     100,
                 )
               : 0,
-            openTasks: planItems.filter((item) => !item.done).length,
-            totalTasks: planItems.length,
+            planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
           },
         }),
       });
@@ -547,16 +546,12 @@ export default function Dashboard() {
                 ? payload.nextSteps
                 : [],
           checkInMin: payload?.checkInMin || null,
-          nextPrompt: payload?.nextPrompt || payload?.prompt || "",
-          keyMessages: Array.isArray(payload?.keyMessages)
-            ? payload.keyMessages
-            : payload?.summary
-              ? [payload.summary]
-              : [],
+          nextPrompt: payload?.nextPrompt || "",
+          keyMessages: Array.isArray(payload?.keyMessages) ? payload.keyMessages : [],
         },
       ]);
     } catch (e) {
-      setCoachError(e?.message || "SYRA is unavailable right now.");
+      setCoachError(e?.message || "Synera Assistant is unavailable right now.");
     } finally {
       setCoachTyping(false);
     }
@@ -565,12 +560,11 @@ export default function Dashboard() {
   const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
   const coachQuickPrompts = [
-    "Describe meal: protein yogurt and banana",
-    "Improve my task: need shopping help and maybe pharmacy too",
-    "I feel overwhelmed",
-    "Reset my day",
-    "Reset my week",
+    "What's on my tasks today?",
     "What should I focus on today?",
+    "Where am I falling behind?",
+    "What progress have I made this week?",
+    "What habits should I improve?",
   ];
 
   function setCoachPrompt(prompt) {
@@ -653,7 +647,7 @@ export default function Dashboard() {
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              SYRA
+              Synera Assistant
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
               Log food
@@ -1081,7 +1075,7 @@ export default function Dashboard() {
           <div className="coach-modal" onClick={() => setCoachOpen(false)}>
             <div className="coach-card" onClick={(e) => e.stopPropagation()}>
               <div className="coach-top">
-                <div className="coach-title">SYRA</div>
+                <div className="coach-title">Synera Assistant</div>
                 <button
                   className="pill-btn"
                   type="button"

@@ -11,7 +11,7 @@ export async function POST(req) {
   try {
     if (isRateLimited(req)) {
       return NextResponse.json(
-        { error: "Too many SYRA requests. Please wait a minute and retry." },
+        { error: "Too many assistant requests. Please wait a minute and retry." },
         { status: 429 },
       );
     }
