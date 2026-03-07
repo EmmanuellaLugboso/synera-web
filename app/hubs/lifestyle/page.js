@@ -1,6 +1,7 @@
 "use client";
 
 import "../hub.css";
+import "./lifestyle.css";
 import HubShell from "../../components/hub/HubShell";
 import HubTabs from "../../components/hub/HubTabs";
 import { useOnboarding } from "../../context/OnboardingContext";
