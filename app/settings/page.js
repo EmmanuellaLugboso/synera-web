@@ -22,7 +22,7 @@ import { useOnboarding } from "../context/OnboardingContext";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { data } = useOnboarding();
+  const { data, ready: onboardingReady } = useOnboarding();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [theme, setTheme] = useState(getStoredTheme() || DEFAULT_THEME);
@@ -80,11 +80,13 @@ export default function SettingsPage() {
     setSaving(true);
     setStatus("");
     try {
-      // flush onboarding snapshot before session ends to avoid data loss on fast logout
-      await mergeUserProfile(user.uid, {
-        updatedAt: serverTimestamp(),
-        data: sanitizeForFirestore(data || {}),
-      });
+      // flush onboarding snapshot only once remote onboarding data has loaded
+      if (onboardingReady) {
+        await mergeUserProfile(user.uid, {
+          updatedAt: serverTimestamp(),
+          data: sanitizeForFirestore(data || {}),
+        });
+      }
       await signOut(auth);
       router.push("/login");
     } catch {
