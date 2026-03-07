@@ -952,12 +952,6 @@ export default function Page() {
       title="Nutrition"
       emoji="🥗"
       subtitle="Fuel your body with intention."
-      rightMeta={(
-        <div className={`nutri-badge ${(data?.hydrationProgress || 0) >= 100 ? "is-complete" : ""}`}>
-          <div className="nutri-badgeLabel">Hydration</div>
-          <div className="nutri-badgeValue">{data?.hydrationProgress ?? 0}%</div>
-        </div>
-      )}
     >
         {showLoading ? (
           <PageState type="loading" message="Loading your nutrition hub…" />
