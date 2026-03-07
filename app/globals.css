@@ -1772,3 +1772,227 @@ body {
   background: var(--color-hover);
   border-color: var(--color-border-strong);
 }
+
+/* Syra assistant */
+.syra-fab {
+  position: fixed;
+  z-index: 130;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background: color-mix(in srgb, var(--card) 88%, var(--accent) 12%);
+  color: var(--text);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-md);
+  height: 48px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  backdrop-filter: blur(12px);
+}
+
+.syra-fabIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  font-size: 15px;
+}
+
+.syra-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #060d17 22%, transparent);
+  z-index: 120;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.syra-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.syra-panel {
+  position: absolute;
+  right: 16px;
+  bottom: 82px;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(720px, calc(100vh - 120px));
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 90%, var(--bg-secondary) 10%);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(18px) scale(0.98);
+  opacity: 0;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.syra-panel.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.syra-head {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.syra-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.syra-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.syra-close {
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  padding: 6px 10px;
+  color: var(--muted);
+}
+
+.syra-chips,
+.syra-demoRow {
+  padding: 10px 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.syra-chip {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: var(--r-pill);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.syra-chip.subtle {
+  color: var(--muted);
+}
+
+.syra-thread {
+  padding: 12px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.syra-msg {
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.syra-msg p {
+  margin: 0;
+}
+
+.syra-msg.user {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--accent) 18%, var(--card));
+  max-width: 86%;
+}
+
+.syra-msg.assistant {
+  background: var(--card2);
+  border: 1px solid var(--border);
+}
+
+.syra-resultCard p,
+.syra-resultCard ul {
+  margin: 8px 0;
+}
+
+.syra-resultCard ul {
+  padding-left: 18px;
+}
+
+.syra-title2 {
+  font-weight: 600;
+}
+
+.syra-mealItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.syra-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.syra-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.syra-inlineActions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.syra-minibtn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: var(--r-pill);
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+.syra-inputrow {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.syra-input {
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 10px;
+}
+
+.syra-send {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: color-mix(in srgb, var(--accent) 20%, var(--card));
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .syra-panel {
+    right: 8px;
+    bottom: 70px;
+    width: calc(100vw - 16px);
+  }
+
+  .syra-fab {
+    height: 44px;
+    padding: 0 12px;
+  }
+}
