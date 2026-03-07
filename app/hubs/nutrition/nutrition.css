@@ -97,34 +97,6 @@
   line-height: 1.35;
 }
 
-.nutri-badge {
-  min-width: 104px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-  box-shadow: var(--shadow-soft);
-  text-align: center;
-}
-
-.nutri-badgeLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #6f6f79;
-  letter-spacing: 0.35px;
-}
-
-.nutri-badgeValue {
-  margin-top: 3px;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.nutri-badge.is-complete {
-  border-color: var(--accent);
-  background: var(--accentSoft);
-  box-shadow: var(--shadow-card);
-}
 
 .nutri-tabsWrap {
   margin: 4px 0 20px;
@@ -207,10 +179,6 @@
   }
   .nutri-hero {
     flex-direction: column;
-  }
-  .nutri-badge {
-    width: 100%;
-    text-align: left;
   }
 }
 
