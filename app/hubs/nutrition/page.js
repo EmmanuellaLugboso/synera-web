@@ -11,52 +11,15 @@ import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { todayISO, shiftISODate } from "../../utils/date";
+import { uid } from "../../utils/id";
+import { clampNumber, pct } from "../../utils/number";
 
 /* ------------------------
    utils
 ------------------------ */
-function todayISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function parseISODate(value) {
-  const [y, m, d] = String(value || "").split("-").map(Number);
-  if (!y || !m || !d) return new Date();
-  return new Date(y, m - 1, d);
-}
-
-function shiftISODate(baseISO, deltaDays) {
-  const d = parseISODate(baseISO);
-  d.setDate(d.getDate() + deltaDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function uid() {
-  return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-
-function clampNumber(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-
 function round1(n) {
   return Math.round(n * 10) / 10;
-}
-
-function pct(val, goal) {
-  const v = clampNumber(val);
-  const g = clampNumber(goal);
-  if (!g) return 0;
-  return Math.max(0, Math.min(100, Math.round((v / g) * 100)));
 }
 
 /* =========================

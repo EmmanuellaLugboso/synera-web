@@ -9,6 +9,8 @@ import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
 import { db } from "../firebase/config";
+import { clampNumber, pct } from "../utils/number";
+import { requestSyra } from "../services/syraService";
 import {
   doc,
   getDoc,
@@ -22,17 +24,6 @@ import {
 /* ------------------------
    helpers
 ------------------------ */
-function clampNumber(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-function pct(val, goal) {
-  const v = clampNumber(val);
-  const g = clampNumber(goal);
-  if (!g) return 0;
-  return Math.max(0, Math.min(100, Math.round((v / g) * 100)));
-}
 function formatK(n) {
   const num = clampNumber(n);
   if (num >= 10000) return `${(num / 1000).toFixed(1)}k`;
@@ -485,37 +476,29 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/syra", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          history: coachMessages.slice(-6),
-          context: {
-            name: username,
-            waterLitres,
-            waterGoal,
-            steps: stepsToday,
-            stepGoal,
-            calories: caloriesToday,
-            calorieGoal,
-            moodRating: Number(daily?.mood?.rating || 0),
-            sleepHours: Number(daily?.sleep?.hours || 0),
-            habitsRate: daily?.habits?.total
-              ? Math.round(
-                  (Number(daily.habits.completed || 0) /
-                    Number(daily.habits.total || 1)) *
-                    100,
-                )
-              : 0,
-            planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
-          },
-        }),
+      const payload = await requestSyra({
+        message,
+        history: coachMessages.slice(-6),
+        context: {
+          name: username,
+          waterLitres,
+          waterGoal,
+          steps: stepsToday,
+          stepGoal,
+          calories: caloriesToday,
+          calorieGoal,
+          moodRating: Number(daily?.mood?.rating || 0),
+          sleepHours: Number(daily?.sleep?.hours || 0),
+          habitsRate: daily?.habits?.total
+            ? Math.round(
+                (Number(daily.habits.completed || 0) /
+                  Number(daily.habits.total || 1)) *
+                  100,
+              )
+            : 0,
+          planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
+        },
       });
-
-      const payload = await res.json();
-      if (!res.ok)
-        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,

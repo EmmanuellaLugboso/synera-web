@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useOnboarding } from "../context/OnboardingContext";
+import { requestSyra } from "../services/syraService";
 
 const QUICK_ACTIONS = [
   { label: "Describe meal", mode: "meal", prompt: "chicken wrap and iced coffee" },
@@ -184,13 +185,7 @@ export default function SyraAssistant() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/syra", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, mode, context }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Syra is unavailable right now.");
+      const json = await requestSyra({ message, mode, context });
       setMessages((prev) => [...prev, { role: "assistant", text: json.headline || "Done.", raw: json }]);
     } catch (error) {
       setMessages((prev) => [...prev, { role: "assistant", text: error.message || "Syra is unavailable right now." }]);
