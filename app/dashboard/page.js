@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { db } from "../firebase/config";
 import { clampNumber, pct } from "../utils/number";
 import { requestSyra } from "../services/syraService";
+import { todayISO } from "../utils/date";
 import {
   doc,
   getDoc,
@@ -187,14 +188,45 @@ export default function Dashboard() {
   const [coachError, setCoachError] = useState("");
 
   useEffect(() => {
-    setMounted(true);
-    const now = new Date();
-    setClientDate(now.toISOString().split("T")[0]);
-    const hour = now.getHours();
-    if (hour < 12) setClientGreeting("Good morning");
-    else if (hour < 17) setClientGreeting("Good afternoon");
-    else if (hour < 21) setClientGreeting("Good evening");
-    else setClientGreeting("Good night");
+    let timeoutId = null;
+    let intervalId = null;
+
+    const syncClientClock = () => {
+      setMounted(true);
+      const now = new Date();
+      setClientDate(todayISO());
+      const hour = now.getHours();
+      if (hour < 12) setClientGreeting("Good morning");
+      else if (hour < 17) setClientGreeting("Good afternoon");
+      else if (hour < 21) setClientGreeting("Good evening");
+      else setClientGreeting("Good night");
+    };
+
+    const scheduleMidnightSync = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 5, 0);
+      const msUntilMidnight = Math.max(1000, nextMidnight.getTime() - now.getTime());
+
+      timeoutId = setTimeout(() => {
+        syncClientClock();
+        intervalId = setInterval(syncClientClock, 24 * 60 * 60 * 1000);
+      }, msUntilMidnight);
+    };
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) syncClientClock();
+    };
+
+    syncClientClock();
+    scheduleMidnightSync();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, []);
 
   const date = clientDate;
