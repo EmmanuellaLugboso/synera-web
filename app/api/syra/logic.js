@@ -192,6 +192,12 @@ export function buildResetPlan(type = "day", context = {}) {
 
   return {
     headline: "Let’s reset the rest of today.",
+    summary: "A focused mini-reset now can lower tonight's stress and rebuild momentum.",
+    actions: [
+      "Close one easy open task in the next 20 minutes.",
+      context.waterLitres < context.waterGoal ? "Drink water now and refill your bottle." : "Take a 10-minute walk to clear your head.",
+      "Log your next meal, even if it is approximate.",
+    ],
     topPriorityTask: "Close one easy open task in the next 20 minutes.",
     wellnessAction: context.waterLitres < context.waterGoal ? "Drink water now and refill your bottle." : "Take a 10-minute walk to clear your head.",
     nutritionAction: "Log your next meal, even if it is approximate.",

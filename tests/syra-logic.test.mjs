@@ -29,6 +29,9 @@ test('buildResetPlan day and week include required sections', () => {
   const week = buildResetPlan('week', ctx);
   assert.ok(day.topPriorityTask);
   assert.ok(day.wellnessAction);
+  assert.ok(day.summary);
+  assert.equal(Array.isArray(day.actions), true);
+  assert.equal(day.actions.length, 3);
   assert.ok(week.summary);
   assert.equal(Array.isArray(week.actions), true);
 });
