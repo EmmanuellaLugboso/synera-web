@@ -12,6 +12,8 @@ test('estimateMealFromText returns structured estimated meal details', () => {
   const meal = estimateMealFromText('chicken wrap and iced coffee');
   assert.ok(Array.isArray(meal.items));
   assert.ok(meal.items.length >= 2);
+  assert.ok(Array.isArray(meal.matchedFoods));
+  assert.equal(meal.matchedFoods.join(', '), meal.items.map((item) => item.name).join(', '));
   assert.equal(meal.note.includes('estimates'), true);
   assert.ok(meal.totals.calories > 0);
 });

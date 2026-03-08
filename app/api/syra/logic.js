@@ -89,8 +89,11 @@ export function estimateMealFromText(text = "") {
     fat: Math.round(item.fat),
   }));
 
+  const matchedFoods = items.map((item) => item.name);
+
   return {
     items,
+    matchedFoods,
     totals: {
       calories: Math.round(totals.calories),
       protein: Math.round(totals.protein),
