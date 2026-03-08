@@ -91,3 +91,7 @@ See [docs/ops-and-security.md](docs/ops-and-security.md) for:
 - authorized domains checklist
 - env separation and key rotation
 - upstream outage playbook for USDA/MealDB
+
+
+## Developer docs
+- [Developer guide](docs/developer-guide.md)

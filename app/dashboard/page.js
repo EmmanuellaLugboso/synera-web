@@ -9,6 +9,8 @@ import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
 
 import { db } from "../firebase/config";
+import { clampNumber, pct } from "../utils/number";
+import { requestSyra } from "../services/syraService";
 import {
   doc,
   getDoc,
@@ -22,17 +24,6 @@ import {
 /* ------------------------
    helpers
 ------------------------ */
-function clampNumber(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-function pct(val, goal) {
-  const v = clampNumber(val);
-  const g = clampNumber(goal);
-  if (!g) return 0;
-  return Math.max(0, Math.min(100, Math.round((v / g) * 100)));
-}
 function formatK(n) {
   const num = clampNumber(n);
   if (num >= 10000) return `${(num / 1000).toFixed(1)}k`;
@@ -67,6 +58,14 @@ function normalizeDailyDoc(raw = {}) {
     },
   };
 }
+
+const COACH_QUICK_PROMPTS = [
+  "What's on my tasks today?",
+  "What should I focus on today?",
+  "Where am I falling behind?",
+  "What progress have I made this week?",
+  "What habits should I improve?",
+];
 
 /* ------------------------
    Simple inline SVG icons
@@ -283,7 +282,7 @@ export default function Dashboard() {
     };
   }, [ready, authUser?.uid, date, isE2EMode]);
 
-  async function addWater(ml) {
+  const addWater = useCallback(async (ml) => {
     if (!authUser || !date) return;
     const ref = doc(db, "users", authUser.uid, "daily", date);
 
@@ -292,13 +291,9 @@ export default function Dashboard() {
       updatedAt: serverTimestamp(),
     });
 
-    setDaily((prev) => ({
-      ...(prev || {}),
-      waterMl: (prev?.waterMl || 0) + ml,
-    }));
-  }
+  }, [authUser, date]);
 
-  async function togglePlanItem(itemId) {
+  const togglePlanItem = useCallback(async (itemId) => {
     if (!authUser || !date) return;
 
     const current = Array.isArray(daily?.plan) ? daily.plan : [];
@@ -309,8 +304,7 @@ export default function Dashboard() {
     const ref = doc(db, "users", authUser.uid, "daily", date);
     await updateDoc(ref, { plan: next, updatedAt: serverTimestamp() });
 
-    setDaily((prev) => ({ ...(prev || {}), plan: next }));
-  }
+  }, [authUser, date, daily?.plan]);
 
 
   const calorieGoal = clampNumber(data?.calorieGoal) || 1800;
@@ -353,9 +347,9 @@ export default function Dashboard() {
   const waterLitres = waterMl / 1000;
   const waterPct = pct(waterLitres, waterGoal);
 
-  const rawPlanItems = Array.isArray(daily?.plan) ? daily.plan : [];
+  const rawPlanItems = useMemo(() => (Array.isArray(daily?.plan) ? daily.plan : []), [daily?.plan]);
   // Add a fallback category when older plan items are missing one.
-  const planItems = rawPlanItems.map((p) => {
+  const planItems = useMemo(() => rawPlanItems.map((p) => {
     if (p.category) return p;
     const id = String(p.id || "").toLowerCase();
     let cat = "";
@@ -365,9 +359,9 @@ export default function Dashboard() {
     else if (id.includes("mood") || id.includes("stress")) cat = "Mood";
     else if (id.includes("habit")) cat = "Habits";
     return { ...p, category: cat };
-  });
-  const completedPlanCount = planItems.filter((item) => item?.done).length;
-  const nextPlanId = planItems.find((item) => !item?.done)?.id || null;
+  }), [rawPlanItems]);
+  const completedPlanCount = useMemo(() => planItems.filter((item) => item?.done).length, [planItems]);
+  const nextPlanId = useMemo(() => planItems.find((item) => !item?.done)?.id || null, [planItems]);
 
   const loadInsights = useCallback(
     async (forceRefresh = false) => {
@@ -454,7 +448,7 @@ export default function Dashboard() {
     loadInsights(false);
   }, [ready, authUser, dailyLoading, loadInsights]);
 
-  async function handleInsightAction() {
+  const handleInsightAction = useCallback(async () => {
     const action = insight?.action;
     if (!action || action.type !== "water" || insightActionLoading) return;
 
@@ -470,9 +464,9 @@ export default function Dashboard() {
     } finally {
       setInsightActionLoading(false);
     }
-  }
+  }, [insight?.action, insightActionLoading, addWater]);
 
-  async function sendCoachMessage() {
+  const sendCoachMessage = useCallback(async () => {
     const message = coachInput.trim();
     if (!message || coachTyping) return;
 
@@ -482,37 +476,29 @@ export default function Dashboard() {
     setCoachTyping(true);
 
     try {
-      const res = await fetch("/api/syra", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          history: coachMessages.slice(-6),
-          context: {
-            name: username,
-            waterLitres,
-            waterGoal,
-            steps: stepsToday,
-            stepGoal,
-            calories: caloriesToday,
-            calorieGoal,
-            moodRating: Number(daily?.mood?.rating || 0),
-            sleepHours: Number(daily?.sleep?.hours || 0),
-            habitsRate: daily?.habits?.total
-              ? Math.round(
-                  (Number(daily.habits.completed || 0) /
-                    Number(daily.habits.total || 1)) *
-                    100,
-                )
-              : 0,
-            planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
-          },
-        }),
+      const payload = await requestSyra({
+        message,
+        history: coachMessages.slice(-6),
+        context: {
+          name: username,
+          waterLitres,
+          waterGoal,
+          steps: stepsToday,
+          stepGoal,
+          calories: caloriesToday,
+          calorieGoal,
+          moodRating: Number(daily?.mood?.rating || 0),
+          sleepHours: Number(daily?.sleep?.hours || 0),
+          habitsRate: daily?.habits?.total
+            ? Math.round(
+                (Number(daily.habits.completed || 0) /
+                  Number(daily.habits.total || 1)) *
+                  100,
+              )
+            : 0,
+          planItems: planItems.map((item) => ({ text: item.text, done: item.done })),
+        },
       });
-
-      const payload = await res.json();
-      if (!res.ok)
-        throw new Error(payload?.error || "Could not get SYRA response.");
 
       setCoachMessages((prev) => [
         ...prev,
@@ -537,24 +523,16 @@ export default function Dashboard() {
     } finally {
       setCoachTyping(false);
     }
-  }
+  }, [coachInput, coachTyping, coachMessages, username, waterLitres, waterGoal, stepsToday, stepGoal, caloriesToday, calorieGoal, daily, planItems]);
   const displayName = canShowIdentity ? (profileDoc?.name?.trim() || username) : "—";
   const profilePhotoURL = mounted ? profileDoc?.photoURL || data?.photoURL || "" : "";
 
-  const coachQuickPrompts = [
-    "What's on my tasks today?",
-    "What should I focus on today?",
-    "Where am I falling behind?",
-    "What progress have I made this week?",
-    "What habits should I improve?",
-  ];
-
-  function setCoachPrompt(prompt) {
+  const setCoachPrompt = useCallback((prompt) => {
     setCoachInput(prompt);
-  }
+  }, []);
 
 
-  const hubChips = {
+  const hubChips = useMemo(() => ({
     fitness: [
       { label: "Steps", value: formatK(stepsToday) },
       { label: "Goal", value: formatK(stepGoal) },
@@ -591,7 +569,7 @@ export default function Dashboard() {
             : "—",
       },
     ],
-  };
+  }), [stepsToday, stepGoal, caloriesToday, calRemaining, daily, data]);
 
   return (
     <div className="dash-page" data-testid="dashboard-page">
@@ -972,7 +950,18 @@ export default function Dashboard() {
                 <span className="insight-status">{insightStatus}</span>
               ) : null}
               {insightError ? (
-                <span className="insight-status">{insightError}</span>
+                <span className="insight-status">
+                  {insightError}
+                  <button
+                    type="button"
+                    className="insight-link"
+                    style={{ marginLeft: 8 }}
+                    onClick={() => loadInsights(true)}
+                    disabled={insightLoading}
+                  >
+                    Retry
+                  </button>
+                </span>
               ) : null}
             </div>
           </section>
@@ -1109,7 +1098,7 @@ export default function Dashboard() {
               ) : null}
 
               <div className="coach-quickRow">
-                {coachQuickPrompts.map((prompt) => (
+                {COACH_QUICK_PROMPTS.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"

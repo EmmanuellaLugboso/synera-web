@@ -9,6 +9,7 @@ import { useOnboarding } from "../../context/OnboardingContext";
 import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import PageState from "../../components/ui/PageState";
+import { todayISO } from "../../utils/date";
 
 /* ---------- Starter templates & library ---------- */
 
@@ -63,10 +64,6 @@ const EXERCISE_LIBRARY = [
 ];
 
 /* ---------- Helpers ---------- */
-
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
 
 function isTimedCategory(cat = "") {
   return cat.toLowerCase().includes("cardio");
