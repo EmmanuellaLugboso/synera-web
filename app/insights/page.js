@@ -15,6 +15,7 @@ import {
 import { useOnboarding } from "../context/OnboardingContext";
 import { db } from "../firebase/config";
 import { buildCoachSummary, buildPillarAnalytics, clampNumber, normalizeDailyTimeline } from "./analytics";
+import { getInsightsLoadErrorMessage } from "../lib/firestoreErrors";
 import "./page.css";
 
 function getLastNDatesISO(n = 30) {
@@ -35,6 +36,11 @@ function buildDailyQuery(uid) {
     orderBy("date", "asc"),
     limit(30),
   );
+}
+
+function setInsightsLoadFailure(setError, setDays, error) {
+  setError(getInsightsLoadErrorMessage(error));
+  setDays(normalizeDailyTimeline([], 30));
 }
 
 async function fetchDaily(uid) {
@@ -137,14 +143,7 @@ export default function InsightsPage() {
     try {
       setDays(await fetchDaily(user.uid));
     } catch (e) {
-      // Show a friendly message when indexes are still building.
-      const errorMsg = e?.message || "";
-      if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
-        setError("Insights are still syncing. Please try again in a moment.");
-      } else {
-        setError("Couldn't load insights. Please refresh.");
-      }
-      setDays(normalizeDailyTimeline([], 30));
+      setInsightsLoadFailure(setError, setDays, e);
     } finally {
       setLoading(false);
     }
@@ -172,13 +171,7 @@ export default function InsightsPage() {
         setLoading(false);
       },
       (e) => {
-        const errorMsg = e?.message || "";
-        if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
-          setError("Insights are still syncing. Please try again in a moment.");
-        } else {
-          setError("Couldn't load insights. Please refresh.");
-        }
-        setDays(normalizeDailyTimeline([], 30));
+        setInsightsLoadFailure(setError, setDays, e);
         setLoading(false);
       },
     );

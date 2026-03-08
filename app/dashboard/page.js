@@ -7,6 +7,7 @@ import { useOnboarding } from "../context/OnboardingContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PageState from "../components/ui/PageState";
 import { useRouter } from "next/navigation";
+import { isLikelyFirestoreIndexError } from "../lib/firestoreErrors";
 
 import { db } from "../firebase/config";
 import { clampNumber, pct } from "../utils/number";
@@ -397,8 +398,8 @@ export default function Dashboard() {
         const payload = await res.json();
         if (!res.ok) {
           const errorMsg = payload?.error || "Failed to load insights";
-          // Show a friendly message when Firestore indexes are still building.
-          if (errorMsg.includes("index") || errorMsg.includes("composite") || errorMsg.includes("The query requires")) {
+          // Firestore can briefly require composite indexes during rollout.
+          if (isLikelyFirestoreIndexError(errorMsg)) {
             throw new Error("Insights are still syncing. Try again shortly.");
           }
           throw new Error(errorMsg);
