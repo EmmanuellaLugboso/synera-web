@@ -34,7 +34,7 @@ export default function WorkoutDaysPage() {
       <div className="onboard-card">
         <h1 className="onboard-title">How Many Days Can You Commit?</h1>
         <p className="onboard-subtitle">
-          Choose what fits your lifestyle 📅
+          Choose what fits your lifestyle.
         </p>
 
         <div className="days-list">

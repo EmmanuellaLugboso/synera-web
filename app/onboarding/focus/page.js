@@ -51,7 +51,7 @@ export default function FocusPage() {
 
         <h1 className="onboard-title">What areas do you want to focus on?</h1>
         <p className="onboard-subtitle">
-          Pick all that apply — totally personalised 💖
+          Pick all that apply.
         </p>
 
         <div className="mcq-group">

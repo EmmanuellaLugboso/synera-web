@@ -28,7 +28,7 @@ export default function FitnessIntroPage() {
           Continue
         </button>
 
-        <p className="tiny-note">This will only take a moment ✨</p>
+        <p className="tiny-note">This will only take a moment.</p>
       </div>
     </div>
   );
