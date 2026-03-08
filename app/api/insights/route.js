@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-function clamp(value) {
-  const n = Number(value);
+function sanitizeMetricValue(rawValue) {
+  const n = Number(rawValue);
   if (Number.isNaN(n) || n < 0) return 0;
   return n;
 }
@@ -11,13 +11,13 @@ export function buildInsight({ waterLitres, waterGoal, steps, stepGoal, calories
   const stepProgress = stepGoal ? steps / stepGoal : 0;
   const calorieProgress = calorieGoal ? calories / calorieGoal : 0;
 
-  const lowest = [
+  const lowestProgressKey = [
     { key: "water", progress: waterProgress },
     { key: "steps", progress: stepProgress },
     { key: "calories", progress: Math.min(1, calorieProgress) },
   ].sort((a, b) => a.progress - b.progress)[0]?.key;
 
-  if (lowest === "water") {
+  if (lowestProgressKey === "water") {
     return {
       kicker: "FAST WIN",
       headline: "Hydration is the fastest ROI.",
@@ -26,7 +26,7 @@ export function buildInsight({ waterLitres, waterGoal, steps, stepGoal, calories
     };
   }
 
-  if (lowest === "steps") {
+  if (lowestProgressKey === "steps") {
     return {
       kicker: "MOMENTUM MOVE",
       headline: "A 10-minute walk resets your day.",
@@ -48,12 +48,12 @@ export async function POST(req) {
     const body = await req.json();
 
     const insight = buildInsight({
-      waterLitres: clamp(body?.waterLitres),
-      waterGoal: clamp(body?.waterGoal),
-      steps: clamp(body?.steps),
-      stepGoal: clamp(body?.stepGoal),
-      calories: clamp(body?.calories),
-      calorieGoal: clamp(body?.calorieGoal),
+      waterLitres: sanitizeMetricValue(body?.waterLitres),
+      waterGoal: sanitizeMetricValue(body?.waterGoal),
+      steps: sanitizeMetricValue(body?.steps),
+      stepGoal: sanitizeMetricValue(body?.stepGoal),
+      calories: sanitizeMetricValue(body?.calories),
+      calorieGoal: sanitizeMetricValue(body?.calorieGoal),
     });
 
     return NextResponse.json({ insight });

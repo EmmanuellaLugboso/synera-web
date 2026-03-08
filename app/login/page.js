@@ -32,7 +32,7 @@ export default function LoginPage() {
   }, [email, password, loading]);
 
 
-  async function routeAfterAuth(uid) {
+  async function redirectAfterAuth(uid) {
     const profile = uid ? await getUserProfile(uid) : null;
     router.push(getPostAuthRoute(profile));
   }
@@ -44,7 +44,7 @@ export default function LoginPage() {
 
     try {
       const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-      await routeAfterAuth(cred?.user?.uid);
+      await redirectAfterAuth(cred?.user?.uid);
     } catch (err) {
       const normalized = normalizeError(err, "Login failed.");
       logError("auth.login.failed", err, { provider: "password" });
@@ -61,7 +61,7 @@ export default function LoginPage() {
     try {
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(auth, provider);
-      await routeAfterAuth(cred?.user?.uid);
+      await redirectAfterAuth(cred?.user?.uid);
     } catch (err) {
       const normalized = normalizeError(err, "Google sign-in failed.");
       logError("auth.login.failed", err, { provider: "google" });
