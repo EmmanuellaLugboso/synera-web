@@ -15,6 +15,7 @@ import {
   EXERCISE_LIBRARY as STRUCTURED_EXERCISE_LIBRARY,
   GOAL_OPTIONS,
   generateWorkoutPlan,
+  interpretChatAdjustment,
   parseGeneratorPrompt,
   toTemplatePayload,
 } from "./workoutGenerator";
@@ -384,6 +385,8 @@ export default function FitnessHub() {
   const [generatorPrompt, setGeneratorPrompt] = useState("");
   const [promptInterpretation, setPromptInterpretation] = useState(null);
   const [coachMessage, setCoachMessage] = useState("Tell me your ideal body goals and constraints, and I will build a precise weekly plan.");
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState([{ id: "m1", role: "assistant", text: "Hi, I'm Syra. Tell me your body goal and I'll coach you into a personalized plan." }]);
   const [planInput, setPlanInput] = useState({
     planName: "Syra Goal-Specific Plan",
     primaryGoals: ["build bigger glutes overall"],
@@ -557,6 +560,41 @@ export default function FitnessHub() {
       setGeneratedPlan(generateWorkoutPlan(parsed.planInput));
     } else {
       setGeneratedPlan(null);
+    }
+  }
+
+  function appendChatMessage(role, text) {
+    setChatMessages((prev) => [...prev, { id: `${role}-${Date.now()}-${prev.length}`, role, text }]);
+  }
+
+  function sendCoachMessage() {
+    const message = chatInput.trim();
+    if (!message) return;
+    appendChatMessage("user", message);
+    setChatInput("");
+
+    if (generatedPlan) {
+      const adjusted = interpretChatAdjustment(message, planInput);
+      if (adjusted.changed) {
+        setPlanInput(adjusted.planInput);
+        const nextPlan = generateWorkoutPlan(adjusted.planInput);
+        setGeneratedPlan(nextPlan);
+      }
+      appendChatMessage("assistant", adjusted.response);
+      return;
+    }
+
+    const parsed = parseGeneratorPrompt(message, planInput);
+    setPlanInput(parsed.planInput);
+    setPromptInterpretation(parsed.interpretation);
+    setCoachMessage(parsed.interpretation.coachReply);
+
+    if (parsed.interpretation.readyToGenerate) {
+      const nextPlan = generateWorkoutPlan(parsed.planInput);
+      setGeneratedPlan(nextPlan);
+      appendChatMessage("assistant", "Perfect — I have what I need. I generated your program below. You can now say things like: remove lunges, add more glute work, or make workouts shorter.");
+    } else {
+      appendChatMessage("assistant", `${parsed.interpretation.coachReply} ${parsed.interpretation.followUps.join(" ")}`);
     }
   }
 
@@ -1354,15 +1392,24 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-simpleCard" style={{ marginTop: 10 }}>
-              <div className="fit2-small">Describe your ideal look/goals in plain language</div>
-              <textarea
-                className="fit2-input"
-                rows={4}
-                value={generatorPrompt}
-                onChange={(e) => setGeneratorPrompt(e.target.value)}
-                placeholder="Example: I want a nice narrow back with definition, bigger thighs and glutes but not too muscular quads, beginner and home workouts 4 days a week."
-              />
+              <div className="fit2-small">Chat with Syra</div>
               <div className="fit2-recentsub" style={{ marginTop: 8 }}><strong>Syra:</strong> {coachMessage}</div>
+              <div className="fit2-chatThread">
+                {chatMessages.map((msg) => (
+                  <div key={msg.id} className={`fit2-chatBubble ${msg.role === "assistant" ? "assistant" : "user"}`}>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+              <div className="fit2-row" style={{ marginTop: 8 }}>
+                <input
+                  className="fit2-input"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Type your goal or adjustment (e.g., I want bigger glutes but not wider back)"
+                />
+                <button className="fit2-pillbtn" type="button" onClick={sendCoachMessage}>Send</button>
+              </div>
               {promptInterpretation ? (
                 <>
                   <div className="fit2-recentsub">
@@ -1383,6 +1430,14 @@ export default function FitnessHub() {
                   ) : null}
                 </>
               ) : null}
+              <textarea
+                className="fit2-input"
+                rows={3}
+                value={generatorPrompt}
+                onChange={(e) => setGeneratorPrompt(e.target.value)}
+                placeholder="Optional one-shot brief prompt"
+                style={{ marginTop: 10 }}
+              />
             </div>
 
             <div className="fit2-genGrid">

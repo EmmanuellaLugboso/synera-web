@@ -391,7 +391,11 @@ export function parseGeneratorPrompt(prompt, currentInput = {}) {
   const trainingDays = text.match(/([2-6])\s*(day|days)\s*(a|per)?\s*week/)?.[1];
   const sessionMinutes = text.match(/(\d{2})\s*(min|minutes)/)?.[1];
 
-  const level = text.includes("beginner") ? "beginner" : currentInput.level || "beginner";
+  const level = text.includes("intermediate")
+    ? "intermediate"
+    : text.includes("beginner")
+      ? "beginner"
+      : currentInput.level || "beginner";
 
   const equipmentAccess = text.includes("minimal")
     ? "minimal"
@@ -423,11 +427,11 @@ export function parseGeneratorPrompt(prompt, currentInput = {}) {
     overallGlute: text.includes("overall glute") || text.includes("bigger glute") || text.includes("grow glute"),
     upperGlute: text.includes("upper glute") || text.includes("top glute"),
     upperBodyPreference: text.includes("upper body") || text.includes("posture") || text.includes("balanced"),
-    aestheticAvoids: ["avoid", "not too", "without", "no "].some((token) => text.includes(token)),
-    trainingDays: Boolean(trainingDays),
-    level: text.includes("beginner") || text.includes("intermediate"),
-    equipmentAccess: text.includes("home") || text.includes("gym") || text.includes("minimal"),
-    sessionMinutes: Boolean(sessionMinutes),
+    aestheticAvoids: ["avoid", "not too", "without", "no "].some((token) => text.includes(token)) || nextAvoid.size > 0,
+    trainingDays: Boolean(trainingDays) || Number(currentInput.trainingDays) > 0,
+    level: text.includes("beginner") || text.includes("intermediate") || Boolean(currentInput.level),
+    equipmentAccess: text.includes("home") || text.includes("gym") || text.includes("minimal") || Boolean(currentInput.equipmentAccess),
+    sessionMinutes: Boolean(sessionMinutes) || Number(currentInput.sessionStructure?.sessionMinutes) > 0,
   };
 
   const followUps = coachFollowUpsFromPrompt(text, planInput, captured);
@@ -534,5 +538,64 @@ export function toTemplatePayload(plan) {
     exercises: plan.days.flatMap((day) => day.exercises.map((exercise) => `${day.name}: ${exercise.name}`)),
     generatedPlan: plan,
     createdAt: Date.now(),
+  };
+}
+
+
+export function interpretChatAdjustment(message, currentInput = {}) {
+  const text = String(message || "").toLowerCase();
+  const avoid = new Set(Array.isArray(currentInput.avoid) ? currentInput.avoid : []);
+  const goals = new Set(Array.isArray(currentInput.primaryGoals) ? currentInput.primaryGoals : []);
+  let changed = false;
+
+  if (text.includes("remove lunge") || text.includes("no lunge")) {
+    avoid.add("avoid lunges");
+    changed = true;
+  }
+  if (text.includes("more glute")) {
+    goals.add("build bigger glutes overall");
+    goals.add("build upper glutes");
+    changed = true;
+  }
+  if (text.includes("less quad") || text.includes("not too muscular thigh")) {
+    avoid.add("avoid too much quad growth");
+    changed = true;
+  }
+  if (text.includes("shorter") || text.includes("less time")) {
+    changed = true;
+  }
+
+  let equipmentAccess = currentInput.equipmentAccess || "home";
+  if (text.includes("only dumbbell") || text.includes("only dumbbells") || text.includes("dumbbell only") || text.includes("dumbbells only") || text.includes("have dumbbell") || text.includes("have dumbbells")) {
+    equipmentAccess = "home";
+    changed = true;
+  } else if (text.includes("minimal")) {
+    equipmentAccess = "minimal";
+    changed = true;
+  } else if (text.includes("full gym") || text.includes("commercial gym") || text.includes("gym")) {
+    equipmentAccess = "gym";
+    changed = true;
+  }
+
+  const patch = {
+    ...currentInput,
+    primaryGoals: goals.size ? [...goals] : ["build bigger glutes overall"],
+    avoid: [...avoid],
+    equipmentAccess,
+    sessionStructure: {
+      ...(currentInput.sessionStructure || {}),
+      sessionMinutes: text.includes("shorter") || text.includes("less time")
+        ? Math.min(40, Number(currentInput.sessionStructure?.sessionMinutes || 50))
+        : (currentInput.sessionStructure?.sessionMinutes || 50),
+      exercisesPerDay: currentInput.sessionStructure?.exercisesPerDay || 4,
+    },
+  };
+
+  return {
+    changed,
+    planInput: patch,
+    response: changed
+      ? "Updated. I adjusted your program preferences and regenerated your plan to reflect that request."
+      : "I can adjust that. Try requests like: remove lunges, add more glute emphasis, make workouts shorter, or I only have dumbbells.",
   };
 }

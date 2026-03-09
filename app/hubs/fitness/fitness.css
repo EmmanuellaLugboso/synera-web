@@ -1200,3 +1200,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+.fit2-chatThread {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.fit2-chatBubble {
+  max-width: 88%;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.35;
+  border: 1px solid var(--border);
+}
+
+.fit2-chatBubble.assistant {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  align-self: flex-start;
+}
+
+.fit2-chatBubble.user {
+  background: color-mix(in srgb, var(--card) 85%, #0f172a 15%);
+  align-self: flex-end;
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateWorkoutPlan, parseGeneratorPrompt } from '../app/hubs/fitness/workoutGenerator.js';
+import { generateWorkoutPlan, interpretChatAdjustment, parseGeneratorPrompt } from '../app/hubs/fitness/workoutGenerator.js';
 
 test('generator creates glute-priority 4-day split', () => {
   const plan = generateWorkoutPlan({
@@ -76,4 +76,32 @@ test('glute-focused plan includes glute medius work and avoids repeating same li
     const overlap = [...daySets[i]].filter((name) => daySets[i - 1].has(name));
     assert.ok(overlap.length < daySets[i].size);
   }
+});
+
+
+test('chat parser does not re-ask logistics when already known', () => {
+  const parsed = parseGeneratorPrompt('I want bigger glutes with low quad bias', {
+    trainingDays: 4,
+    level: 'beginner',
+    equipmentAccess: 'home',
+    sessionStructure: { sessionMinutes: 45, exercisesPerDay: 4 },
+  });
+
+  assert.equal(parsed.interpretation.followUps.some((q) => q.includes('days per week')), false);
+  assert.equal(parsed.interpretation.followUps.some((q) => q.includes('experience level')), false);
+  assert.equal(parsed.interpretation.followUps.some((q) => q.includes('train at home')), false);
+});
+
+test('chat adjustments update plan preferences from plain-language requests', () => {
+  const adjusted = interpretChatAdjustment('remove lunges and make workouts shorter, I only have dumbbells', {
+    primaryGoals: ['build bigger glutes overall'],
+    avoid: [],
+    equipmentAccess: 'gym',
+    sessionStructure: { sessionMinutes: 50, exercisesPerDay: 4 },
+  });
+
+  assert.equal(adjusted.changed, true);
+  assert.ok(adjusted.planInput.avoid.includes('avoid lunges'));
+  assert.equal(adjusted.planInput.sessionStructure.sessionMinutes <= 40, true);
+  assert.equal(adjusted.planInput.equipmentAccess, 'home');
 });
