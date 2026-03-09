@@ -343,6 +343,38 @@ function dayTemplateForFrequency(frequency, primaryGoals) {
   ];
 }
 
+function uniqueById(list) {
+  const seen = new Set();
+  return list.filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
+
+function coachFollowUpsFromPrompt(text, parsedInput, captured) {
+  const followUps = [];
+  const mentionsGlutes = text.includes("glute") || text.includes("butt") || text.includes("thigh");
+  if (mentionsGlutes && !captured.upperGlute && !captured.overallGlute) {
+    followUps.push("Do you want overall glute growth or more upper-glute emphasis?");
+  }
+  if (mentionsGlutes && !parsedInput.avoid.includes("avoid too much quad growth")) {
+    followUps.push("Should I keep quad growth lower while we build your glutes?");
+  }
+  if (!captured.upperBodyPreference) {
+    followUps.push("Do you want balanced upper-body training for posture and symmetry?");
+  }
+  if (!captured.aestheticAvoids) {
+    followUps.push("Any aesthetic constraints to avoid (wider back, too much arm size, or high-impact moves)?");
+  }
+  if (!captured.trainingDays) followUps.push("How many days per week can you train?");
+  if (!captured.level) followUps.push("What is your experience level (beginner or intermediate)?");
+  if (!captured.equipmentAccess) followUps.push("Will you train at home, a full gym, or with minimal equipment?");
+  if (!captured.sessionMinutes) followUps.push("How long should each session be?");
+  return followUps;
+}
+
+
 export function parseGeneratorPrompt(prompt, currentInput = {}) {
   const text = String(prompt || "").toLowerCase();
   const nextGoals = new Set(Array.isArray(currentInput.primaryGoals) ? currentInput.primaryGoals : []);
@@ -373,23 +405,44 @@ export function parseGeneratorPrompt(prompt, currentInput = {}) {
     nextGoals.add("build bigger glutes overall");
   }
 
-  return {
-    planInput: {
-      ...currentInput,
-      primaryGoals: [...nextGoals],
-      avoid: [...nextAvoid],
-      trainingDays: trainingDays ? Number(trainingDays) : currentInput.trainingDays || 4,
-      level,
-      equipmentAccess,
-      sessionStructure: {
-        ...(currentInput.sessionStructure || {}),
-        sessionMinutes: sessionMinutes ? Number(sessionMinutes) : currentInput.sessionStructure?.sessionMinutes || 50,
-        exercisesPerDay: currentInput.sessionStructure?.exercisesPerDay || 4,
-      },
+  const planInput = {
+    ...currentInput,
+    primaryGoals: [...nextGoals],
+    avoid: [...nextAvoid],
+    trainingDays: trainingDays ? Number(trainingDays) : currentInput.trainingDays || 4,
+    level,
+    equipmentAccess,
+    sessionStructure: {
+      ...(currentInput.sessionStructure || {}),
+      sessionMinutes: sessionMinutes ? Number(sessionMinutes) : currentInput.sessionStructure?.sessionMinutes || 50,
+      exercisesPerDay: currentInput.sessionStructure?.exercisesPerDay || 4,
     },
+  };
+
+  const captured = {
+    overallGlute: text.includes("overall glute") || text.includes("bigger glute") || text.includes("grow glute"),
+    upperGlute: text.includes("upper glute") || text.includes("top glute"),
+    upperBodyPreference: text.includes("upper body") || text.includes("posture") || text.includes("balanced"),
+    aestheticAvoids: ["avoid", "not too", "without", "no "].some((token) => text.includes(token)),
+    trainingDays: Boolean(trainingDays),
+    level: text.includes("beginner") || text.includes("intermediate"),
+    equipmentAccess: text.includes("home") || text.includes("gym") || text.includes("minimal"),
+    sessionMinutes: Boolean(sessionMinutes),
+  };
+
+  const followUps = coachFollowUpsFromPrompt(text, planInput, captured);
+  const coachReply = followUps.length
+    ? "Great direction — I can build this, but I want to confirm a few details first so your plan matches your exact look and constraints."
+    : "Perfect — I have enough detail to build a high-specificity plan.";
+
+  return {
+    planInput,
     interpretation: {
       goals: [...nextGoals],
       avoid: [...nextAvoid],
+      followUps,
+      coachReply,
+      readyToGenerate: followUps.length === 0,
     },
   };
 }
@@ -411,23 +464,38 @@ export function generateWorkoutPlan(inputs) {
   const gluteBias = primaryGoals.some((goal) => goal.includes("glute"));
   const upperTone = primaryGoals.some((goal) => goal.includes("upper body") || goal.includes("posture") || goal.includes("back"));
 
+  const usedExerciseIds = new Set();
+
   const dayPlans = days.map((day, dayIndex) => {
     const focus = day.focus;
-    const candidates = filteredLibrary
-      .filter((exercise) => {
-        if (focus.includes("Glute") || focus.includes("Lower")) {
-          return exercise.goalTags.includes("glute growth") || exercise.goalTags.includes("upper glute focus") || exercise.primaryMuscles.includes("glutes");
-        }
-        if (focus.includes("Upper") || focus.includes("posture")) {
-          if (avoidWidth && exercise.goalTags.includes("back width")) return false;
-          return exercise.goalTags.includes("posture support") || exercise.goalTags.includes("back definition") || exercise.aestheticTags.includes("tone upper body") || exercise.goalTags.includes("upper body balance");
-        }
-        return true;
-      })
-      .slice(0, 5);
+    const targetCount = inputs.sessionStructure?.exercisesPerDay || 4;
+    const baseCandidates = filteredLibrary.filter((exercise) => {
+      if (focus.includes("Glute") || focus.includes("Lower")) {
+        return exercise.goalTags.includes("glute growth") || exercise.goalTags.includes("upper glute focus") || exercise.primaryMuscles.includes("glutes");
+      }
+      if (focus.includes("Upper") || focus.includes("posture")) {
+        if (avoidWidth && exercise.goalTags.includes("back width")) return false;
+        return exercise.goalTags.includes("posture support") || exercise.goalTags.includes("back definition") || exercise.aestheticTags.includes("tone upper body") || exercise.goalTags.includes("upper body balance");
+      }
+      return true;
+    });
 
-    const fallback = filteredLibrary.slice(dayIndex, dayIndex + 4);
-    const selected = (candidates.length >= 4 ? candidates : fallback).slice(0, inputs.sessionStructure?.exercisesPerDay || 4);
+    const freshCandidates = baseCandidates.filter((exercise) => !usedExerciseIds.has(exercise.id));
+    const fallbackPool = filteredLibrary.filter((exercise) => !usedExerciseIds.has(exercise.id));
+    const fallback = fallbackPool.length ? fallbackPool : filteredLibrary.slice(dayIndex, dayIndex + targetCount);
+    let selected = uniqueById([...(freshCandidates.length ? freshCandidates : baseCandidates), ...fallback]).slice(0, targetCount);
+
+    if ((focus.includes("Glute") || focus.includes("Lower")) && gluteBias) {
+      const hasGluteMedius = selected.some((exercise) => exercise.primaryMuscles.includes("glute medius"));
+      if (!hasGluteMedius) {
+        const mediusOption = filteredLibrary.find((exercise) => exercise.primaryMuscles.includes("glute medius") && !selected.some((picked) => picked.id === exercise.id));
+        if (mediusOption && selected.length > 0) {
+          selected[selected.length - 1] = mediusOption;
+        }
+      }
+    }
+
+    selected.forEach((exercise) => usedExerciseIds.add(exercise.id));
 
     return {
       id: `${day.name.toLowerCase().replace(/\s+/g, "-")}-${dayIndex}`,

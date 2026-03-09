@@ -383,6 +383,7 @@ export default function FitnessHub() {
   const [tweakOpen, setTweakOpen] = useState(false);
   const [generatorPrompt, setGeneratorPrompt] = useState("");
   const [promptInterpretation, setPromptInterpretation] = useState(null);
+  const [coachMessage, setCoachMessage] = useState("Tell me your ideal body goals and constraints, and I will build a precise weekly plan.");
   const [planInput, setPlanInput] = useState({
     planName: "Syra Goal-Specific Plan",
     primaryGoals: ["build bigger glutes overall"],
@@ -543,11 +544,20 @@ export default function FitnessHub() {
     setGeneratedPlan(nextPlan);
   }
 
+  function generatePlanFromCurrentDetails() {
+    setGeneratedPlan(generateWorkoutPlan(planInput));
+  }
+
   function generateFromPrompt() {
     const parsed = parseGeneratorPrompt(generatorPrompt, planInput);
     setPlanInput(parsed.planInput);
     setPromptInterpretation(parsed.interpretation);
-    setGeneratedPlan(generateWorkoutPlan(parsed.planInput));
+    setCoachMessage(parsed.interpretation.coachReply);
+    if (parsed.interpretation.readyToGenerate) {
+      setGeneratedPlan(generateWorkoutPlan(parsed.planInput));
+    } else {
+      setGeneratedPlan(null);
+    }
   }
 
   function saveGeneratedAsTemplate() {
@@ -1352,10 +1362,26 @@ export default function FitnessHub() {
                 onChange={(e) => setGeneratorPrompt(e.target.value)}
                 placeholder="Example: I want a nice narrow back with definition, bigger thighs and glutes but not too muscular quads, beginner and home workouts 4 days a week."
               />
+              <div className="fit2-recentsub" style={{ marginTop: 8 }}><strong>Syra:</strong> {coachMessage}</div>
               {promptInterpretation ? (
-                <div className="fit2-recentsub">
-                  Interpreted goals: {promptInterpretation.goals.join(", ")} • Avoid: {promptInterpretation.avoid.join(", ") || "none"}
-                </div>
+                <>
+                  <div className="fit2-recentsub">
+                    Interpreted goals: {promptInterpretation.goals.join(", ")} • Avoid: {promptInterpretation.avoid.join(", ") || "none"}
+                  </div>
+                  {promptInterpretation.followUps?.length ? (
+                    <div className="fit2-mutedbox" style={{ marginTop: 8 }}>
+                      <div className="fit2-small" style={{ marginBottom: 6 }}>Before I generate your plan, please confirm:</div>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {promptInterpretation.followUps.map((question) => (
+                          <li key={question} className="fit2-small">{question}</li>
+                        ))}
+                      </ul>
+                      <div className="fit2-row" style={{ marginTop: 8 }}>
+                        <button className="fit2-pillbtn" type="button" onClick={generatePlanFromCurrentDetails}>Generate with current details</button>
+                      </div>
+                    </div>
+                  ) : null}
+                </>
               ) : null}
             </div>
 

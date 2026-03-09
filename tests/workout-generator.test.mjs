@@ -48,3 +48,32 @@ test('chat prompt parser extracts nuanced goals and avoids', () => {
   assert.equal(parsed.planInput.trainingDays, 4);
   assert.equal(parsed.planInput.equipmentAccess, 'home');
 });
+
+
+test('chat parser asks follow-up questions when key constraints are missing', () => {
+  const parsed = parseGeneratorPrompt('I want big glutes and a nice back', {});
+
+  assert.equal(parsed.interpretation.readyToGenerate, false);
+  assert.ok(parsed.interpretation.followUps.length > 0);
+});
+
+test('glute-focused plan includes glute medius work and avoids repeating same lifts every day', () => {
+  const plan = generateWorkoutPlan({
+    planName: 'Glute Structure',
+    primaryGoals: ['build bigger glutes overall'],
+    avoid: ['avoid wider back appearance'],
+    trainingDays: 4,
+    level: 'beginner',
+    equipmentAccess: 'home',
+    sessionStructure: { sessionMinutes: 45, exercisesPerDay: 4 },
+  });
+
+  const lowerDays = plan.days.filter((day) => day.focus.includes('Glute') || day.focus.includes('Lower'));
+  assert.ok(lowerDays.every((day) => day.exercises.some((exercise) => String(exercise.targets || '').includes('glute medius') || exercise.name.includes('Lateral Walk'))));
+
+  const daySets = plan.days.map((day) => new Set(day.exercises.map((exercise) => exercise.name)));
+  for (let i = 1; i < daySets.length; i += 1) {
+    const overlap = [...daySets[i]].filter((name) => daySets[i - 1].has(name));
+    assert.ok(overlap.length < daySets[i].size);
+  }
+});
