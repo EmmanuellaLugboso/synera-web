@@ -255,6 +255,53 @@ export const EXERCISE_LIBRARY = [
   },
 ];
 
+const GOAL_SIGNAL_MAP = [
+  {
+    goal: "build bigger glutes overall",
+    signals: ["big glute", "bigger glute", "grow glute", "glute growth", "bigger butt", "bigger thighs and glutes", "bigger glutes"],
+  },
+  {
+    goal: "build upper glutes",
+    signals: ["upper glute", "top glute", "shelf glute", "rounder upper glute"],
+  },
+  {
+    goal: "build glutes with less quad emphasis",
+    signals: ["less quad", "low quad", "without quad", "glute bias"],
+  },
+  {
+    goal: "improve back definition",
+    signals: ["back definition", "toned back", "defined back", "nice back", "back with definition"],
+  },
+  {
+    goal: "improve posture / upper back tone",
+    signals: ["posture", "upper back tone", "upper back", "stand straighter"],
+  },
+  {
+    goal: "strengthen back without emphasizing a wider back look",
+    signals: ["narrow back", "not wide back", "without wider back", "avoid wide back"],
+  },
+  {
+    goal: "tone upper body without adding much size",
+    signals: ["tone upper body", "without size", "no bulky upper", "lean upper body"],
+  },
+  {
+    goal: "build glutes and keep a balanced feminine shape",
+    signals: ["feminine shape", "balanced shape", "curvy but balanced"],
+  },
+];
+
+const AVOID_SIGNAL_MAP = [
+  { avoid: "avoid wider back appearance", signals: ["not wide back", "avoid wide back", "narrow back"] },
+  { avoid: "avoid too much quad growth", signals: ["not too muscular thighs", "less quad", "avoid quad growth"] },
+  { avoid: "avoid too much arm size", signals: ["avoid arm size", "not big arms", "no bulky arms"] },
+  { avoid: "avoid lunges", signals: ["avoid lunge", "no lunge"] },
+  { avoid: "avoid Bulgarian split squats", signals: ["avoid bulgarian", "no bulgarian"] },
+  { avoid: "lower-impact training", signals: ["low impact", "lower impact", "joint friendly"] },
+  { avoid: "beginner-friendly only", signals: ["beginner", "new to training", "easy exercises"] },
+  { avoid: "no barbells", signals: ["no barbell", "without barbell"] },
+  { avoid: "home-only substitutions", signals: ["home", "at home", "home only"] },
+];
+
 function matchesEquipment(exercise, equipmentList) {
   return exercise.equipment.some((item) => equipmentList.includes(item));
 }
@@ -294,6 +341,57 @@ function dayTemplateForFrequency(frequency, primaryGoals) {
     { name: "Day 1", focus: "Full-body goal session" },
     { name: "Day 2", focus: "Full-body support session" },
   ];
+}
+
+export function parseGeneratorPrompt(prompt, currentInput = {}) {
+  const text = String(prompt || "").toLowerCase();
+  const nextGoals = new Set(Array.isArray(currentInput.primaryGoals) ? currentInput.primaryGoals : []);
+  const nextAvoid = new Set(Array.isArray(currentInput.avoid) ? currentInput.avoid : []);
+
+  GOAL_SIGNAL_MAP.forEach((item) => {
+    if (item.signals.some((signal) => text.includes(signal))) nextGoals.add(item.goal);
+  });
+
+  AVOID_SIGNAL_MAP.forEach((item) => {
+    if (item.signals.some((signal) => text.includes(signal))) nextAvoid.add(item.avoid);
+  });
+
+  const trainingDays = text.match(/([2-6])\s*(day|days)\s*(a|per)?\s*week/)?.[1];
+  const sessionMinutes = text.match(/(\d{2})\s*(min|minutes)/)?.[1];
+
+  const level = text.includes("beginner") ? "beginner" : currentInput.level || "beginner";
+
+  const equipmentAccess = text.includes("minimal")
+    ? "minimal"
+    : text.includes("home")
+      ? "home"
+      : text.includes("gym")
+        ? "gym"
+        : currentInput.equipmentAccess || "home";
+
+  if (nextGoals.size === 0) {
+    nextGoals.add("build bigger glutes overall");
+  }
+
+  return {
+    planInput: {
+      ...currentInput,
+      primaryGoals: [...nextGoals],
+      avoid: [...nextAvoid],
+      trainingDays: trainingDays ? Number(trainingDays) : currentInput.trainingDays || 4,
+      level,
+      equipmentAccess,
+      sessionStructure: {
+        ...(currentInput.sessionStructure || {}),
+        sessionMinutes: sessionMinutes ? Number(sessionMinutes) : currentInput.sessionStructure?.sessionMinutes || 50,
+        exercisesPerDay: currentInput.sessionStructure?.exercisesPerDay || 4,
+      },
+    },
+    interpretation: {
+      goals: [...nextGoals],
+      avoid: [...nextAvoid],
+    },
+  };
 }
 
 export function generateWorkoutPlan(inputs) {

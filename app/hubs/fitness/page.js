@@ -15,6 +15,7 @@ import {
   EXERCISE_LIBRARY as STRUCTURED_EXERCISE_LIBRARY,
   GOAL_OPTIONS,
   generateWorkoutPlan,
+  parseGeneratorPrompt,
   toTemplatePayload,
 } from "./workoutGenerator";
 
@@ -380,6 +381,8 @@ export default function FitnessHub() {
   const [templateExercisesInput, setTemplateExercisesInput] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [tweakOpen, setTweakOpen] = useState(false);
+  const [generatorPrompt, setGeneratorPrompt] = useState("");
+  const [promptInterpretation, setPromptInterpretation] = useState(null);
   const [planInput, setPlanInput] = useState({
     planName: "Syra Goal-Specific Plan",
     primaryGoals: ["build bigger glutes overall"],
@@ -538,6 +541,13 @@ export default function FitnessHub() {
   function createGeneratedPlan() {
     const nextPlan = generateWorkoutPlan(planInput);
     setGeneratedPlan(nextPlan);
+  }
+
+  function generateFromPrompt() {
+    const parsed = parseGeneratorPrompt(generatorPrompt, planInput);
+    setPlanInput(parsed.planInput);
+    setPromptInterpretation(parsed.interpretation);
+    setGeneratedPlan(generateWorkoutPlan(parsed.planInput));
   }
 
   function saveGeneratedAsTemplate() {
@@ -1326,10 +1336,27 @@ export default function FitnessHub() {
               <div className="fit2-sectiontitle">Syra Personalized Generator</div>
               <div className="fit2-actions">
                 <button className="fit2-pillbtn" type="button" onClick={createGeneratedPlan}>Generate Plan</button>
+                <button className="fit2-pillbtn" type="button" onClick={generateFromPrompt}>Generate from chat</button>
                 {generatedPlan ? (
                   <button className="fit2-pillbtn" type="button" onClick={() => setTweakOpen(true)}>Tweak</button>
                 ) : null}
               </div>
+            </div>
+
+            <div className="fit2-simpleCard" style={{ marginTop: 10 }}>
+              <div className="fit2-small">Describe your ideal look/goals in plain language</div>
+              <textarea
+                className="fit2-input"
+                rows={4}
+                value={generatorPrompt}
+                onChange={(e) => setGeneratorPrompt(e.target.value)}
+                placeholder="Example: I want a nice narrow back with definition, bigger thighs and glutes but not too muscular quads, beginner and home workouts 4 days a week."
+              />
+              {promptInterpretation ? (
+                <div className="fit2-recentsub">
+                  Interpreted goals: {promptInterpretation.goals.join(", ")} • Avoid: {promptInterpretation.avoid.join(", ") || "none"}
+                </div>
+              ) : null}
             </div>
 
             <div className="fit2-genGrid">
