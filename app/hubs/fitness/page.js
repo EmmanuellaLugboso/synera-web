@@ -10,6 +10,13 @@ import { db } from "../../firebase/config";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import PageState from "../../components/ui/PageState";
 import { todayISO } from "../../utils/date";
+import {
+  AVOID_OPTIONS,
+  EXERCISE_LIBRARY as STRUCTURED_EXERCISE_LIBRARY,
+  GOAL_OPTIONS,
+  generateWorkoutPlan,
+  toTemplatePayload,
+} from "./workoutGenerator";
 
 /* ---------- Starter templates & library ---------- */
 
@@ -44,23 +51,12 @@ const DEFAULT_TEMPLATES = [
 const DEFAULT_TEMPLATE_IDS = new Set(DEFAULT_TEMPLATES.map((tpl) => tpl.id));
 
 const EXERCISE_LIBRARY = [
-  { name: "Ab Wheel", category: "Core" },
-  { name: "Aerobics", category: "Cardio" },
-  { name: "Arnold Press (Dumbbell)", category: "Shoulders" },
-  { name: "Back Extension", category: "Back" },
-  { name: "Barbell Squat", category: "Legs" },
-  { name: "Hip Thrust", category: "Glutes" },
-  { name: "RDL", category: "Legs" },
-  { name: "Lat Pulldown (Cable)", category: "Back" },
-  { name: "Bench Press", category: "Chest" },
-  { name: "Leg Press", category: "Legs" },
-  { name: "Shoulder Press (Dumbbell)", category: "Shoulders" },
-  { name: "Bicep Curl (Barbell)", category: "Arms" },
-  { name: "Push-ups", category: "Bodyweight" },
+  ...STRUCTURED_EXERCISE_LIBRARY.map((exercise) => ({
+    name: exercise.name,
+    category: exercise.primaryMuscles?.[0] || "General",
+  })),
   { name: "Plank", category: "Core" },
-  { name: "Cable Abduction", category: "Glutes" },
-  { name: "Goblet Squat", category: "Legs" },
-  { name: "Row", category: "Back" },
+  { name: "Aerobics", category: "Cardio" },
 ];
 
 /* ---------- Helpers ---------- */
@@ -259,6 +255,13 @@ function isoFromYMD(year, monthIndex, day) {
   return `${year}-${m}-${d}`;
 }
 
+const TRAINING_STYLE_OPTIONS = [
+  "balanced strength",
+  "glute hypertrophy",
+  "posture + tone",
+  "low-impact conditioning",
+];
+
 /* ---------- Steps helpers ---------- */
 
 function upsertStepsLog(stepsLog, date, steps) {
@@ -340,6 +343,7 @@ export default function FitnessHub() {
     [d.workouts],
   );
   const unit = d.weightUnit || "kg";
+  const currentTemplateId = d.currentWorkoutTemplateId || "";
 
   // screens: hub | start | session | history | detail | cardio | steps | body
   const [screen, setScreen] = useState("hub");
@@ -381,6 +385,20 @@ export default function FitnessHub() {
   const [templateOpen, setTemplateOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [templateExercisesInput, setTemplateExercisesInput] = useState("");
+  const [generatedPlan, setGeneratedPlan] = useState(null);
+  const [tweakOpen, setTweakOpen] = useState(false);
+  const [planInput, setPlanInput] = useState({
+    planName: "Syra Goal-Specific Plan",
+    primaryGoal: "build bigger glutes overall",
+    secondaryGoal: "improve posture / upper back tone",
+    avoid: ["avoid wider back appearance"],
+    trainingDays: 4,
+    level: "beginner",
+    trainingLocation: "home",
+    equipmentAccess: "home",
+    preferredStyle: "glute hypertrophy",
+    sessionStructure: { sessionMinutes: 50, exercisesPerDay: 4 },
+  });
 
   const stepGoal = Number(d.stepGoal) || 8000;
   const stepsLog = useMemo(
@@ -513,6 +531,128 @@ export default function FitnessHub() {
     const base = Array.isArray(d.workoutTemplates) ? d.workoutTemplates : [];
     const next = base.filter((tpl) => tpl.id !== templateId);
     updateMany({ workoutTemplates: next });
+  }
+
+  function buildGeneratorPayload(input) {
+    return {
+      ...input,
+      primaryGoals: [input.primaryGoal, input.secondaryGoal].filter(Boolean),
+      equipmentAccess: input.trainingLocation || input.equipmentAccess,
+    };
+  }
+
+  function generatePlanFromCurrentDetails() {
+    const payload = buildGeneratorPayload(planInput);
+    setGeneratedPlan(generateWorkoutPlan(payload));
+  }
+
+  function saveGeneratedAsTemplate() {
+    if (!generatedPlan) return;
+    const nextTemplate = toTemplatePayload(generatedPlan);
+    const next = [...(Array.isArray(d.workoutTemplates) ? d.workoutTemplates : []), nextTemplate];
+    updateMany({ workoutTemplates: next, currentWorkoutTemplateId: nextTemplate.id });
+  }
+
+  function setCurrentTemplate(templateId) {
+    updateMany({ currentWorkoutTemplateId: templateId });
+  }
+
+  function renameTemplate(templateId) {
+    const nextName = window.prompt("Rename template", "");
+    if (!nextName) return;
+    const base = Array.isArray(d.workoutTemplates) ? d.workoutTemplates : [];
+    const next = base.map((tpl) => (tpl.id === templateId ? { ...tpl, name: nextName.trim() || tpl.name } : tpl));
+    updateMany({ workoutTemplates: next });
+  }
+
+  function duplicateTemplate(templateId) {
+    const source = templates.find((tpl) => tpl.id === templateId);
+    if (!source) return;
+    const dup = {
+      ...source,
+      id: typeof crypto !== "undefined" && crypto?.randomUUID ? crypto.randomUUID() : `tpl-${Date.now()}`,
+      name: `${source.name} Copy`,
+    };
+    const next = [...(Array.isArray(d.workoutTemplates) ? d.workoutTemplates : []), dup];
+    updateMany({ workoutTemplates: next });
+  }
+
+  function tweakGeneratedPlan(patch) {
+    if (!generatedPlan) return;
+    const nextInput = {
+      ...planInput,
+      ...patch,
+      sessionStructure: {
+        ...planInput.sessionStructure,
+        ...(patch.sessionStructure || {}),
+      },
+    };
+    setPlanInput(nextInput);
+    setGeneratedPlan(generateWorkoutPlan(buildGeneratorPayload(nextInput)));
+    setTweakOpen(false);
+  }
+
+  function moveExercise(dayId, exerciseId, direction) {
+    if (!generatedPlan) return;
+    const nextDays = generatedPlan.days.map((day) => {
+      if (day.id !== dayId) return day;
+      const list = [...day.exercises];
+      const idx = list.findIndex((item) => item.id === exerciseId);
+      const target = idx + direction;
+      if (idx < 0 || target < 0 || target >= list.length) return day;
+      [list[idx], list[target]] = [list[target], list[idx]];
+      return { ...day, exercises: list };
+    });
+    setGeneratedPlan({ ...generatedPlan, days: nextDays });
+  }
+
+  function removeGeneratedExercise(dayId, exerciseId) {
+    if (!generatedPlan) return;
+    const nextDays = generatedPlan.days.map((day) =>
+      day.id === dayId ? { ...day, exercises: day.exercises.filter((item) => item.id !== exerciseId) } : day,
+    );
+    setGeneratedPlan({ ...generatedPlan, days: nextDays });
+  }
+
+  function regenerateGeneratedDay(dayId) {
+    if (!generatedPlan) return;
+    const refreshed = generateWorkoutPlan(buildGeneratorPayload(planInput));
+    const targetDay = refreshed.days.find((day) => day.id === dayId);
+    if (!targetDay) return;
+
+    const nextDays = generatedPlan.days.map((day) =>
+      day.id === dayId ? targetDay : day,
+    );
+
+    setGeneratedPlan({ ...generatedPlan, days: nextDays });
+  }
+
+  function swapGeneratedExercise(dayId, exerciseId) {
+    if (!generatedPlan) return;
+    const replacementName = window.prompt("Swap with exercise", "Glute Bridge");
+    if (!replacementName) return;
+    const source = STRUCTURED_EXERCISE_LIBRARY.find((x) => x.name.toLowerCase() === replacementName.trim().toLowerCase());
+    const nextDays = generatedPlan.days.map((day) => {
+      if (day.id !== dayId) return day;
+      return {
+        ...day,
+        exercises: day.exercises.map((item) => {
+          if (item.id !== exerciseId) return item;
+          if (!source) {
+            return { ...item, name: replacementName.trim(), why: `${item.why} (manual swap applied)` };
+          }
+          return {
+            ...item,
+            name: source.name,
+            targets: [...source.primaryMuscles, ...source.secondaryMuscles].slice(0, 3),
+            why: source.explanation,
+            substitutions: source.substitutions,
+            equipmentNote: source.equipment.join(" / "),
+          };
+        }),
+      };
+    });
+    setGeneratedPlan({ ...generatedPlan, days: nextDays });
   }
 
   // timer loop
@@ -1200,6 +1340,192 @@ export default function FitnessHub() {
             </button>
           </div>
 
+          <div className="fit2-section fit2-generatorSection">
+            <div className="fit2-templateshead">
+              <div className="fit2-sectiontitle">Syra Personalized Generator</div>
+              <div className="fit2-actions">
+                {generatedPlan ? (
+                  <button className="fit2-pillbtn" type="button" onClick={() => setTweakOpen(true)}>Tweak</button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="fit2-simpleCard" style={{ marginTop: 10 }}>
+              <div className="fit2-small">Goal-specific setup</div>
+              <div className="fit2-genGrid" style={{ marginTop: 10 }}>
+                <label className="fit2-label">
+                  Plan title
+                  <input
+                    className="fit2-input"
+                    value={planInput.planName}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, planName: e.target.value }))}
+                  />
+                </label>
+                <label className="fit2-label">
+                  Training style
+                  <select
+                    className="fit2-select"
+                    value={planInput.preferredStyle}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, preferredStyle: e.target.value }))}
+                  >
+                    {TRAINING_STYLE_OPTIONS.map((style) => (
+                      <option key={style} value={style}>{style}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Primary goal
+                  <select
+                    className="fit2-select"
+                    value={planInput.primaryGoal}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, primaryGoal: e.target.value }))}
+                  >
+                    {GOAL_OPTIONS.map((goal) => (
+                      <option key={goal} value={goal}>{goal}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Secondary goal
+                  <select
+                    className="fit2-select"
+                    value={planInput.secondaryGoal}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, secondaryGoal: e.target.value }))}
+                  >
+                    {GOAL_OPTIONS.map((goal) => (
+                      <option key={goal} value={goal}>{goal}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Days per week
+                  <input
+                    className="fit2-input"
+                    type="number"
+                    min={2}
+                    max={6}
+                    value={planInput.trainingDays}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingDays: Number(e.target.value) || 4 }))}
+                  />
+                </label>
+                <label className="fit2-label">
+                  Experience level
+                  <select
+                    className="fit2-select"
+                    value={planInput.level}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, level: e.target.value }))}
+                  >
+                    <option value="beginner">beginner</option>
+                    <option value="intermediate">intermediate</option>
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Training location
+                  <select
+                    className="fit2-select"
+                    value={planInput.trainingLocation}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingLocation: e.target.value, equipmentAccess: e.target.value }))}
+                  >
+                    <option value="home">home</option>
+                    <option value="gym">commercial gym</option>
+                    <option value="minimal">minimal equipment</option>
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Session length (min)
+                  <input
+                    className="fit2-input"
+                    type="number"
+                    min={30}
+                    max={90}
+                    value={planInput.sessionStructure?.sessionMinutes || 50}
+                    onChange={(e) => setPlanInput((prev) => ({
+                      ...prev,
+                      sessionStructure: {
+                        ...(prev.sessionStructure || {}),
+                        sessionMinutes: Number(e.target.value) || 50,
+                      },
+                    }))}
+                  />
+                </label>
+              </div>
+              <div className="fit2-choiceWrap">
+                {AVOID_OPTIONS.map((avoidItem) => {
+                  const active = planInput.avoid.includes(avoidItem);
+                  return (
+                    <button
+                      key={avoidItem}
+                      type="button"
+                      className={`fit2-choiceChip ${active ? "active" : ""}`}
+                      onClick={() =>
+                        setPlanInput((prev) => ({
+                          ...prev,
+                          avoid: active ? prev.avoid.filter((item) => item !== avoidItem) : [...prev.avoid, avoidItem],
+                        }))
+                      }
+                    >
+                      {avoidItem}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="fit2-row" style={{ marginTop: 10 }}>
+                <button className="fit2-primarywide" type="button" onClick={generatePlanFromCurrentDetails}>Generate personalized plan</button>
+              </div>
+            </div>
+
+            {generatedPlan ? (
+              <div className="fit2-generatedPlan">
+                <div className="fit2-modaltitle">{generatedPlan.planName}</div>
+                <div className="fit2-recentsub">{generatedPlan.summary}</div>
+
+                <div className="fit2-muscleVisual" aria-label="Target muscle visual">
+                  {generatedPlan.targetMuscles.map((muscle) => (
+                    <span key={muscle} className="fit2-muscleBadge">{muscle}</span>
+                  ))}
+                </div>
+
+                {generatedPlan.days.map((day) => (
+                  <div key={day.id} className="fit2-dayCard">
+                    <div className="fit2-templatetop">
+                      <div>
+                        <div className="fit2-templatetitle">{day.name}</div>
+                        <div className="fit2-recentsub">{day.focus} • {day.sessionMinutes} min</div>
+                      </div>
+                      <button className="fit2-templateDelete" type="button" onClick={() => regenerateGeneratedDay(day.id)}>Regenerate day</button>
+                    </div>
+
+                    <div className="fit2-planExercises">
+                      {day.exercises.map((exercise, exIdx) => (
+                        <div key={exercise.id} className="fit2-planExerciseCard">
+                          <div className="fit2-templatetop">
+                            <div>
+                              <div className="fit2-recenttitle">{exercise.name}</div>
+                              <div className="fit2-small">Targets: {exercise.targets.join(", ")}</div>
+                            </div>
+                            <div className="fit2-row">
+                              <button className="fit2-templateDelete" type="button" onClick={() => moveExercise(day.id, exercise.id, -1)} disabled={exIdx === 0}>↑</button>
+                              <button className="fit2-templateDelete" type="button" onClick={() => moveExercise(day.id, exercise.id, 1)} disabled={exIdx === day.exercises.length - 1}>↓</button>
+                              <button className="fit2-templateDelete" type="button" onClick={() => swapGeneratedExercise(day.id, exercise.id)}>Swap</button>
+                              <button className="fit2-templateDelete" type="button" onClick={() => removeGeneratedExercise(day.id, exercise.id)}>Remove</button>
+                            </div>
+                          </div>
+                          <div className="fit2-recentsub">Why: {exercise.why}</div>
+                          <div className="fit2-recentsub">{exercise.setsReps} • Equipment: {exercise.equipmentNote}</div>
+                          <div className="fit2-small">Substitutions: {exercise.substitutions.join(", ")}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <div className="fit2-row" style={{ marginTop: 12 }}>
+                  <button className="fit2-primarywide" type="button" onClick={saveGeneratedAsTemplate}>Save as template</button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="fit2-section">
             <div className="fit2-templateshead">
               <div className="fit2-sectiontitle">Templates</div>
@@ -1227,19 +1553,29 @@ export default function FitnessHub() {
                   type="button"
                 >
                   <div className="fit2-templatetop">
-                    <div className="fit2-templatetitle">{tpl.name}</div>
-                    {!DEFAULT_TEMPLATE_IDS.has(tpl.id) ? (
-                      <button
-                        type="button"
-                        className="fit2-templateDelete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeTemplate(tpl.id);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    ) : null}
+                    <div>
+                      <div className="fit2-templatetitle">{tpl.name}</div>
+                      {currentTemplateId === tpl.id ? <div className="fit2-small">Current plan</div> : null}
+                    </div>
+                    <div className="fit2-row">
+                      <button type="button" className="fit2-templateDelete" onClick={(e) => { e.stopPropagation(); setCurrentTemplate(tpl.id); }}>Set current</button>
+                      {!DEFAULT_TEMPLATE_IDS.has(tpl.id) ? (
+                        <>
+                          <button type="button" className="fit2-templateDelete" onClick={(e) => { e.stopPropagation(); renameTemplate(tpl.id); }}>Rename</button>
+                          <button type="button" className="fit2-templateDelete" onClick={(e) => { e.stopPropagation(); duplicateTemplate(tpl.id); }}>Duplicate</button>
+                          <button
+                            type="button"
+                            className="fit2-templateDelete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeTemplate(tpl.id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
                   </div>
                   <div className="fit2-templatelist">
                     {tpl.exercises.slice(0, 3).join(", ")}
@@ -1969,6 +2305,25 @@ export default function FitnessHub() {
           </div>
         </div>
       )}
+
+      {tweakOpen && generatedPlan ? (
+        <div className="fit2-modal">
+          <div className="fit2-modalcard fit2-templateModal">
+            <div className="fit2-modaltop">
+              <button className="fit2-ghosticon" onClick={() => setTweakOpen(false)} type="button">✕</button>
+              <div className="fit2-modaltitle">Make Adjustments</div>
+              <button className="fit2-pillbtn" type="button" onClick={() => tweakGeneratedPlan({})}>Apply</button>
+            </div>
+            <div className="fit2-choiceWrap">
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ avoid: [...planInput.avoid, "avoid too much quad growth"] })}>Less quad emphasis</button>
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ avoid: [...planInput.avoid, "lower-impact training"] })}>Lower impact</button>
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ level: "beginner" })}>More beginner-friendly</button>
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ sessionStructure: { sessionMinutes: 35, exercisesPerDay: 3 } })}>Shorter sessions</button>
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ secondaryGoal: "tone upper body without adding much size" })}>More upper-body balance</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {templateOpen && (
         <div className="fit2-modal">
