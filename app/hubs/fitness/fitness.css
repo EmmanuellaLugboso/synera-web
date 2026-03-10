@@ -1125,6 +1125,65 @@
 
 .fit2-generatorSection {
   border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--card)) 0%, var(--card) 35%);
+}
+
+.fit2-generatorHero {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fit2-generatorTitle {
+  margin-bottom: 6px;
+}
+
+.fit2-generatorCard {
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  background: color-mix(in srgb, var(--card) 90%, white 10%);
+}
+
+.fit2-builderPromptLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fit2-builderPrompt {
+  min-height: 90px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--card));
+}
+
+.fit2-builderActions {
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.fit2-pillbtn--premium {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.fit2-primarywide--premium {
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 36%, transparent);
+}
+
+.fit2-interpretCard {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+}
+
+.fit2-chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fit2-avoidWrap {
+  margin-top: 14px;
 }
 
 .fit2-genGrid {
@@ -1156,8 +1215,23 @@
 
 .fit2-generatedPlan {
   margin-top: 14px;
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  padding-top: 16px;
+}
+
+.fit2-planTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.fit2-planSummaryPremium {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+  border-radius: 14px;
+  padding: 10px;
 }
 
 .fit2-muscleVisual {
@@ -1175,12 +1249,24 @@
   font-size: 12px;
 }
 
+.fit2-muscleBadge--muted {
+  background: color-mix(in srgb, var(--card) 88%, #111 12%);
+  border-color: var(--border);
+}
+
 .fit2-dayCard {
   margin-top: 12px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
+  border-radius: 18px;
+  padding: 14px;
   background: color-mix(in srgb, var(--card) 94%, transparent);
+}
+
+.fit2-dayHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
 }
 
 .fit2-planExercises {
@@ -1191,13 +1277,52 @@
 
 .fit2-planExerciseCard {
   border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 14px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--card) 80%, white 20%);
+}
+
+.fit2-planExerciseTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.fit2-row--tight {
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.fit2-templateDelete--premium {
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.fit2-saveRow {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.fit2-saveToggle {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 900px) {
   .fit2-genGrid {
     grid-template-columns: 1fr;
+  }
+  .fit2-generatorHero,
+  .fit2-planTop,
+  .fit2-dayHeader,
+  .fit2-planExerciseTop {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
