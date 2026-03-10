@@ -393,7 +393,6 @@ export default function FitnessHub() {
   const [templateSaveName, setTemplateSaveName] = useState("");
   const [setAsCurrentOnSave, setSetAsCurrentOnSave] = useState(true);
   const [saveNotice, setSaveNotice] = useState("");
-  const [showAdvancedGeneratorFields, setShowAdvancedGeneratorFields] = useState(false);
   const [planInput, setPlanInput] = useState({
     planName: "Syra Goal-Specific Plan",
     primaryGoal: "build bigger glutes overall",
@@ -1479,52 +1478,6 @@ export default function FitnessHub() {
                   />
                 </label>
               </div>
-
-              <div className="fit2-row" style={{ marginTop: 8 }}>
-                <button className="fit2-pillbtn" type="button" onClick={() => setShowAdvancedGeneratorFields((prev) => !prev)}>
-                  {showAdvancedGeneratorFields ? "Hide advanced preferences" : "Show advanced preferences"}
-                </button>
-              </div>
-
-              {showAdvancedGeneratorFields ? (
-                <div className="fit2-genGrid" style={{ marginTop: 10 }}>
-                  <label className="fit2-label">
-                    Experience level
-                    <select
-                      className="fit2-select"
-                      value={planInput.level}
-                      onChange={(e) => setPlanInput((prev) => ({ ...prev, level: e.target.value }))}
-                    >
-                      <option value="beginner">beginner</option>
-                      <option value="intermediate">intermediate</option>
-                    </select>
-                  </label>
-                  <label className="fit2-label">
-                    Training style
-                    <select
-                      className="fit2-select"
-                      value={planInput.preferredStyle}
-                      onChange={(e) => setPlanInput((prev) => ({ ...prev, preferredStyle: e.target.value }))}
-                    >
-                      {TRAINING_STYLE_OPTIONS.map((style) => (
-                        <option key={style} value={style}>{style}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="fit2-label">
-                    Training location
-                    <select
-                      className="fit2-select"
-                      value={planInput.trainingLocation}
-                      onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingLocation: e.target.value, equipmentAccess: e.target.value }))}
-                    >
-                      <option value="home">home</option>
-                      <option value="gym">commercial gym</option>
-                      <option value="minimal">minimal equipment</option>
-                    </select>
-                  </label>
-                </div>
-              ) : null}
               <div className="fit2-choiceWrap fit2-avoidWrap">
                 {AVOID_OPTIONS.map((avoidItem) => {
                   const active = planInput.avoid.includes(avoidItem);
