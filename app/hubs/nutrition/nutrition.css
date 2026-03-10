@@ -1008,18 +1008,19 @@
 .nutri-mealGenSection {
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, var(--card-bg)) 0%, var(--card-bg) 35%);
+  padding: 12px;
 }
 
 .nutri-genGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .nutri-generatedPlan {
-  margin-top: 14px;
+  margin-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
-  padding-top: 14px;
+  padding-top: 10px;
 }
 
 .nutri-planSummaryRow {
@@ -1030,15 +1031,15 @@
 }
 
 .nutri-planMealList {
-  margin-top: 12px;
+  margin-top: 10px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .nutri-planMealCard {
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 12px;
+  padding: 10px;
   background: color-mix(in srgb, var(--card-bg) 88%, white 12%);
 }
 

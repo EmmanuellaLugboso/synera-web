@@ -1126,6 +1126,7 @@
 .fit2-generatorSection {
   border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--card)) 0%, var(--card) 35%);
+  padding: 14px;
 }
 
 .fit2-generatorHero {
@@ -1142,6 +1143,7 @@
 .fit2-generatorCard {
   border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
   background: color-mix(in srgb, var(--card) 90%, white 10%);
+  padding: 12px;
 }
 
 .fit2-builderPromptLabel {
@@ -1150,7 +1152,7 @@
 }
 
 .fit2-builderPrompt {
-  min-height: 90px;
+  min-height: 72px;
   background: color-mix(in srgb, var(--accent) 4%, var(--card));
 }
 
@@ -1214,9 +1216,9 @@
 }
 
 .fit2-generatedPlan {
-  margin-top: 14px;
+  margin-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-  padding-top: 16px;
+  padding-top: 12px;
 }
 
 .fit2-planTop {
@@ -1255,10 +1257,10 @@
 }
 
 .fit2-dayCard {
-  margin-top: 12px;
+  margin-top: 10px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 14px;
+  padding: 12px;
   background: color-mix(in srgb, var(--card) 94%, transparent);
 }
 
@@ -1271,14 +1273,14 @@
 
 .fit2-planExercises {
   display: grid;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .fit2-planExerciseCard {
   border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   border-radius: 14px;
-  padding: 12px;
+  padding: 10px;
   background: color-mix(in srgb, var(--card) 80%, white 20%);
 }
 

@@ -656,6 +656,7 @@ export default function Page() {
   const [mealSaveName, setMealSaveName] = useState("");
   const [mealSetCurrent, setMealSetCurrent] = useState(true);
   const [mealSaveNote, setMealSaveNote] = useState("");
+  const [showAdvancedMealGeneratorFields, setShowAdvancedMealGeneratorFields] = useState(false);
 
   // macro estimate inputs (per serving)
   const [estCals, setEstCals] = useState("");
@@ -1687,50 +1688,61 @@ export default function Page() {
                         <option value="fewer snacks">Fewer snacks</option>
                       </select>
                     </div>
-                    <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Cooking effort</label>
-                      <select className="nutri-select" value={mealGeneratorInput.cookingEffort} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, cookingEffort: e.target.value }))}>
-                        {COOKING_EFFORT_OPTIONS.map((effort) => <option key={effort} value={effort}>{effort}</option>)}
-                      </select>
-                    </div>
-                    <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Budget</label>
-                      <select className="nutri-select" value={mealGeneratorInput.budgetLevel} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, budgetLevel: e.target.value }))}>
-                        {BUDGET_OPTIONS.map((budget) => <option key={budget} value={budget}>{budget}</option>)}
-                      </select>
-                    </div>
-                    <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Meal vibe</label>
-                      <select className="nutri-select" value={mealGeneratorInput.mealVibe} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, mealVibe: e.target.value }))}>
-                        <option value="quick and easy">quick and easy</option>
-                        <option value="aesthetic healthy meals">aesthetic healthy meals</option>
-                        <option value="gym girl meals">gym girl meals</option>
-                        <option value="filling meals">filling meals</option>
-                        <option value="low effort">low effort</option>
-                        <option value="meal prep friendly">meal prep friendly</option>
-                        <option value="savory breakfasts">savory breakfasts</option>
-                        <option value="sweeter breakfasts">sweeter breakfasts</option>
-                      </select>
-                    </div>
-                    <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Allergies / intolerances</label>
-                      <input
-                        className="nutri-input"
-                        value={(mealGeneratorInput.allergies || []).join(", ")}
-                        onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, allergies: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) }))}
-                        placeholder="e.g. dairy, shellfish"
-                      />
-                    </div>
-                    <div className="nutri-field">
-                      <label className="nutri-fieldLabel">Variety mode</label>
-                      <select className="nutri-select" value={mealGeneratorInput.varietyMode} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, varietyMode: e.target.value }))}>
-                        <option value="simple">simple</option>
-                        <option value="balanced">balanced</option>
-                        <option value="more variety">more variety</option>
-                        <option value="meal prep">meal prep</option>
-                      </select>
-                    </div>
                   </div>
+
+                  <div className="nutri-row" style={{ marginTop: 8 }}>
+                    <button className="nutri-pillBtn" type="button" onClick={() => setShowAdvancedMealGeneratorFields((prev) => !prev)}>
+                      {showAdvancedMealGeneratorFields ? "Hide advanced preferences" : "Show advanced preferences"}
+                    </button>
+                  </div>
+
+                  {showAdvancedMealGeneratorFields ? (
+                    <div className="nutri-genGrid" style={{ marginTop: 10 }}>
+                      <div className="nutri-field">
+                        <label className="nutri-fieldLabel">Cooking effort</label>
+                        <select className="nutri-select" value={mealGeneratorInput.cookingEffort} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, cookingEffort: e.target.value }))}>
+                          {COOKING_EFFORT_OPTIONS.map((effort) => <option key={effort} value={effort}>{effort}</option>)}
+                        </select>
+                      </div>
+                      <div className="nutri-field">
+                        <label className="nutri-fieldLabel">Budget</label>
+                        <select className="nutri-select" value={mealGeneratorInput.budgetLevel} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, budgetLevel: e.target.value }))}>
+                          {BUDGET_OPTIONS.map((budget) => <option key={budget} value={budget}>{budget}</option>)}
+                        </select>
+                      </div>
+                      <div className="nutri-field">
+                        <label className="nutri-fieldLabel">Meal vibe</label>
+                        <select className="nutri-select" value={mealGeneratorInput.mealVibe} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, mealVibe: e.target.value }))}>
+                          <option value="quick and easy">quick and easy</option>
+                          <option value="aesthetic healthy meals">aesthetic healthy meals</option>
+                          <option value="gym girl meals">gym girl meals</option>
+                          <option value="filling meals">filling meals</option>
+                          <option value="low effort">low effort</option>
+                          <option value="meal prep friendly">meal prep friendly</option>
+                          <option value="savory breakfasts">savory breakfasts</option>
+                          <option value="sweeter breakfasts">sweeter breakfasts</option>
+                        </select>
+                      </div>
+                      <div className="nutri-field">
+                        <label className="nutri-fieldLabel">Allergies / intolerances</label>
+                        <input
+                          className="nutri-input"
+                          value={(mealGeneratorInput.allergies || []).join(", ")}
+                          onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, allergies: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) }))}
+                          placeholder="e.g. dairy, shellfish"
+                        />
+                      </div>
+                      <div className="nutri-field">
+                        <label className="nutri-fieldLabel">Variety mode</label>
+                        <select className="nutri-select" value={mealGeneratorInput.varietyMode} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, varietyMode: e.target.value }))}>
+                          <option value="simple">simple</option>
+                          <option value="balanced">balanced</option>
+                          <option value="more variety">more variety</option>
+                          <option value="meal prep">meal prep</option>
+                        </select>
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="nutri-field" style={{ marginTop: 10 }}>
                     <label className="nutri-fieldLabel">Foods to avoid (comma separated)</label>
