@@ -11,9 +11,7 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import PageState from "../../components/ui/PageState";
 import { todayISO } from "../../utils/date";
 import {
-  AVOID_OPTIONS,
   EXERCISE_LIBRARY as STRUCTURED_EXERCISE_LIBRARY,
-  GOAL_OPTIONS,
   generateWorkoutPlan,
   interpretChatAdjustment,
   parseGeneratorPrompt,
@@ -382,7 +380,6 @@ export default function FitnessHub() {
   const [templateExercisesInput, setTemplateExercisesInput] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [tweakOpen, setTweakOpen] = useState(false);
-  const [generatorPrompt, setGeneratorPrompt] = useState("");
   const [promptInterpretation, setPromptInterpretation] = useState(null);
   const [coachMessage, setCoachMessage] = useState("Tell me your ideal body goals and constraints, and I will build a precise weekly plan.");
   const [chatInput, setChatInput] = useState("");
@@ -530,37 +527,8 @@ export default function FitnessHub() {
     updateMany({ workoutTemplates: next });
   }
 
-  function updatePlanInput(field, value) {
-    setPlanInput((prev) => ({ ...prev, [field]: value }));
-  }
-
-  function togglePlanChoice(field, value) {
-    setPlanInput((prev) => {
-      const current = Array.isArray(prev[field]) ? prev[field] : [];
-      const exists = current.includes(value);
-      return { ...prev, [field]: exists ? current.filter((item) => item !== value) : [...current, value] };
-    });
-  }
-
-  function createGeneratedPlan() {
-    const nextPlan = generateWorkoutPlan(planInput);
-    setGeneratedPlan(nextPlan);
-  }
-
   function generatePlanFromCurrentDetails() {
     setGeneratedPlan(generateWorkoutPlan(planInput));
-  }
-
-  function generateFromPrompt() {
-    const parsed = parseGeneratorPrompt(generatorPrompt, planInput);
-    setPlanInput(parsed.planInput);
-    setPromptInterpretation(parsed.interpretation);
-    setCoachMessage(parsed.interpretation.coachReply);
-    if (parsed.interpretation.readyToGenerate) {
-      setGeneratedPlan(generateWorkoutPlan(parsed.planInput));
-    } else {
-      setGeneratedPlan(null);
-    }
   }
 
   function appendChatMessage(role, text) {
@@ -1383,8 +1351,6 @@ export default function FitnessHub() {
             <div className="fit2-templateshead">
               <div className="fit2-sectiontitle">Syra Personalized Generator</div>
               <div className="fit2-actions">
-                <button className="fit2-pillbtn" type="button" onClick={createGeneratedPlan}>Generate Plan</button>
-                <button className="fit2-pillbtn" type="button" onClick={generateFromPrompt}>Generate from chat</button>
                 {generatedPlan ? (
                   <button className="fit2-pillbtn" type="button" onClick={() => setTweakOpen(true)}>Tweak</button>
                 ) : null}
@@ -1430,49 +1396,6 @@ export default function FitnessHub() {
                   ) : null}
                 </>
               ) : null}
-              <textarea
-                className="fit2-input"
-                rows={3}
-                value={generatorPrompt}
-                onChange={(e) => setGeneratorPrompt(e.target.value)}
-                placeholder="Optional one-shot brief prompt"
-                style={{ marginTop: 10 }}
-              />
-            </div>
-
-            <div className="fit2-genGrid">
-              <div>
-                <div className="fit2-small">Primary outcomes</div>
-                <div className="fit2-choiceWrap">
-                  {GOAL_OPTIONS.map((goal) => (
-                    <button key={goal} type="button" className={`fit2-choiceChip ${planInput.primaryGoals.includes(goal) ? "active" : ""}`} onClick={() => togglePlanChoice("primaryGoals", goal)}>{goal}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="fit2-small">Avoid preferences</div>
-                <div className="fit2-choiceWrap">
-                  {AVOID_OPTIONS.map((avoidItem) => (
-                    <button key={avoidItem} type="button" className={`fit2-choiceChip ${planInput.avoid.includes(avoidItem) ? "active" : ""}`} onClick={() => togglePlanChoice("avoid", avoidItem)}>{avoidItem}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="fit2-row" style={{ marginTop: 10 }}>
-              <input className="fit2-input" value={planInput.planName} onChange={(e) => updatePlanInput("planName", e.target.value)} placeholder="Plan name" />
-              <select className="fit2-input" value={planInput.trainingDays} onChange={(e) => updatePlanInput("trainingDays", Number(e.target.value))}>
-                {[2,3,4,5].map((d2) => <option key={d2} value={d2}>{d2} days/week</option>)}
-              </select>
-              <select className="fit2-input" value={planInput.level} onChange={(e) => updatePlanInput("level", e.target.value)}>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-              </select>
-              <select className="fit2-input" value={planInput.equipmentAccess} onChange={(e) => updatePlanInput("equipmentAccess", e.target.value)}>
-                <option value="home">Home gym</option>
-                <option value="gym">Full gym</option>
-                <option value="minimal">Minimal gear</option>
-              </select>
             </div>
 
             {generatedPlan ? (
