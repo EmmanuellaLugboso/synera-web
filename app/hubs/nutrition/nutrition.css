@@ -1003,3 +1003,59 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Premium Syra meal generator */
+.nutri-mealGenSection {
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, var(--card-bg)) 0%, var(--card-bg) 35%);
+}
+
+.nutri-genGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nutri-generatedPlan {
+  margin-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  padding-top: 14px;
+}
+
+.nutri-planSummaryRow {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nutri-planMealList {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.nutri-planMealCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--card-bg) 88%, white 12%);
+}
+
+.nutri-tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nutri-saveWrap {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .nutri-genGrid {
+    grid-template-columns: 1fr;
+  }
+}
