@@ -321,6 +321,21 @@ function setsRepsForGoal(dayFocus, level) {
   return "2-3 sets × 8-12 reps";
 }
 
+function focusTagForExercise(exercise) {
+  if (exercise.goalTags.includes("upper glute focus")) return "upper glute emphasis";
+  if (exercise.goalTags.includes("posture support")) return "posture support";
+  if (exercise.goalTags.includes("low quad bias")) return "low quad bias";
+  if (exercise.goalTags.includes("back definition")) return "definition focus";
+  if (exercise.goalTags.includes("low impact")) return "low impact";
+  return "balanced support";
+}
+
+function difficultyForExercise(exercise, level) {
+  if (level === "beginner" || exercise.goalTags.includes("beginner friendly")) return "beginner";
+  if (exercise.level.includes("intermediate")) return "intermediate";
+  return "all levels";
+}
+
 function dayTemplateForFrequency(frequency, primaryGoals) {
   if (frequency >= 4 && primaryGoals.some((x) => x.includes("glute"))) {
     return [
@@ -467,8 +482,8 @@ export function generateWorkoutPlan(inputs) {
   );
 
   const avoidWidth = avoid.includes("avoid wider back appearance");
+  const lowQuad = avoid.includes("avoid too much quad growth") || primaryGoals.some((goal) => goal.includes("less quad"));
   const gluteBias = primaryGoals.some((goal) => goal.includes("glute"));
-  const upperTone = primaryGoals.some((goal) => goal.includes("upper body") || goal.includes("posture") || goal.includes("back"));
 
   const usedExerciseIds = new Set();
 
@@ -477,6 +492,7 @@ export function generateWorkoutPlan(inputs) {
     const targetCount = inputs.sessionStructure?.exercisesPerDay || 4;
     const baseCandidates = filteredLibrary.filter((exercise) => {
       if (focus.includes("Glute") || focus.includes("Lower")) {
+        if (lowQuad && exercise.primaryMuscles.includes("quads") && !exercise.goalTags.includes("low quad bias")) return false;
         return exercise.goalTags.includes("glute growth") || exercise.goalTags.includes("upper glute focus") || exercise.primaryMuscles.includes("glutes");
       }
       if (focus.includes("Upper") || focus.includes("posture")) {
@@ -516,12 +532,16 @@ export function generateWorkoutPlan(inputs) {
         setsReps: setsRepsForGoal(focus, inputs.level),
         substitutions: exercise.substitutions,
         equipmentNote: exercise.equipment.join(" / "),
+        focusTag: focusTagForExercise(exercise),
+        difficulty: difficultyForExercise(exercise, inputs.level),
       })),
     };
   });
 
   const preferredStyle = inputs.preferredStyle ? `${inputs.preferredStyle} style` : "balanced style";
-  const summary = `Your plan uses ${dayPlans.length} training day${dayPlans.length > 1 ? "s" : ""} with ${gluteBias ? "glute-priority" : "balanced"} lower-body structure in a ${preferredStyle}, and ${upperTone ? "posture and upper-body support" : "general support"}. ${avoidWidth ? "Back work is selected for definition and posture while avoiding width-dominant patterns." : "Back work includes both support and performance-focused pulling."}`;
+  const levelLine = `for your ${inputs.level || "beginner"} training level`;
+  const setupLine = `using a ${inputs.equipmentAccess || "home"} setup`;
+  const summary = `This ${dayPlans.length}-day ${preferredStyle} program prioritizes ${inputs.primaryGoal || "your primary goal"}${inputs.secondaryGoal ? ` while supporting ${inputs.secondaryGoal}` : ""}. It is structured ${levelLine} ${setupLine}, with ${gluteBias ? "glute-priority lower sessions" : "balanced lower sessions"}${lowQuad ? " and low-quad exercise selection" : ""}. ${avoidWidth ? "Back training is focused on posture and definition without width-dominant pulls." : "Upper-body work balances posture, tone, and strength."}`;
 
   return {
     id: `gen-${Date.now()}`,

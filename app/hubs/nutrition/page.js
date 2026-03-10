@@ -15,6 +15,16 @@ import { todayISO, shiftISODate } from "../../utils/date";
 import { uid } from "../../utils/id";
 import { clampNumber, pct } from "../../utils/number";
 import { requestJson } from "../../services/apiClient";
+import {
+  BUDGET_OPTIONS,
+  COOKING_EFFORT_OPTIONS,
+  EATING_STYLE_OPTIONS,
+  NUTRITION_GOALS,
+  buildMealGeneratorInput,
+  generateMealPlan,
+  swapMealWithAlternative,
+  toMealTemplatePayload,
+} from "./mealGenerator";
 
 /* ------------------------
    utils
@@ -640,6 +650,13 @@ export default function Page() {
   const [recipeDetailErr, setRecipeDetailErr] = useState("");
   const [recipeServings, setRecipeServings] = useState("1");
 
+  const [mealGeneratorInput, setMealGeneratorInput] = useState(() => buildMealGeneratorInput(data || {}));
+  const [generatedMealPlan, setGeneratedMealPlan] = useState(null);
+  const [mealTweakOpen, setMealTweakOpen] = useState(false);
+  const [mealSaveName, setMealSaveName] = useState("");
+  const [mealSetCurrent, setMealSetCurrent] = useState(true);
+  const [mealSaveNote, setMealSaveNote] = useState("");
+
   // macro estimate inputs (per serving)
   const [estCals, setEstCals] = useState("");
   const [estP, setEstP] = useState("");
@@ -651,6 +668,11 @@ export default function Page() {
     const obj = data?.recipeEstimates;
     return obj && typeof obj === "object" ? obj : {};
   }, [data?.recipeEstimates]);
+  const mealTemplates = useMemo(() => Array.isArray(data?.mealTemplates) ? data.mealTemplates : [], [data?.mealTemplates]);
+
+  useEffect(() => {
+    setMealGeneratorInput((prev) => ({ ...buildMealGeneratorInput(data || {}), ...prev }));
+  }, [data]);
 
   useEffect(() => {
     const q = recipeQuery.trim();
@@ -787,6 +809,98 @@ export default function Page() {
     setSelectedRecipe(null);
     setSelectedRecipeId(null);
     setRecipeServings("1");
+  }
+
+  function regenerateMealPlan() {
+    const next = generateMealPlan(mealGeneratorInput);
+    setGeneratedMealPlan(next);
+    setMealSaveName(next.planName);
+    setMealSaveNote("");
+  }
+
+  function tweakMealPlan(patch) {
+    const nextInput = { ...mealGeneratorInput, ...patch };
+    setMealGeneratorInput(nextInput);
+    setGeneratedMealPlan(generateMealPlan(nextInput));
+    setMealTweakOpen(false);
+    setMealSaveNote("");
+  }
+
+  function swapGeneratedMeal(mealId) {
+    if (!generatedMealPlan) return;
+    setGeneratedMealPlan(swapMealWithAlternative(generatedMealPlan, mealId));
+  }
+
+  function removeGeneratedMeal(mealId) {
+    if (!generatedMealPlan) return;
+    const meals = generatedMealPlan.meals.filter((m) => m.id !== mealId);
+    const totals = meals.reduce((acc, m) => ({
+      calories: acc.calories + m.calories,
+      protein: acc.protein + m.protein,
+      carbs: acc.carbs + m.carbs,
+      fat: acc.fat + m.fat,
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+    setGeneratedMealPlan({ ...generatedMealPlan, meals, totals });
+  }
+
+  function moveGeneratedMeal(mealId, direction) {
+    if (!generatedMealPlan) return;
+    const list = [...generatedMealPlan.meals];
+    const idx = list.findIndex((x) => x.id === mealId);
+    const target = idx + direction;
+    if (idx < 0 || target < 0 || target >= list.length) return;
+    [list[idx], list[target]] = [list[target], list[idx]];
+    setGeneratedMealPlan({ ...generatedMealPlan, meals: list });
+  }
+
+  function regenerateMealType(type) {
+    if (!generatedMealPlan) return;
+    const fresh = generateMealPlan(mealGeneratorInput);
+    const replacement = fresh.meals.filter((mealItem) => mealItem.mealType === type);
+    const keep = generatedMealPlan.meals.filter((mealItem) => mealItem.mealType !== type);
+    const meals = [...keep, ...replacement];
+    const totals = meals.reduce((acc, m) => ({
+      calories: acc.calories + m.calories,
+      protein: acc.protein + m.protein,
+      carbs: acc.carbs + m.carbs,
+      fat: acc.fat + m.fat,
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+    setGeneratedMealPlan({ ...generatedMealPlan, meals, totals });
+  }
+
+  function saveGeneratedMealTemplate() {
+    if (!generatedMealPlan) return;
+    const payload = toMealTemplatePayload(generatedMealPlan, mealSaveName.trim() || generatedMealPlan.planName);
+    const base = Array.isArray(data?.mealTemplates) ? data.mealTemplates : [];
+    updateMany({
+      mealTemplates: [...base, payload],
+      currentMealTemplateId: mealSetCurrent ? payload.id : (data?.currentMealTemplateId || ""),
+    });
+    setMealSaveNote(`Saved to meal templates as "${payload.name}".`);
+  }
+
+  function setCurrentMealTemplate(templateId) {
+    updateMany({ currentMealTemplateId: templateId });
+  }
+
+  function renameMealTemplate(templateId) {
+    const nextName = window.prompt("Rename meal template", "");
+    if (!nextName) return;
+    updateMany({
+      mealTemplates: mealTemplates.map((item) => item.id === templateId ? { ...item, name: nextName.trim() || item.name } : item),
+    });
+  }
+
+  function duplicateMealTemplate(templateId) {
+    const source = mealTemplates.find((item) => item.id === templateId);
+    if (!source) return;
+    const duplicated = {
+      ...source,
+      id: typeof crypto !== "undefined" && crypto?.randomUUID ? crypto.randomUUID() : `meal-tpl-${Date.now()}`,
+      name: `${source.name} Copy`,
+      createdAt: Date.now(),
+    };
+    updateMany({ mealTemplates: [...mealTemplates, duplicated] });
   }
 
   /* ------------------------
@@ -1528,6 +1642,189 @@ export default function Page() {
             {/* ---------------- RECIPES ---------------- */}
             {tab === "recipes" && (
               <>
+                <div className="nutri-card nutri-mealGenSection">
+                  <div className="nutri-cardTop">
+                    <div>
+                      <div className="nutri-label">Syra Signature</div>
+                      <div className="nutri-recipeH1" style={{ marginTop: 6 }}>Premium Personalized Meal Generator</div>
+                      <div className="nutri-small">Build realistic meals around your body goal, macros, preferences, budget, and prep style.</div>
+                    </div>
+                    <div className="nutri-row">
+                      {generatedMealPlan ? <button className="nutri-pillBtn" type="button" onClick={() => setMealTweakOpen(true)}>Tweak</button> : null}
+                    </div>
+                  </div>
+
+                  <div className="nutri-genGrid" style={{ marginTop: 12 }}>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Primary nutrition/body goal</label>
+                      <select className="nutri-select" value={mealGeneratorInput.primaryGoal} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, primaryGoal: e.target.value }))}>
+                        {NUTRITION_GOALS.map((goalOption) => <option key={goalOption} value={goalOption}>{goalOption}</option>)}
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Eating style</label>
+                      <select className="nutri-select" value={mealGeneratorInput.eatingStyle} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, eatingStyle: e.target.value }))}>
+                        {EATING_STYLE_OPTIONS.map((style) => <option key={style} value={style}>{style}</option>)}
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Calories</label>
+                      <input className="nutri-input" type="number" value={mealGeneratorInput.calorieTarget} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, calorieTarget: Number(e.target.value) || 1800 }))} />
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Protein target (g)</label>
+                      <input className="nutri-input" type="number" value={mealGeneratorInput.proteinTarget} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, proteinTarget: Number(e.target.value) || 120 }))} />
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Meals per day</label>
+                      <input className="nutri-input" type="number" min="3" max="6" value={mealGeneratorInput.mealsPerDay} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, mealsPerDay: Number(e.target.value) || 4 }))} />
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Snack preference</label>
+                      <select className="nutri-select" value={mealGeneratorInput.snackPreference} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, snackPreference: e.target.value }))}>
+                        <option value="balanced">Balanced</option>
+                        <option value="more snacks">More snack options</option>
+                        <option value="fewer snacks">Fewer snacks</option>
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Cooking effort</label>
+                      <select className="nutri-select" value={mealGeneratorInput.cookingEffort} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, cookingEffort: e.target.value }))}>
+                        {COOKING_EFFORT_OPTIONS.map((effort) => <option key={effort} value={effort}>{effort}</option>)}
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Budget</label>
+                      <select className="nutri-select" value={mealGeneratorInput.budgetLevel} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, budgetLevel: e.target.value }))}>
+                        {BUDGET_OPTIONS.map((budget) => <option key={budget} value={budget}>{budget}</option>)}
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Meal vibe</label>
+                      <select className="nutri-select" value={mealGeneratorInput.mealVibe} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, mealVibe: e.target.value }))}>
+                        <option value="quick and easy">quick and easy</option>
+                        <option value="aesthetic healthy meals">aesthetic healthy meals</option>
+                        <option value="gym girl meals">gym girl meals</option>
+                        <option value="filling meals">filling meals</option>
+                        <option value="low effort">low effort</option>
+                        <option value="meal prep friendly">meal prep friendly</option>
+                        <option value="savory breakfasts">savory breakfasts</option>
+                        <option value="sweeter breakfasts">sweeter breakfasts</option>
+                      </select>
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Allergies / intolerances</label>
+                      <input
+                        className="nutri-input"
+                        value={(mealGeneratorInput.allergies || []).join(", ")}
+                        onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, allergies: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) }))}
+                        placeholder="e.g. dairy, shellfish"
+                      />
+                    </div>
+                    <div className="nutri-field">
+                      <label className="nutri-fieldLabel">Variety mode</label>
+                      <select className="nutri-select" value={mealGeneratorInput.varietyMode} onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, varietyMode: e.target.value }))}>
+                        <option value="simple">simple</option>
+                        <option value="balanced">balanced</option>
+                        <option value="more variety">more variety</option>
+                        <option value="meal prep">meal prep</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="nutri-field" style={{ marginTop: 10 }}>
+                    <label className="nutri-fieldLabel">Foods to avoid (comma separated)</label>
+                    <input
+                      className="nutri-input"
+                      value={(mealGeneratorInput.avoidFoods || []).join(", ")}
+                      onChange={(e) => setMealGeneratorInput((prev) => ({ ...prev, avoidFoods: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) }))}
+                      placeholder="e.g. mushrooms, tuna"
+                    />
+                    <div className="nutri-tiny">Profile reused automatically: calories, protein target, eating style, allergies, meal frequency, and food goals.</div>
+                  </div>
+
+                  <div className="nutri-row" style={{ marginTop: 12 }}>
+                    <button className="nutri-primary" type="button" onClick={regenerateMealPlan}>Generate Meal Plan</button>
+                    {generatedMealPlan ? <button className="nutri-pillBtn" type="button" onClick={() => setMealTweakOpen(true)}>Make Adjustments</button> : null}
+                  </div>
+
+                  {generatedMealPlan ? (
+                    <div className="nutri-generatedPlan">
+                      <div className="nutri-cardTop">
+                        <div>
+                          <div className="nutri-recipeH1">{generatedMealPlan.planName}</div>
+                          <div className="nutri-small">{generatedMealPlan.summary}</div>
+                        </div>
+                        <div className="nutri-chip">{generatedMealPlan.meals.length} meals</div>
+                      </div>
+
+                      <div className="nutri-planSummaryRow">
+                        <div className="nutri-chip">{Math.round(generatedMealPlan.totals.calories)} kcal/day</div>
+                        <div className="nutri-chip">Protein {Math.round(generatedMealPlan.totals.protein)}g</div>
+                        <div className="nutri-chip">Style: {mealGeneratorInput.eatingStyle}</div>
+                        <div className="nutri-chip">Focus: {mealGeneratorInput.primaryGoal}</div>
+                      </div>
+
+                      <div className="nutri-planMealList">
+                        {generatedMealPlan.meals.map((mealItem, index) => (
+                          <div key={mealItem.id} className="nutri-planMealCard">
+                            <div className="nutri-cardTop">
+                              <div>
+                                <div className="nutri-rowName">{mealItem.slot}: {mealItem.name}</div>
+                                <div className="nutri-rowSub">{mealItem.calories} kcal • P {mealItem.protein}g • C {mealItem.carbs}g • F {mealItem.fat}g</div>
+                              </div>
+                              <div className="nutri-row">
+                                <button className="nutri-pillBtn" type="button" disabled={index === 0} onClick={() => moveGeneratedMeal(mealItem.id, -1)}>↑</button>
+                                <button className="nutri-pillBtn" type="button" disabled={index === generatedMealPlan.meals.length - 1} onClick={() => moveGeneratedMeal(mealItem.id, 1)}>↓</button>
+                                <button className="nutri-pillBtn" type="button" onClick={() => swapGeneratedMeal(mealItem.id)}>Swap</button>
+                                <button className="nutri-ghost" type="button" onClick={() => removeGeneratedMeal(mealItem.id)}>Remove</button>
+                                <button className="nutri-pillBtn" type="button" onClick={() => regenerateMealType(mealItem.mealType)}>Regenerate {mealItem.mealType}</button>
+                              </div>
+                            </div>
+                            <div className="nutri-small"><strong>Why selected:</strong> {mealItem.why}</div>
+                            <div className="nutri-tagRow" style={{ marginTop: 8 }}>
+                              {mealItem.ingredients.map((ingredient) => <span key={ingredient} className="nutri-chip">{ingredient}</span>)}
+                            </div>
+                            <div className="nutri-tiny" style={{ marginTop: 8 }}>Swap ideas: {mealItem.substitutions.join(", ")} • Prep: {mealItem.prepEffort} • Budget: {mealItem.budgetLevel}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="nutri-saveWrap">
+                        <input className="nutri-input" value={mealSaveName} onChange={(e) => setMealSaveName(e.target.value)} placeholder="Rename plan before saving" />
+                        <label className="nutri-tiny"><input type="checkbox" checked={mealSetCurrent} onChange={(e) => setMealSetCurrent(e.target.checked)} /> Set as current meal plan</label>
+                        <button className="nutri-primary" type="button" onClick={saveGeneratedMealTemplate}>Save as Meal Template</button>
+                        {mealSaveNote ? <div className="nutri-tiny">{mealSaveNote}</div> : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="nutri-block" style={{ marginTop: 12 }}>
+                    <div className="nutri-blockTitle">My Meal Templates ({mealTemplates.length})</div>
+                    {mealTemplates.length === 0 ? (
+                      <div className="nutri-mutedBox" style={{ marginTop: 8 }}>No saved meal templates yet.</div>
+                    ) : (
+                      <div className="nutri-planMealList" style={{ marginTop: 8 }}>
+                        {mealTemplates.slice().reverse().slice(0, 6).map((template) => (
+                          <div key={template.id} className="nutri-planMealCard">
+                            <div className="nutri-cardTop">
+                              <div>
+                                <div className="nutri-rowName">{template.name}</div>
+                                <div className="nutri-tiny">{data?.currentMealTemplateId === template.id ? "Current meal plan" : "Saved template"}</div>
+                              </div>
+                              <div className="nutri-row">
+                                <button className="nutri-pillBtn" type="button" onClick={() => setCurrentMealTemplate(template.id)}>Set current</button>
+                                <button className="nutri-pillBtn" type="button" onClick={() => renameMealTemplate(template.id)}>Rename</button>
+                                <button className="nutri-pillBtn" type="button" onClick={() => duplicateMealTemplate(template.id)}>Duplicate</button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="nutri-card">
                   <div className="nutri-cardTop">
                     <div className="nutri-label">Recipe search</div>
@@ -1785,6 +2082,23 @@ export default function Page() {
                   ) : (
                     <div className="nutri-mutedBox">No recipe selected.</div>
                   )}
+                </Modal>
+
+                <Modal open={mealTweakOpen && Boolean(generatedMealPlan)} onClose={() => setMealTweakOpen(false)} title="Premium Meal Adjustments">
+                  <div className="nutri-small">Fine-tune the plan and regenerate instantly.</div>
+                  <div className="nutri-tagRow" style={{ marginTop: 10 }}>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ proteinTarget: mealGeneratorInput.proteinTarget + 20, eatingStyle: "high protein" })}>Higher protein</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ mealsPerDay: Math.max(3, mealGeneratorInput.mealsPerDay - 1) })}>Fewer meals</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ cookingEffort: "low", mealVibe: "low effort" })}>Lower effort</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ budgetLevel: "budget" })}>Cheaper meals</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ mealVibe: "filling meals" })}>More filling meals</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ avoidFoods: [...new Set([...(mealGeneratorInput.avoidFoods || []), "dairy"])], allergies: [...new Set([...(mealGeneratorInput.allergies || []), "dairy"]) ] })}>Dairy free</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ varietyMode: "more variety" })}>Less repetition</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ snackPreference: "more snacks" })}>More snack options</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ varietyMode: "meal prep" })}>More meal prep friendly</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ mealVibe: "sweeter breakfasts" })}>Sweeter breakfasts</button>
+                    <button className="nutri-pillBtn" type="button" onClick={() => tweakMealPlan({ mealVibe: "savory breakfasts" })}>Savory breakfasts</button>
+                  </div>
                 </Modal>
               </>
             )}
