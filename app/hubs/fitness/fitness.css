@@ -1255,7 +1255,7 @@
 }
 
 .fit2-dayCard {
-  margin-top: 12px;
+  margin-top: 10px;
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 14px;
@@ -1271,8 +1271,8 @@
 
 .fit2-planExercises {
   display: grid;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .fit2-planExerciseCard {

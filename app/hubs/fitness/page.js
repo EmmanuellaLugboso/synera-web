@@ -1426,18 +1426,6 @@ export default function FitnessHub() {
                   />
                 </label>
                 <label className="fit2-label">
-                  Training style
-                  <select
-                    className="fit2-select"
-                    value={planInput.preferredStyle}
-                    onChange={(e) => setPlanInput((prev) => ({ ...prev, preferredStyle: e.target.value }))}
-                  >
-                    {TRAINING_STYLE_OPTIONS.map((style) => (
-                      <option key={style} value={style}>{style}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="fit2-label">
                   Primary goal
                   <select
                     className="fit2-select"
@@ -1471,29 +1459,6 @@ export default function FitnessHub() {
                     value={planInput.trainingDays}
                     onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingDays: Number(e.target.value) || 4 }))}
                   />
-                </label>
-                <label className="fit2-label">
-                  Experience level
-                  <select
-                    className="fit2-select"
-                    value={planInput.level}
-                    onChange={(e) => setPlanInput((prev) => ({ ...prev, level: e.target.value }))}
-                  >
-                    <option value="beginner">beginner</option>
-                    <option value="intermediate">intermediate</option>
-                  </select>
-                </label>
-                <label className="fit2-label">
-                  Training location
-                  <select
-                    className="fit2-select"
-                    value={planInput.trainingLocation}
-                    onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingLocation: e.target.value, equipmentAccess: e.target.value }))}
-                  >
-                    <option value="home">home</option>
-                    <option value="gym">commercial gym</option>
-                    <option value="minimal">minimal equipment</option>
-                  </select>
                 </label>
                 <label className="fit2-label">
                   Session length (min)
