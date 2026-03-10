@@ -453,7 +453,9 @@ export function parseGeneratorPrompt(prompt, currentInput = {}) {
 
 export function generateWorkoutPlan(inputs) {
   const avoid = inputs.avoid || [];
-  const primaryGoals = inputs.primaryGoals || [];
+  const primaryGoals = Array.isArray(inputs.primaryGoals)
+    ? inputs.primaryGoals
+    : [inputs.primaryGoal, inputs.secondaryGoal].filter(Boolean);
   const equipmentPool = EQUIPMENT_PROFILES[inputs.equipmentAccess || "gym"];
   const days = dayTemplateForFrequency(Number(inputs.trainingDays) || 3, primaryGoals);
 
@@ -518,7 +520,8 @@ export function generateWorkoutPlan(inputs) {
     };
   });
 
-  const summary = `Your plan uses ${dayPlans.length} training day${dayPlans.length > 1 ? "s" : ""} with ${gluteBias ? "glute-priority" : "balanced"} lower-body structure and ${upperTone ? "posture and upper-body support" : "general support"}. ${avoidWidth ? "Back work is selected for definition and posture while avoiding width-dominant patterns." : "Back work includes both support and performance-focused pulling."}`;
+  const preferredStyle = inputs.preferredStyle ? `${inputs.preferredStyle} style` : "balanced style";
+  const summary = `Your plan uses ${dayPlans.length} training day${dayPlans.length > 1 ? "s" : ""} with ${gluteBias ? "glute-priority" : "balanced"} lower-body structure in a ${preferredStyle}, and ${upperTone ? "posture and upper-body support" : "general support"}. ${avoidWidth ? "Back work is selected for definition and posture while avoiding width-dominant patterns." : "Back work includes both support and performance-focused pulling."}`;
 
   return {
     id: `gen-${Date.now()}`,

@@ -11,10 +11,10 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import PageState from "../../components/ui/PageState";
 import { todayISO } from "../../utils/date";
 import {
+  AVOID_OPTIONS,
   EXERCISE_LIBRARY as STRUCTURED_EXERCISE_LIBRARY,
+  GOAL_OPTIONS,
   generateWorkoutPlan,
-  interpretChatAdjustment,
-  parseGeneratorPrompt,
   toTemplatePayload,
 } from "./workoutGenerator";
 
@@ -255,6 +255,13 @@ function isoFromYMD(year, monthIndex, day) {
   return `${year}-${m}-${d}`;
 }
 
+const TRAINING_STYLE_OPTIONS = [
+  "balanced strength",
+  "glute hypertrophy",
+  "posture + tone",
+  "low-impact conditioning",
+];
+
 /* ---------- Steps helpers ---------- */
 
 function upsertStepsLog(stepsLog, date, steps) {
@@ -380,17 +387,16 @@ export default function FitnessHub() {
   const [templateExercisesInput, setTemplateExercisesInput] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [tweakOpen, setTweakOpen] = useState(false);
-  const [promptInterpretation, setPromptInterpretation] = useState(null);
-  const [coachMessage, setCoachMessage] = useState("Tell me your ideal body goals and constraints, and I will build a precise weekly plan.");
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState([{ id: "m1", role: "assistant", text: "Hi, I'm Syra. Tell me your body goal and I'll coach you into a personalized plan." }]);
   const [planInput, setPlanInput] = useState({
     planName: "Syra Goal-Specific Plan",
-    primaryGoals: ["build bigger glutes overall"],
+    primaryGoal: "build bigger glutes overall",
+    secondaryGoal: "improve posture / upper back tone",
     avoid: ["avoid wider back appearance"],
     trainingDays: 4,
     level: "beginner",
+    trainingLocation: "home",
     equipmentAccess: "home",
+    preferredStyle: "glute hypertrophy",
     sessionStructure: { sessionMinutes: 50, exercisesPerDay: 4 },
   });
 
@@ -527,43 +533,17 @@ export default function FitnessHub() {
     updateMany({ workoutTemplates: next });
   }
 
+  function buildGeneratorPayload(input) {
+    return {
+      ...input,
+      primaryGoals: [input.primaryGoal, input.secondaryGoal].filter(Boolean),
+      equipmentAccess: input.trainingLocation || input.equipmentAccess,
+    };
+  }
+
   function generatePlanFromCurrentDetails() {
-    setGeneratedPlan(generateWorkoutPlan(planInput));
-  }
-
-  function appendChatMessage(role, text) {
-    setChatMessages((prev) => [...prev, { id: `${role}-${Date.now()}-${prev.length}`, role, text }]);
-  }
-
-  function sendCoachMessage() {
-    const message = chatInput.trim();
-    if (!message) return;
-    appendChatMessage("user", message);
-    setChatInput("");
-
-    if (generatedPlan) {
-      const adjusted = interpretChatAdjustment(message, planInput);
-      if (adjusted.changed) {
-        setPlanInput(adjusted.planInput);
-        const nextPlan = generateWorkoutPlan(adjusted.planInput);
-        setGeneratedPlan(nextPlan);
-      }
-      appendChatMessage("assistant", adjusted.response);
-      return;
-    }
-
-    const parsed = parseGeneratorPrompt(message, planInput);
-    setPlanInput(parsed.planInput);
-    setPromptInterpretation(parsed.interpretation);
-    setCoachMessage(parsed.interpretation.coachReply);
-
-    if (parsed.interpretation.readyToGenerate) {
-      const nextPlan = generateWorkoutPlan(parsed.planInput);
-      setGeneratedPlan(nextPlan);
-      appendChatMessage("assistant", "Perfect — I have what I need. I generated your program below. You can now say things like: remove lunges, add more glute work, or make workouts shorter.");
-    } else {
-      appendChatMessage("assistant", `${parsed.interpretation.coachReply} ${parsed.interpretation.followUps.join(" ")}`);
-    }
+    const payload = buildGeneratorPayload(planInput);
+    setGeneratedPlan(generateWorkoutPlan(payload));
   }
 
   function saveGeneratedAsTemplate() {
@@ -608,7 +588,7 @@ export default function FitnessHub() {
       },
     };
     setPlanInput(nextInput);
-    setGeneratedPlan(generateWorkoutPlan(nextInput));
+    setGeneratedPlan(generateWorkoutPlan(buildGeneratorPayload(nextInput)));
     setTweakOpen(false);
   }
 
@@ -631,6 +611,19 @@ export default function FitnessHub() {
     const nextDays = generatedPlan.days.map((day) =>
       day.id === dayId ? { ...day, exercises: day.exercises.filter((item) => item.id !== exerciseId) } : day,
     );
+    setGeneratedPlan({ ...generatedPlan, days: nextDays });
+  }
+
+  function regenerateGeneratedDay(dayId) {
+    if (!generatedPlan) return;
+    const refreshed = generateWorkoutPlan(buildGeneratorPayload(planInput));
+    const targetDay = refreshed.days.find((day) => day.id === dayId);
+    if (!targetDay) return;
+
+    const nextDays = generatedPlan.days.map((day) =>
+      day.id === dayId ? targetDay : day,
+    );
+
     setGeneratedPlan({ ...generatedPlan, days: nextDays });
   }
 
@@ -1358,44 +1351,127 @@ export default function FitnessHub() {
             </div>
 
             <div className="fit2-simpleCard" style={{ marginTop: 10 }}>
-              <div className="fit2-small">Chat with Syra</div>
-              <div className="fit2-recentsub" style={{ marginTop: 8 }}><strong>Syra:</strong> {coachMessage}</div>
-              <div className="fit2-chatThread">
-                {chatMessages.map((msg) => (
-                  <div key={msg.id} className={`fit2-chatBubble ${msg.role === "assistant" ? "assistant" : "user"}`}>
-                    {msg.text}
-                  </div>
-                ))}
+              <div className="fit2-small">Goal-specific setup</div>
+              <div className="fit2-genGrid" style={{ marginTop: 10 }}>
+                <label className="fit2-label">
+                  Plan title
+                  <input
+                    className="fit2-input"
+                    value={planInput.planName}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, planName: e.target.value }))}
+                  />
+                </label>
+                <label className="fit2-label">
+                  Training style
+                  <select
+                    className="fit2-select"
+                    value={planInput.preferredStyle}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, preferredStyle: e.target.value }))}
+                  >
+                    {TRAINING_STYLE_OPTIONS.map((style) => (
+                      <option key={style} value={style}>{style}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Primary goal
+                  <select
+                    className="fit2-select"
+                    value={planInput.primaryGoal}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, primaryGoal: e.target.value }))}
+                  >
+                    {GOAL_OPTIONS.map((goal) => (
+                      <option key={goal} value={goal}>{goal}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Secondary goal
+                  <select
+                    className="fit2-select"
+                    value={planInput.secondaryGoal}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, secondaryGoal: e.target.value }))}
+                  >
+                    {GOAL_OPTIONS.map((goal) => (
+                      <option key={goal} value={goal}>{goal}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Days per week
+                  <input
+                    className="fit2-input"
+                    type="number"
+                    min={2}
+                    max={6}
+                    value={planInput.trainingDays}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingDays: Number(e.target.value) || 4 }))}
+                  />
+                </label>
+                <label className="fit2-label">
+                  Experience level
+                  <select
+                    className="fit2-select"
+                    value={planInput.level}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, level: e.target.value }))}
+                  >
+                    <option value="beginner">beginner</option>
+                    <option value="intermediate">intermediate</option>
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Training location
+                  <select
+                    className="fit2-select"
+                    value={planInput.trainingLocation}
+                    onChange={(e) => setPlanInput((prev) => ({ ...prev, trainingLocation: e.target.value, equipmentAccess: e.target.value }))}
+                  >
+                    <option value="home">home</option>
+                    <option value="gym">commercial gym</option>
+                    <option value="minimal">minimal equipment</option>
+                  </select>
+                </label>
+                <label className="fit2-label">
+                  Session length (min)
+                  <input
+                    className="fit2-input"
+                    type="number"
+                    min={30}
+                    max={90}
+                    value={planInput.sessionStructure?.sessionMinutes || 50}
+                    onChange={(e) => setPlanInput((prev) => ({
+                      ...prev,
+                      sessionStructure: {
+                        ...(prev.sessionStructure || {}),
+                        sessionMinutes: Number(e.target.value) || 50,
+                      },
+                    }))}
+                  />
+                </label>
               </div>
-              <div className="fit2-row" style={{ marginTop: 8 }}>
-                <input
-                  className="fit2-input"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Type your goal or adjustment (e.g., I want bigger glutes but not wider back)"
-                />
-                <button className="fit2-pillbtn" type="button" onClick={sendCoachMessage}>Send</button>
+              <div className="fit2-choiceWrap">
+                {AVOID_OPTIONS.map((avoidItem) => {
+                  const active = planInput.avoid.includes(avoidItem);
+                  return (
+                    <button
+                      key={avoidItem}
+                      type="button"
+                      className={`fit2-choiceChip ${active ? "active" : ""}`}
+                      onClick={() =>
+                        setPlanInput((prev) => ({
+                          ...prev,
+                          avoid: active ? prev.avoid.filter((item) => item !== avoidItem) : [...prev.avoid, avoidItem],
+                        }))
+                      }
+                    >
+                      {avoidItem}
+                    </button>
+                  );
+                })}
               </div>
-              {promptInterpretation ? (
-                <>
-                  <div className="fit2-recentsub">
-                    Interpreted goals: {promptInterpretation.goals.join(", ")} • Avoid: {promptInterpretation.avoid.join(", ") || "none"}
-                  </div>
-                  {promptInterpretation.followUps?.length ? (
-                    <div className="fit2-mutedbox" style={{ marginTop: 8 }}>
-                      <div className="fit2-small" style={{ marginBottom: 6 }}>Before I generate your plan, please confirm:</div>
-                      <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {promptInterpretation.followUps.map((question) => (
-                          <li key={question} className="fit2-small">{question}</li>
-                        ))}
-                      </ul>
-                      <div className="fit2-row" style={{ marginTop: 8 }}>
-                        <button className="fit2-pillbtn" type="button" onClick={generatePlanFromCurrentDetails}>Generate with current details</button>
-                      </div>
-                    </div>
-                  ) : null}
-                </>
-              ) : null}
+              <div className="fit2-row" style={{ marginTop: 10 }}>
+                <button className="fit2-primarywide" type="button" onClick={generatePlanFromCurrentDetails}>Generate personalized plan</button>
+              </div>
             </div>
 
             {generatedPlan ? (
@@ -1416,6 +1492,7 @@ export default function FitnessHub() {
                         <div className="fit2-templatetitle">{day.name}</div>
                         <div className="fit2-recentsub">{day.focus} • {day.sessionMinutes} min</div>
                       </div>
+                      <button className="fit2-templateDelete" type="button" onClick={() => regenerateGeneratedDay(day.id)}>Regenerate day</button>
                     </div>
 
                     <div className="fit2-planExercises">
@@ -2242,7 +2319,7 @@ export default function FitnessHub() {
               <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ avoid: [...planInput.avoid, "lower-impact training"] })}>Lower impact</button>
               <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ level: "beginner" })}>More beginner-friendly</button>
               <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ sessionStructure: { sessionMinutes: 35, exercisesPerDay: 3 } })}>Shorter sessions</button>
-              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ primaryGoals: [...new Set([...planInput.primaryGoals, "tone upper body without adding much size"])] })}>More upper-body balance</button>
+              <button className="fit2-choiceChip" type="button" onClick={() => tweakGeneratedPlan({ secondaryGoal: "tone upper body without adding much size" })}>More upper-body balance</button>
             </div>
           </div>
         </div>
