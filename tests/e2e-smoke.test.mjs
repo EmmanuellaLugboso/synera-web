@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 
 const port = 4011;
 const base = `http://127.0.0.1:${port}`;
@@ -21,6 +22,23 @@ async function waitForServer(url, timeoutMs = 60_000) {
     await wait(600);
   }
   throw new Error(`Server did not become ready within ${timeoutMs}ms`);
+}
+
+async function stopProcess(child) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return;
+  }
+
+  child.kill("SIGINT");
+  const didExit = await Promise.race([
+    once(child, "exit").then(() => true),
+    wait(2_000).then(() => false),
+  ]);
+
+  if (!didExit) {
+    child.kill("SIGKILL");
+    await once(child, "exit");
+  }
 }
 
 test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages render", { timeout: 120_000 }, async () => {
@@ -51,8 +69,6 @@ test("e2e smoke: login -> signup -> onboarding finish -> dashboard -> hubs pages
     const hubsHtml = await (await fetch(`${base}/hubs`)).text();
     assert.match(hubsHtml, /data-testid="hubs-page"/);
   } finally {
-    child.kill("SIGINT");
-    await wait(600);
-    if (!child.killed) child.kill("SIGKILL");
+    await stopProcess(child);
   }
 });
