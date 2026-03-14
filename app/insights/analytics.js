@@ -12,9 +12,9 @@ export function todayISO() {
   return new Date().toISOString().split("T")[0];
 }
 
-export function getLastNDaysISO(n) {
+export function getLastNDaysISO(n, anchorDate = new Date()) {
   const out = [];
-  const now = new Date();
+  const now = anchorDate instanceof Date ? anchorDate : new Date(anchorDate);
   for (let i = 0; i < n; i += 1) {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
@@ -149,8 +149,16 @@ function pillarStats(days, selector) {
 }
 
 export function normalizeDailyTimeline(fetched, n = 30) {
-  const wanted = getLastNDaysISO(n).reverse();
-  const byDate = new Map(fetched.map((d) => [d.dateISO, d]));
+  const rows = Array.isArray(fetched) ? fetched : [];
+  const byDate = new Map(rows.map((d) => [d?.dateISO, d]).filter(([k]) => typeof k === "string"));
+
+  const latestDateISO = rows
+    .map((d) => d?.dateISO)
+    .filter((d) => typeof d === "string")
+    .sort()
+    .at(-1);
+  const anchorDate = latestDateISO ? new Date(`${latestDateISO}T12:00:00.000Z`) : new Date();
+  const wanted = getLastNDaysISO(n, anchorDate).reverse();
 
   return wanted.map((dateISO) => {
     const found = byDate.get(dateISO);
