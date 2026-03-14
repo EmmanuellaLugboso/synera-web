@@ -7,13 +7,9 @@ import {
   mapUpstreamError,
   safeJson,
 } from "../../_utils";
+import { clampNumber } from "../../../utils/number";
 
 const USDA_KEY = process.env.USDA_API_KEY;
-
-function clamp(n) {
-  const x = Number(n);
-  return Number.isFinite(x) ? x : 0;
-}
 
 function extractIngredients(meal) {
   const items = [];
@@ -38,7 +34,7 @@ function pickMacros(food) {
   const nutrients = food?.foodNutrients || [];
   const get = (name) => {
     const hit = nutrients.find((n) => (n.nutrientName || "").toLowerCase().includes(name));
-    return clamp(hit?.value);
+    return clampNumber(hit?.value);
   };
   return {
     calories: get("energy"),
@@ -52,7 +48,7 @@ export async function GET(req) {
   const { requestId } = getRequestContext();
   const { searchParams } = new URL(req.url);
   const id = (searchParams.get("id") || "").trim();
-  const servings = clamp(searchParams.get("servings")) || 2;
+  const servings = clampNumber(searchParams.get("servings")) || 2;
 
   if (!id) {
     return jsonError({ code: "BAD_REQUEST", message: "Missing recipe id", status: 400, requestId });

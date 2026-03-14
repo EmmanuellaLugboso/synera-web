@@ -1,20 +1,10 @@
-export function clampNumber(v) {
-  const n = Number(v);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
+import { clampNumber, clampPercent } from "../utils/number.js";
+export { clampNumber };
 
-export function clampPercent(v) {
-  return Math.max(0, Math.min(100, Math.round(v)));
-}
 
-export function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
-export function getLastNDaysISO(n, anchorDate = new Date()) {
+export function getLastNDaysISO(n, endDate = new Date()) {
   const out = [];
-  const now = anchorDate instanceof Date ? anchorDate : new Date(anchorDate);
+  const now = new Date(endDate);
   for (let i = 0; i < n; i += 1) {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
@@ -149,16 +139,13 @@ function pillarStats(days, selector) {
 }
 
 export function normalizeDailyTimeline(fetched, n = 30) {
-  const rows = Array.isArray(fetched) ? fetched : [];
-  const byDate = new Map(rows.map((d) => [d?.dateISO, d]).filter(([k]) => typeof k === "string"));
-
-  const latestDateISO = rows
-    .map((d) => d?.dateISO)
-    .filter((d) => typeof d === "string")
+  const latestFetched = fetched
+    .map((d) => String(d?.dateISO || ""))
+    .filter(Boolean)
     .sort()
     .at(-1);
-  const anchorDate = latestDateISO ? new Date(`${latestDateISO}T12:00:00.000Z`) : new Date();
-  const wanted = getLastNDaysISO(n, anchorDate).reverse();
+  const wanted = getLastNDaysISO(n, latestFetched || new Date()).reverse();
+  const byDate = new Map(fetched.map((d) => [d.dateISO, d]));
 
   return wanted.map((dateISO) => {
     const found = byDate.get(dateISO);

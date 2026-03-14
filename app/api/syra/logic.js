@@ -1,15 +1,9 @@
+import { clamp, progress } from "../../utils/number.js";
+
+export { clamp };
+
 export const MAX_MESSAGE_CHARS = 700;
 
-export function clamp(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
-
-function progress(current, goal) {
-  if (!goal) return 0;
-  return Math.max(0, Math.min(100, Math.round((current / goal) * 100)));
-}
 
 function titleCase(value = "") {
   return String(value)
