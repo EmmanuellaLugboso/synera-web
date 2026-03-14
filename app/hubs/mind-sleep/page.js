@@ -14,7 +14,6 @@ import { todayISO } from "../../utils/date";
 import { uid } from "../../utils/id";
 import { clampNumber } from "../../utils/number";
 
-/* ---------------- Utilities ---------------- */
 
 function fmtDuration(mins) {
   const m = clampNumber(mins);
@@ -61,7 +60,6 @@ function buildMonthGrid(year, monthIndex) {
   return cells;
 }
 
-/* -------- PIN Hashing (Web Crypto) -------- */
 
 async function sha256Hex(input) {
   const enc = new TextEncoder();
@@ -71,7 +69,6 @@ async function sha256Hex(input) {
   return arr.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/* ---------------- Options ---------------- */
 
 const sleepQualityOptions = [
   { value: 1, label: "Rough" },
@@ -108,7 +105,6 @@ const templates = [
   },
 ];
 
-/* ---------------- Components ---------------- */
 
 function ScorePicker({ value, onChange, max = 10 }) {
   const items = [];
@@ -141,7 +137,6 @@ function downloadFile(filename, mime, content) {
   URL.revokeObjectURL(url);
 }
 
-/* ---------------- Page ---------------- */
 
 export default function Page() {
   const router = useRouter();
@@ -150,7 +145,6 @@ export default function Page() {
 
   const [tab, setTab] = useState("journal"); // journal | checkin | sleep | insights
 
-  /* ---------- Storage ---------- */
   const journalEntries = useMemo(
     () => (Array.isArray(data.journalEntries) ? data.journalEntries : []),
     [data.journalEntries]
@@ -208,7 +202,6 @@ export default function Page() {
     };
   }, [ready, user?.uid, date, mindLogs, sleepLogs]);
 
-  /* ---------- Journal Lock (PIN) ---------- */
   const hasPin = !!data.journalPinHash;
   const [locked, setLocked] = useState(!!data.journalLocked && hasPin);
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -294,7 +287,6 @@ export default function Page() {
     }
   }
 
-  /* ---------- Folders ---------- */
   const [folderFilter, setFolderFilter] = useState("All");
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
@@ -330,7 +322,6 @@ export default function Page() {
     if (folderFilter === name) setFolderFilter("All");
   }
 
-  /* ---------- Journal CRUD + search ---------- */
   const [search, setSearch] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -458,7 +449,6 @@ export default function Page() {
     updateMany({ journalEntries: next });
   }
 
-  /* ---------- Templates ---------- */
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
 
   function applyTemplate(t) {
@@ -474,7 +464,6 @@ export default function Page() {
     setTemplateModalOpen(false);
   }
 
-  /* ---------- Export ---------- */
   const [exportOpen, setExportOpen] = useState(false);
 
   function exportAsJSON() {
@@ -556,7 +545,6 @@ export default function Page() {
     w.document.close();
   }
 
-  /* ---------- Check-in ---------- */
   const [mood, setMood] = useState(7);
   const [anxiety, setAnxiety] = useState(3);
   const [stress, setStress] = useState(4);
@@ -599,7 +587,6 @@ export default function Page() {
   }
   const todaysMind = useMemo(() => mindLogs.filter((x) => x?.date === date), [mindLogs, date]);
 
-  /* ---------- Sleep ---------- */
   const [bedTime, setBedTime] = useState("");
   const [wakeTime, setWakeTime] = useState("");
   const [quality, setQuality] = useState(3);
@@ -641,7 +628,6 @@ export default function Page() {
     updateMany({ sleepLogs: sleepLogs.filter((x) => x.id !== id) });
   }
 
-  /* ---------- Insights ---------- */
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(new Date().getMonth()); // 0-11
   const [selectedDay, setSelectedDay] = useState(todayISO());
@@ -707,7 +693,6 @@ export default function Page() {
     return "";
   }
 
-  /* ---------- Render guards ---------- */
   const journalLockedActive = locked && hasPin;
 
   return (

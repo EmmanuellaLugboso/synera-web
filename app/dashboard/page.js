@@ -23,9 +23,6 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-/* ------------------------
-   helpers
------------------------- */
 function formatK(n) {
   const num = clampNumber(n);
   if (num >= 10000) return `${(num / 1000).toFixed(1)}k`;
@@ -69,9 +66,6 @@ const COACH_QUICK_PROMPTS = [
   "What habits should I improve?",
 ];
 
-/* ------------------------
-   Simple inline SVG icons
------------------------- */
 function HubIcon({ name }) {
   switch (name) {
     case "fitness":
@@ -633,20 +627,16 @@ export default function Dashboard() {
 
           <div className="dash-topbar-right">
             <Link className="dash-btn" href="/settings" aria-label="Settings">
-              Settings
             </Link>
             <button
               className="dash-btn"
               type="button"
               onClick={() => setCoachOpen(true)}
             >
-              Syra
             </button>
             <Link className="dash-btn" href="/hubs/nutrition">
-              Log food
             </Link>
             <Link className="dash-btn primary" href="/hubs/fitness">
-              Log workout
             </Link>
           </div>
         </div>
@@ -730,14 +720,12 @@ export default function Dashboard() {
                 type="button"
                 onClick={() => addWater(250)}
               >
-                Log a glass
               </button>
               <button
                 className="pill-btn primary"
                 type="button"
                 onClick={() => addWater(500)}
               >
-                Log a bottle
               </button>
             </div>
 
@@ -754,7 +742,6 @@ export default function Dashboard() {
                 <div className="card-sub">Your setup</div>
               </div>
               <Link className="pill-link" href="/profile">
-                Edit
               </Link>
             </div>
 
@@ -924,7 +911,6 @@ export default function Dashboard() {
                 <div className="card-sub">One fast win + weekly signal</div>
               </div>
               <Link className="insight-link" href="/insights">
-                Full analysis
               </Link>
             </div>
 
@@ -992,7 +978,6 @@ export default function Dashboard() {
                     onClick={() => loadInsights(true)}
                     disabled={insightLoading}
                   >
-                    Retry
                   </button>
                 </span>
               ) : null}
@@ -1085,7 +1070,6 @@ export default function Dashboard() {
                   type="button"
                   onClick={() => setCoachOpen(false)}
                 >
-                  Close
                 </button>
               </div>
 
@@ -1163,7 +1147,6 @@ export default function Dashboard() {
                   type="submit"
                   disabled={coachTyping || !coachInput.trim()}
                 >
-                  Send
                 </button>
               </form>
             </div>

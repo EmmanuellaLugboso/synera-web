@@ -19,7 +19,6 @@ import {
   toTemplatePayload,
 } from "./workoutGenerator";
 
-/* ---------- Starter templates & library ---------- */
 
 const DEFAULT_TEMPLATES = [
   {
@@ -60,7 +59,6 @@ const EXERCISE_LIBRARY = [
   { name: "Aerobics", category: "Cardio" },
 ];
 
-/* ---------- Helpers ---------- */
 
 function isTimedCategory(cat = "") {
   return cat.toLowerCase().includes("cardio");
@@ -235,7 +233,6 @@ function buildExerciseHistoryMap(workouts = []) {
   return map;
 }
 
-/* ---------- Calendar helpers ---------- */
 
 function getMonthDays(year, monthIndex) {
   const first = new Date(year, monthIndex, 1);
@@ -263,7 +260,6 @@ const TRAINING_STYLE_OPTIONS = [
   "low-impact conditioning",
 ];
 
-/* ---------- Steps helpers ---------- */
 
 function upsertStepsLog(stepsLog, date, steps) {
   const next = Array.isArray(stepsLog) ? [...stepsLog] : [];
@@ -292,7 +288,6 @@ function calcStepStreak(stepsLog, stepGoal) {
   return streak;
 }
 
-/* ---------- Cardio helpers ---------- */
 
 function paceFrom(distanceKm, durationMin) {
   const d = Number(distanceKm);
@@ -304,9 +299,6 @@ function paceFrom(distanceKm, durationMin) {
   return `${mm}:${String(ss).padStart(2, "0")} /km`;
 }
 
-/* =========================
-   BMI (BODY) HELPERS
-========================= */
 
 function calcBMI(weightKg, heightCm) {
   if (!weightKg || !heightCm) return null;
@@ -323,9 +315,6 @@ function bmiCategory(bmi) {
   return "Obese";
 }
 
-/* =========================
-   MAIN COMPONENT
-========================= */
 
 export default function FitnessHub() {
   const router = useRouter();
@@ -939,7 +928,6 @@ export default function FitnessHub() {
     return dd.toLocaleString("en-GB", { month: "long", year: "numeric" });
   }, [calYear, calMonth]);
 
-  /* ---------- Tiles actions ---------- */
 
   function goStrength() {
     setScreen("start");
@@ -957,7 +945,6 @@ export default function FitnessHub() {
     setScreen("body");
   }
 
-  /* ---------- History screens ---------- */
 
   const sortedWorkouts = useMemo(() => {
     return workouts
@@ -970,7 +957,6 @@ export default function FitnessHub() {
     return workouts.find((w) => w.id === detailWorkoutId) || null;
   }, [workouts, detailWorkoutId]);
 
-  /* ---------- Steps save ---------- */
 
   function saveSteps() {
     const steps = safeNum(stepsToday);
@@ -980,7 +966,6 @@ export default function FitnessHub() {
     setStepsToday(String(steps));
   }
 
-  /* ---------- Cardio save ---------- */
 
   function addCardio() {
     const date = todayISO();
@@ -1008,14 +993,12 @@ export default function FitnessHub() {
     setCardioNote("");
   }
 
-  /* ---------- BODY derived values ---------- */
 
   const weightKg =
     unit === "lbs" ? Number(d.weight || 0) * 0.453592 : Number(d.weight || 0);
   const heightCm = Number(d.height || 0);
   const bmi = calcBMI(weightKg, heightCm);
 
-  /* ---------- DAILY SUMMARY ---------- */
 
   const todayIso = todayISO();
 
@@ -1105,9 +1088,6 @@ export default function FitnessHub() {
     totalCardioMinutesToday,
   ]);
 
-  /* =========================
-     RENDER
-  ========================= */
 
 
 
@@ -1220,17 +1200,14 @@ export default function FitnessHub() {
                   onClick={goStrength}
                   type="button"
                 >
-                  Start Strength
                 </button>
                 <div className="fit2-actionHint">Launch your next workout with templates, timers, and progression tracking.</div>
               </div>
 
               <div className="fit2-actionSecondary">
                 <button className="fit2-pillbtn" onClick={goSteps} type="button">
-                  Log Steps
                 </button>
                 <button className="fit2-pillbtn" onClick={goCardio} type="button">
-                  Log Cardio
                 </button>
               </div>
             </div>
@@ -1375,7 +1352,6 @@ export default function FitnessHub() {
               onClick={startEmptyWorkout}
               type="button"
             >
-              Start an Empty Workout
             </button>
           </div>
 
@@ -1419,7 +1395,6 @@ export default function FitnessHub() {
 
               <div className="fit2-genGrid" style={{ marginTop: 12 }}>
                 <label className="fit2-label">
-                  Plan title
                   <input
                     className="fit2-input"
                     value={planInput.planName}
@@ -1427,7 +1402,6 @@ export default function FitnessHub() {
                   />
                 </label>
                 <label className="fit2-label">
-                  Primary goal
                   <select
                     className="fit2-select"
                     value={planInput.primaryGoal}
@@ -1439,7 +1413,6 @@ export default function FitnessHub() {
                   </select>
                 </label>
                 <label className="fit2-label">
-                  Secondary goal
                   <select
                     className="fit2-select"
                     value={planInput.secondaryGoal}
@@ -1451,7 +1424,6 @@ export default function FitnessHub() {
                   </select>
                 </label>
                 <label className="fit2-label">
-                  Days per week
                   <input
                     className="fit2-input"
                     type="number"
@@ -1462,7 +1434,6 @@ export default function FitnessHub() {
                   />
                 </label>
                 <label className="fit2-label">
-                  Session length (min)
                   <input
                     className="fit2-input"
                     type="number"
@@ -1489,7 +1460,6 @@ export default function FitnessHub() {
               {showAdvancedGeneratorFields ? (
                 <div className="fit2-genGrid" style={{ marginTop: 10 }}>
                   <label className="fit2-label">
-                    Experience level
                     <select
                       className="fit2-select"
                       value={planInput.level}
@@ -1500,7 +1470,6 @@ export default function FitnessHub() {
                     </select>
                   </label>
                   <label className="fit2-label">
-                    Training style
                     <select
                       className="fit2-select"
                       value={planInput.preferredStyle}
@@ -1512,7 +1481,6 @@ export default function FitnessHub() {
                     </select>
                   </label>
                   <label className="fit2-label">
-                    Training location
                     <select
                       className="fit2-select"
                       value={planInput.trainingLocation}
@@ -1617,7 +1585,6 @@ export default function FitnessHub() {
                   />
                   <label className="fit2-saveToggle">
                     <input type="checkbox" checked={setAsCurrentOnSave} onChange={(e) => setSetAsCurrentOnSave(e.target.checked)} />
-                    Set as current plan
                   </label>
                   <button className="fit2-primarywide fit2-primarywide--premium" type="button" onClick={saveGeneratedAsTemplate}>Add to My Templates</button>
                 </div>
@@ -1680,7 +1647,6 @@ export default function FitnessHub() {
                               removeTemplate(tpl.id);
                             }}
                           >
-                            Delete
                           </button>
                         </>
                       ) : null}
@@ -1692,7 +1658,6 @@ export default function FitnessHub() {
                   </div>
                   <div className="fit2-templatemeta">
                     <span className="fit2-dot" />
-                    Tap to start
                   </div>
                 </div>
               ))}
@@ -1824,7 +1789,6 @@ export default function FitnessHub() {
                     onClick={resumeTimer}
                     type="button"
                   >
-                    Resume
                   </button>
                 ) : (
                   <button
@@ -1832,7 +1796,6 @@ export default function FitnessHub() {
                     onClick={pauseTimer}
                     type="button"
                   >
-                    Pause
                   </button>
                 )}
                 <button
@@ -1840,7 +1803,6 @@ export default function FitnessHub() {
                   onClick={resetTimer}
                   type="button"
                 >
-                  Reset
                 </button>
               </div>
             </div>
@@ -1850,7 +1812,6 @@ export default function FitnessHub() {
               onClick={finishWorkout}
               type="button"
             >
-              Finish
             </button>
           </div>
 
@@ -1879,7 +1840,6 @@ export default function FitnessHub() {
               onClick={() => setPickerOpen(true)}
               type="button"
             >
-              Add Exercises
             </button>
 
             <button
@@ -1887,7 +1847,6 @@ export default function FitnessHub() {
               onClick={cancelWorkout}
               type="button"
             >
-              Cancel Workout
             </button>
           </div>
 
@@ -1940,14 +1899,12 @@ export default function FitnessHub() {
                         className={`fit2-modebtn ${ex.mode === "reps" ? "active" : ""}`}
                         onClick={() => setExerciseMode(exIndex, "reps")}
                       >
-                        Reps
                       </button>
                       <button
                         type="button"
                         className={`fit2-modebtn ${ex.mode === "time" ? "active" : ""}`}
                         onClick={() => setExerciseMode(exIndex, "time")}
                       >
-                        Time
                       </button>
                     </div>
                   </div>
@@ -2233,7 +2190,6 @@ export default function FitnessHub() {
                     setScreen("history");
                   }}
                 >
-                  Delete workout
                 </button>
               </div>
             </div>
@@ -2309,7 +2265,6 @@ export default function FitnessHub() {
                 type="button"
                 onClick={addCardio}
               >
-                Save Cardio
               </button>
             </div>
           </div>
@@ -2380,7 +2335,6 @@ export default function FitnessHub() {
                 type="button"
                 onClick={saveSteps}
               >
-                Save Steps
               </button>
             </div>
           </div>
@@ -2452,7 +2406,6 @@ export default function FitnessHub() {
               </button>
               <div className="fit2-modaltitle">Create Template</div>
               <button className="fit2-pillbtn" onClick={saveTemplate} type="button">
-                Save
               </button>
             </div>
 
@@ -2495,7 +2448,6 @@ export default function FitnessHub() {
                 onClick={() => setPickerOpen(false)}
                 type="button"
               >
-                Done
               </button>
             </div>
 
@@ -2564,7 +2516,6 @@ export default function FitnessHub() {
                         }
                         type="button"
                       >
-                        Use last
                       </button>
                     ) : null}
                   </div>

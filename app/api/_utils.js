@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sleep } from "../utils/helpers.js";
 
 function randomId() {
   try {
@@ -18,10 +19,6 @@ export async function safeJson(res) {
   } catch {
     return null;
   }
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000, retries = 1) {

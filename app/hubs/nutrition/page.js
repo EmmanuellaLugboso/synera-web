@@ -26,16 +26,10 @@ import {
   toMealTemplatePayload,
 } from "./mealGenerator";
 
-/* ------------------------
-   utils
------------------------- */
 function round1(n) {
   return Math.round(n * 10) / 10;
 }
 
-/* =========================
-   BODY & CALORIE ENGINE
-========================= */
 function calcBMI(weightKg, heightCm) {
   if (!weightKg || !heightCm) return null;
   const h = heightCm / 100;
@@ -91,9 +85,6 @@ function adjustForGoal(maintenance, goal) {
   }
 }
 
-/* ------------------------
-   MealDB helpers
------------------------- */
 function mealDBIngredients(meal) {
   // MealDB returns strIngredient1..20 + strMeasure1..20
   const out = [];
@@ -122,9 +113,6 @@ function normalizeRecipeCard(recipe) {
   };
 }
 
-/* ------------------------
-   UI components
------------------------- */
 function Section({ title, sub, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -259,9 +247,6 @@ export default function Page() {
   const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
 
-  /* ------------------------
-     ALL hooks must be here (no early return before hooks)
-  ------------------------ */
   const [tab, setTab] = useState("tracker"); // tracker | recipes | supplements
   const [scope, setScope] = useState("day"); // day | week
   const [selectedDate, setSelectedDate] = useState(todayISO());
@@ -283,9 +268,6 @@ export default function Page() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ------------------------
-     HYDRATION
-  ------------------------ */
   const [water, setWater] = useState("0");
   const [goal, setGoal] = useState("3");
 
@@ -326,9 +308,6 @@ export default function Page() {
     setWater("0");
   }
 
-  /* ------------------------
-     TRACKER (Food logs)
-  ------------------------ */
   const [meal, setMeal] = useState("breakfast");
 
   // log food modal
@@ -548,9 +527,6 @@ export default function Page() {
     );
   }
 
-  /* ------------------------
-     SMART calories
-  ------------------------ */
   const unit = data?.weightUnit || "kg";
   const weightKg =
     unit === "lbs"
@@ -631,11 +607,6 @@ export default function Page() {
     updateMany({ calorieGoal: val });
   }
 
-  /* ------------------------
-     RECIPES (MealDB)
-     Option 2: show recipe details in modal, no external links,
-     and let user estimate macros per serving (saved per recipe).
-  ------------------------ */
   const [recipeQuery, setRecipeQuery] = useState("");
   const [recipeResults, setRecipeResults] = useState([]);
   const [recipeLoading, setRecipeLoading] = useState(false);
@@ -904,9 +875,6 @@ export default function Page() {
     updateMany({ mealTemplates: [...mealTemplates, duplicated] });
   }
 
-  /* ------------------------
-     SUPPLEMENTS (back)
-  ------------------------ */
   const supplementList = useMemo(() => {
     return Array.isArray(data?.supplementSchedule)
       ? data.supplementSchedule
@@ -1019,15 +987,9 @@ export default function Page() {
     });
   }
 
-  /* ------------------------
-     GUARDS (after hooks — no hook-order crash)
-  ------------------------ */
   const showLoading = !ready;
   const showLoggedOut = ready && !user;
 
-  /* ------------------------
-     RENDER
-  ------------------------ */
   return (
     <HubShell
       className="nutri-page"
@@ -1078,21 +1040,18 @@ export default function Page() {
                   onClick={() => setTab("tracker")}
                   type="button"
                 >
-                  Tracker
                 </button>
                 <button
                   className={`nutri-tab ${tab === "recipes" ? "active" : ""}`}
                   onClick={() => setTab("recipes")}
                   type="button"
                 >
-                  Recipes
                 </button>
                 <button
                   className={`nutri-tab ${tab === "supplements" ? "active" : ""}`}
                   onClick={() => setTab("supplements")}
                   type="button"
                 >
-                  Supplements
                 </button>
               </HubTabs>
             </div>
@@ -1117,14 +1076,12 @@ export default function Page() {
                       type="button"
                       onClick={() => setScope("day")}
                     >
-                      Day
                     </button>
                     <button
                       className={`nutri-tab ${scope === "week" ? "active" : ""}`}
                       type="button"
                       onClick={() => setScope("week")}
                     >
-                      Last 7 days
                     </button>
                     <input
                       className="nutri-input nutri-dateInput"
@@ -1194,14 +1151,12 @@ export default function Page() {
                     type="button"
                     onClick={() => setTab("recipes")}
                   >
-                    Browse Recipes
                   </button>
                   <button
                     className="nutri-pillBtn"
                     type="button"
                     onClick={() => setTab("supplements")}
                   >
-                    Supplements
                   </button>
                 </div>
 
@@ -1282,7 +1237,6 @@ export default function Page() {
                         !maintenance ? "Add height/weight/DOB first" : "Reset"
                       }
                     >
-                      Reset
                     </button>
                   </div>
 
@@ -1300,7 +1254,6 @@ export default function Page() {
                       type="button"
                       onClick={saveCalorieGoal}
                     >
-                      Save
                     </button>
                   </div>
 
@@ -1347,7 +1300,6 @@ export default function Page() {
                               {mealKcal} kcal
                             </span>
                             <span className="nutri-mealHint">
-                              Swipe left to delete
                             </span>
                           </div>
 
@@ -1473,14 +1425,12 @@ export default function Page() {
                       onClick={saveHydration}
                       type="button"
                     >
-                      Save
                     </button>
                     <button
                       className="nutri-ghost"
                       onClick={resetHydration}
                       type="button"
                     >
-                      Reset
                     </button>
                   </div>
                 </Section>
@@ -1517,7 +1467,6 @@ export default function Page() {
                         placeholder="Search foods (e.g. banana, oats, chicken breast)"
                       />
                       <button className="nutri-pillBtn" type="button" onClick={searchFoodDatabase}>
-                        Search
                       </button>
                     </div>
                     {foodSearchLoading ? <div className="nutri-tiny" style={{ marginTop: 8 }}>Searching…</div> : null}
@@ -1525,7 +1474,6 @@ export default function Page() {
                       <div className="nutri-tiny nutri-over" style={{ marginTop: 8 }}>
                         {foodSearchError}
                         <button className="nutri-pillBtn" type="button" onClick={searchFoodDatabase} style={{ marginLeft: 8 }}>
-                          Retry
                         </button>
                       </div>
                     ) : null}
@@ -1575,7 +1523,6 @@ export default function Page() {
 
                     <div className="nutri-field">
                       <label className="nutri-fieldLabel">
-                        Calories (per serving)
                       </label>
                       <input
                         className="nutri-input"
@@ -1626,14 +1573,12 @@ export default function Page() {
                       onClick={addQuickFoodManual}
                       type="button"
                     >
-                      Add
                     </button>
                     <button
                       className="nutri-ghost"
                       onClick={() => setLogFoodOpen(false)}
                       type="button"
                     >
-                      Close
                     </button>
                   </div>
                 </Modal>
@@ -1866,7 +1811,6 @@ export default function Page() {
                           type="button"
                           onClick={() => setRecipeRetryKey((k) => k + 1)}
                         >
-                          Retry
                         </button>
                       </div>
                     </div>
@@ -1924,7 +1868,6 @@ export default function Page() {
                           onClick={() => openRecipeModal({ id: selectedRecipeId })}
                           disabled={!selectedRecipeId}
                         >
-                          Retry
                         </button>
                       </div>
                     </div>
@@ -1983,12 +1926,10 @@ export default function Page() {
 
                         <div className="nutri-block">
                           <div className="nutri-blockTitle">
-                            Estimate macros (per serving)
                           </div>
                           <div className="nutri-grid2">
                             <div className="nutri-field">
                               <label className="nutri-fieldLabel">
-                                Calories
                               </label>
                               <input
                                 className="nutri-input"
@@ -2000,7 +1941,6 @@ export default function Page() {
                             </div>
                             <div className="nutri-field">
                               <label className="nutri-fieldLabel">
-                                Protein (g)
                               </label>
                               <input
                                 className="nutri-input"
@@ -2012,7 +1952,6 @@ export default function Page() {
                             </div>
                             <div className="nutri-field">
                               <label className="nutri-fieldLabel">
-                                Carbs (g)
                               </label>
                               <input
                                 className="nutri-input"
@@ -2024,7 +1963,6 @@ export default function Page() {
                             </div>
                             <div className="nutri-field">
                               <label className="nutri-fieldLabel">
-                                Fat (g)
                               </label>
                               <input
                                 className="nutri-input"
@@ -2038,7 +1976,6 @@ export default function Page() {
 
                           <div className="nutri-row" style={{ marginTop: 10 }}>
                             <div className="nutri-inlineLabel">
-                              Servings to log
                             </div>
                             <input
                               className="nutri-miniInput"
@@ -2065,14 +2002,12 @@ export default function Page() {
                               type="button"
                               onClick={saveRecipeEstimate}
                             >
-                              Save estimate
                             </button>
                             <button
                               className="nutri-ghost"
                               type="button"
                               onClick={() => setRecipeOpen(false)}
                             >
-                              Close
                             </button>
                           </div>
 
@@ -2270,7 +2205,6 @@ export default function Page() {
                       onClick={addSupplement}
                       type="button"
                     >
-                      Add to my stack
                     </button>
                     {selectedSuppInfo ? (
                       <button
@@ -2281,7 +2215,6 @@ export default function Page() {
                           setSuppDose("");
                         }}
                       >
-                        Clear
                       </button>
                     ) : null}
                   </div>
@@ -2371,7 +2304,6 @@ export default function Page() {
                           type="button"
                           onClick={() => setSuppRetryKey((k) => k + 1)}
                         >
-                          Retry
                         </button>
                       </div>
                     </div>
