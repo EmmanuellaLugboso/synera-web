@@ -23,7 +23,7 @@ for (const file of hubPages) {
   const src = fs.readFileSync(file, 'utf8');
   if (!src.includes('components/hub/HubShell')) {
     failed = true;
-    console.error(`[hub-consistency] ${file} must import HubShell.`);
+    process.stderr.write(`[hub-consistency] ${file} must import HubShell.\n`);
   }
 }
 
@@ -31,7 +31,7 @@ for (const file of cssFiles) {
   const src = fs.readFileSync(file, 'utf8');
   if (/^\s*body\s*\{[\s\S]*?background\s*:/m.test(src)) {
     failed = true;
-    console.error(`[hub-consistency] ${file} overrides body background; move to HubShell.`);
+    process.stderr.write(`[hub-consistency] ${file} overrides body background; move to HubShell.\n`);
   }
 }
 
@@ -39,4 +39,4 @@ if (failed) {
   process.exit(1);
 }
 
-console.log('hub consistency checks passed');
+process.stdout.write('hub consistency checks passed\n');

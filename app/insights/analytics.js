@@ -1,8 +1,5 @@
-export function clampNumber(v) {
-  const n = Number(v);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
+export { clampNumber } from "../utils/helpers.js";
+import { clampNumber } from "../utils/helpers.js";
 
 export function clampPercent(v) {
   return Math.max(0, Math.min(100, Math.round(v)));
@@ -377,4 +374,3 @@ export function buildCoachSummary(pillars, days, goals) {
     action: microPlan[0] || "Today: lock one practical action.",
   };
 }
-

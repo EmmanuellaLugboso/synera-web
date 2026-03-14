@@ -15,9 +15,6 @@ import { todayISO, startOfWeekISO } from "../../utils/date";
 import { uid } from "../../utils/id";
 import { clampNumber } from "../../utils/number";
 
-/* ------------------------
-   Helpers
------------------------- */
 function fmtDateLabel(iso) {
   // "2026-02-14" -> "Sat 14 Feb"
   try {
@@ -36,9 +33,6 @@ function countDone(arr) {
   return (arr || []).filter((x) => !!x?.done).length;
 }
 
-/* ------------------------
-   Discipline scoring
------------------------- */
 function scoreClamp(n) {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
@@ -86,9 +80,6 @@ function calcDisciplineScore({
   );
 }
 
-/* ------------------------
-   Component
------------------------- */
 export default function Page() {
   const router = useRouter();
   const { data, updateMany, ready, user } = useOnboarding();
@@ -102,9 +93,6 @@ export default function Page() {
   const dateISO = todayISO();
   const weekISO = startOfWeekISO(new Date());
 
-  /* ------------------------
-     Data guards
-  ------------------------ */
   const lifeAdminTasks = useMemo(
     () => (Array.isArray(data.lifeAdminTasks) ? data.lifeAdminTasks : []),
     [data.lifeAdminTasks]
@@ -140,9 +128,6 @@ export default function Page() {
     [data.routineLogs]
   );
 
-  /* =========================
-     1) LIFE ADMIN
-  ========================= */
   const [taskTitle, setTaskTitle] = useState("");
   const [taskCategory, setTaskCategory] = useState("College");
   const [taskPriority, setTaskPriority] = useState("Medium");
@@ -240,9 +225,6 @@ export default function Page() {
     updateMany({ lifeAdminTasks: lifeAdminTasks.filter((t) => t.id !== id) });
   }
 
-  /* =========================
-     2) GOALS & VISION
-  ========================= */
   const [weeklyFocus, setWeeklyFocus] = useState(data.weeklyFocus || "");
 
   const [goalTitle, setGoalTitle] = useState("");
@@ -288,9 +270,6 @@ export default function Page() {
     updateMany({ goals90: goals90.filter((g) => g.id !== id) });
   }
 
-  /* =========================
-     3) HABITS
-  ========================= */
   const [habitName, setHabitName] = useState("");
   const [habitCategory, setHabitCategory] = useState("Health");
   const [habitType, setHabitType] = useState("daily"); // daily | weekly
@@ -396,9 +375,6 @@ export default function Page() {
     }).length;
   }
 
-  /* =========================
-     4) DISCIPLINE
-  ========================= */
   const todaysNutriLogged = useMemo(() => {
     // If your Nutrition hub logs food into data.foodLogs, treat "anything today" as logged
     const logs = Array.isArray(data.foodLogs) ? data.foodLogs : [];
@@ -461,9 +437,6 @@ export default function Page() {
       .slice(0, 14);
   }, [disciplineDays]);
 
-  /* =========================
-     5) ROUTINES
-  ========================= */
   const [routineName, setRoutineName] = useState("");
   const [routineCadence, setRoutineCadence] = useState("daily"); // daily | weekly
   const [routineItemText, setRoutineItemText] = useState("");
@@ -561,9 +534,6 @@ export default function Page() {
     return { total, done, pct };
   }
 
-  /* =========================
-     Header summary
-  ========================= */
   const headerSummary = useMemo(() => {
     const activeGoals = goals90.filter((g) => (g?.status || "active") === "active").length;
     const todaysHabitChecks = habitLogs.filter((l) => l.dateISO === dateISO && l.value === 1).length;
@@ -637,7 +607,6 @@ export default function Page() {
           onClick={() => setTab("admin")}
           type="button"
         >
-          Admin
           <span className="life-tabmeta">{headerSummary.admin}</span>
         </button>
         <button
@@ -645,7 +614,6 @@ export default function Page() {
           onClick={() => setTab("goals")}
           type="button"
         >
-          Goals
           <span className="life-tabmeta">{headerSummary.goals}</span>
         </button>
         <button
@@ -653,7 +621,6 @@ export default function Page() {
           onClick={() => setTab("habits")}
           type="button"
         >
-          Habits
           <span className="life-tabmeta">{headerSummary.habits}</span>
         </button>
         <button
@@ -661,7 +628,6 @@ export default function Page() {
           onClick={() => setTab("discipline")}
           type="button"
         >
-          Score
           <span className="life-tabmeta">{headerSummary.discipline}</span>
         </button>
         <button
@@ -669,7 +635,6 @@ export default function Page() {
           onClick={() => setTab("routines")}
           type="button"
         >
-          Routines
           <span className="life-tabmeta">{headerSummary.routines}</span>
         </button>
       </HubTabs>
@@ -777,7 +742,6 @@ export default function Page() {
 
             <div className="btn-row">
               <button className="primary-btn" onClick={addTask} type="button">
-                Add
               </button>
               <button className="ghost-btn life-syra-premium-btn" onClick={improveTaskWithSyra} type="button">
                 {syraTaskLoading ? "SYRA refining…" : "Improve with SYRA"}
@@ -868,7 +832,6 @@ export default function Page() {
                 placeholder="e.g. Finish project MVP + demo-ready UI"
               />
               <button className="primary-btn" onClick={saveWeeklyFocus} type="button">
-                Save
               </button>
             </div>
           </div>
@@ -936,7 +899,6 @@ export default function Page() {
 
             <div className="btn-row">
               <button className="primary-btn" onClick={addGoal} type="button">
-                Add
               </button>
             </div>
           </div>
@@ -1019,7 +981,6 @@ export default function Page() {
                             onClick={() => updateGoal(g.id, { status: "done", progress: 100 })}
                             type="button"
                           >
-                            Mark done
                           </button>
                         </div>
                       </div>
@@ -1094,7 +1055,6 @@ export default function Page() {
 
             <div className="btn-row">
               <button className="primary-btn" onClick={addHabit} type="button">
-                Add
               </button>
             </div>
           </div>
@@ -1284,7 +1244,6 @@ export default function Page() {
 
               <div className="btn-row" style={{ marginTop: 10 }}>
                 <button className="primary-btn" onClick={saveDisciplineDay} type="button">
-                  Save today
                 </button>
               </div>
             </div>
@@ -1358,7 +1317,6 @@ export default function Page() {
 
             <div className="btn-row">
               <button className="primary-btn" onClick={addRoutine} type="button">
-                Create routine
               </button>
             </div>
 
@@ -1443,7 +1401,6 @@ export default function Page() {
                         title="Estimate minutes"
                       />
                       <button className="mini-btn" onClick={addRoutineItem} type="button">
-                        Add
                       </button>
                     </div>
 

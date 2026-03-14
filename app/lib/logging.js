@@ -18,17 +18,9 @@ export function logEvent(level, event, payload = {}) {
     ...sanitize(payload),
   };
 
-  if (level === "error") {
-    console.error(entry);
-    return;
+  if (process.env.NODE_ENV !== "production") {
+    process.stderr.write(`${JSON.stringify(entry)}\n`);
   }
-
-  if (level === "warn") {
-    console.warn(entry);
-    return;
-  }
-
-  console.info(entry);
 }
 
 export function logError(event, error, payload = {}) {
