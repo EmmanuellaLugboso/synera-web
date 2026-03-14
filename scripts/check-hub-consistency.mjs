@@ -39,4 +39,3 @@ if (failed) {
   process.exit(1);
 }
 
-console.log('hub consistency checks passed');
