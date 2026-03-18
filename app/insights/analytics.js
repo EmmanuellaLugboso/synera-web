@@ -5,13 +5,10 @@ export function clampPercent(v) {
   return Math.max(0, Math.min(100, Math.round(v)));
 }
 
-export function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
 
-export function getLastNDaysISO(n) {
+export function getLastNDaysISO(n, endDate = new Date()) {
   const out = [];
-  const now = new Date();
+  const now = new Date(endDate);
   for (let i = 0; i < n; i += 1) {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
@@ -146,7 +143,12 @@ function pillarStats(days, selector) {
 }
 
 export function normalizeDailyTimeline(fetched, n = 30) {
-  const wanted = getLastNDaysISO(n).reverse();
+  const latestFetched = fetched
+    .map((d) => String(d?.dateISO || ""))
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  const wanted = getLastNDaysISO(n, latestFetched || new Date()).reverse();
   const byDate = new Map(fetched.map((d) => [d.dateISO, d]));
 
   return wanted.map((dateISO) => {

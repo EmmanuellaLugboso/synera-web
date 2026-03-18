@@ -29,72 +29,46 @@ const OnboardingContext = createContext({
 const STORAGE_KEY = "synera_onboarding_v1";
 
 const DEFAULT_DATA = {
-  // BASIC PROFILE
   name: "",
   dob: "",
   height: "",
   heightUnit: "cm",
   weight: "",
   weightUnit: "kg",
-
-  // FITNESS (from onboarding)
   activity: "",
   experience: "",
   focus: [],
-
-  // GOALS / NUTRITION (from onboarding)
   goals: [],
   foodGoals: [],
   eatingStyle: "",
   mealFrequency: "",
   eatingChallenges: [],
   restrictionLevel: "",
-
-  // ALLERGIES
   allergies: [],
   otherAllergy: "",
-
-  // SUPPLEMENTS (from onboarding)
   supplements: [],
   otherSupplement: "",
-
-  // WORKOUT (from onboarding)
   workoutTypes: [],
   workoutDays: "",
   workoutEnvironment: [],
   workoutTime: [],
-
-  // DASHBOARD RING VALUES
   moveProgress: 0,
   hydrationProgress: 0,
   sleepProgress: 0,
-
-  // FITNESS APP STORAGE
   workouts: [],
 
-  //Sex
-  sex: "female", // "female" | "male" | "unspecified"
+  sex: "female",
 
-
-  // Steps
   stepGoal: 8000,
   stepsLog: [],
-
-  // Cardio logs
   cardioLogs: [],
-
-  // NUTRITION
   calorieGoal: 1800,
   macroGoals: { proteinG: 120, carbsG: 200, fatG: 60 },
   foodLogs: [],
   savedRecipes: [],
-
-  // HYDRATION
   waterLitres: 0,
   waterGoalLitres: 3,
   waterIntake: "0L",
-
-  // SUPPLEMENTS (hub schedule)
   supplementSchedule: [],
 };
 
