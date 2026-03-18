@@ -14,7 +14,7 @@ import { serverTimestamp } from "firebase/firestore";
 import { auth } from "../firebase/config";
 import { getUserProfile, mergeUserProfile, sanitizeForFirestore } from "../services/userService";
 import { logError } from "../lib/logging";
-import { mergeOnboardingData, normalizeOnboardingData, safeObject } from "./onboardingData";
+import { mergeOnboardingData, normalizeOnboardingData } from "./onboardingData";
 
 const OnboardingContext = createContext({
   data: {},
@@ -196,6 +196,7 @@ export function OnboardingProvider({ children }) {
     setData(DEFAULT_DATA);
     lastSavedJSON.current = "";
   }, []);
+
   useEffect(() => {
     if (!user || (isE2EMode && user?.uid === "e2e-user")) return;
 
@@ -206,7 +207,8 @@ export function OnboardingProvider({ children }) {
           updatedAt: serverTimestamp(),
           data: sanitizeForFirestore(normalizeOnboardingData(data)),
         });
-      } catch {}
+      } catch {
+      }
     };
 
     const onVisibility = () => {

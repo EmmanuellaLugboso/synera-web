@@ -1,5 +1,9 @@
-import { clampNumber, clampPercent } from "../utils/number.js";
-export { clampNumber };
+export { clampNumber } from "../utils/helpers.js";
+import { clampNumber } from "../utils/helpers.js";
+
+export function clampPercent(v) {
+  return Math.max(0, Math.min(100, Math.round(v)));
+}
 
 
 export function getLastNDaysISO(n, endDate = new Date()) {
@@ -372,4 +376,3 @@ export function buildCoachSummary(pillars, days, goals) {
     action: microPlan[0] || "Today: lock one practical action.",
   };
 }
-

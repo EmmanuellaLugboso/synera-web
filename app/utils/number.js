@@ -1,8 +1,6 @@
-export function clampNumber(value) {
-  const n = Number(value);
-  if (Number.isNaN(n) || n < 0) return 0;
-  return n;
-}
+import { clampNumber } from "./helpers.js";
+
+export { clampNumber };
 
 export function pct(val, goal) {
   const v = clampNumber(val);

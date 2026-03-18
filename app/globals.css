@@ -396,10 +396,6 @@ textarea {
   color: white;
   cursor: pointer;
 }
-/* =========================
-   FITNESS HUB (Strong/Fitbod-ish)
-   scoped to .fitness-*
-========================= */
 
 .fitness-page {
   max-width: 980px;
@@ -778,10 +774,6 @@ textarea {
   }
 }
 
-/* =========================
-   FITNESS HUB (Synera / Strong-like)
-   scoped: .fit2-*
-========================= */
 
 .fit2-page {
   max-width: 980px;
@@ -1545,9 +1537,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* =========================
-   Cross-page UI consistency layer
-   ========================= */
 :root {
   --space-page: var(--s-5);
   --space-card: var(--s-4);

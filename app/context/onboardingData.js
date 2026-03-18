@@ -1,6 +1,4 @@
-export function safeObject(x) {
-  return x && typeof x === "object" && !Array.isArray(x) ? x : null;
-}
+import { safeObject } from "../utils/helpers.js";
 
 function parseLitres(value) {
   if (value == null) return null;

@@ -1,4 +1,4 @@
-import { sleep } from "../utils/async";
+import { sleep } from "../utils/helpers.js";
 
 async function safeParseJson(res) {
   try {

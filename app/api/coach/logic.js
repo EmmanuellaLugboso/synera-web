@@ -1,12 +1,14 @@
-import { clamp, progress } from "../../utils/number.js";
-
-export { clamp, progress };
+import { clampNumber, progressPercent } from "../../utils/helpers.js";
 
 export const MAX_MESSAGE_CHARS = 600;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 25;
 
 const requestCounts = new Map();
+
+export const clamp = clampNumber;
+
+export const progress = progressPercent;
 
 export function topPriorities(context) {
   const deficits = [

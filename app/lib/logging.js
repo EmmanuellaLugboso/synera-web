@@ -18,13 +18,8 @@ export function logEvent(level, event, payload = {}) {
     ...sanitize(payload),
   };
 
-  const line = `${JSON.stringify(entry)}\n`;
-  if (typeof process !== "undefined" && process?.stdout) {
-    if (level === "error" && process?.stderr) {
-      process.stderr.write(line);
-      return;
-    }
-    process.stdout.write(line);
+  if (process.env.NODE_ENV !== "production") {
+    process.stderr.write(`${JSON.stringify(entry)}\n`);
   }
 }
 

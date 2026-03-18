@@ -1,9 +1,9 @@
-import { clamp, progress } from "../../utils/number.js";
-
-export { clamp };
+import { clampNumber, progressPercent } from "../../utils/helpers.js";
 
 export const MAX_MESSAGE_CHARS = 700;
 
+export const clamp = clampNumber;
+const progress = progressPercent;
 
 function titleCase(value = "") {
   return String(value)

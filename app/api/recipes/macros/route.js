@@ -7,7 +7,7 @@ import {
   mapUpstreamError,
   safeJson,
 } from "../../_utils";
-import { clampNumber } from "../../../utils/number";
+import { clampNumber } from "../../../utils/helpers.js";
 
 const USDA_KEY = process.env.USDA_API_KEY;
 
