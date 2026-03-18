@@ -18,17 +18,14 @@ export function logEvent(level, event, payload = {}) {
     ...sanitize(payload),
   };
 
-  if (level === "error") {
-    console.error(entry);
-    return;
+  const line = `${JSON.stringify(entry)}\n`;
+  if (typeof process !== "undefined" && process?.stdout) {
+    if (level === "error" && process?.stderr) {
+      process.stderr.write(line);
+      return;
+    }
+    process.stdout.write(line);
   }
-
-  if (level === "warn") {
-    console.warn(entry);
-    return;
-  }
-
-  console.info(entry);
 }
 
 export function logError(event, error, payload = {}) {

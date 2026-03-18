@@ -1,4 +1,4 @@
-function safeObject(x) {
+export function safeObject(x) {
   return x && typeof x === "object" && !Array.isArray(x) ? x : null;
 }
 
